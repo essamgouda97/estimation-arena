@@ -1,5 +1,5 @@
 {
- "built_at": "2026-11-03T01:34:59+00:00",
+ "built_at": "2026-11-03T03:06:53+00:00",
  "anchor": "random",
  "anchor_rating": 400.0,
  "ladder": {
@@ -12,7 +12,7 @@
  "rows": [
   {
    "name": "Hybrid (B-Tig)",
-   "author": "estimation-engine",
+   "author": "Yosif Elessawi",
    "kind": "anchor",
    "description": "hybrid",
    "elo": 5146.101115211089,
@@ -22,7 +22,7 @@
   },
   {
    "name": "RL v2",
-   "author": "estimation-engine",
+   "author": "Yosif Elessawi",
    "kind": "anchor",
    "description": "rl:checkpoint=runs/m4-rules-v2/checkpoints/final.pt",
    "elo": 4827.415763286275,
@@ -32,7 +32,7 @@
   },
   {
    "name": "PIMC",
-   "author": "estimation-engine",
+   "author": "Yosif Elessawi",
    "kind": "anchor",
    "description": "pimc",
    "elo": 4607.5593357309945,
@@ -42,7 +42,7 @@
   },
   {
    "name": "Search bot",
-   "author": "estimation-engine",
+   "author": "Yosif Elessawi",
    "kind": "anchor",
    "description": "search",
    "elo": 4584.951391618708,
@@ -156,7 +156,7 @@
   },
   {
    "name": "Heuristic",
-   "author": "estimation-engine",
+   "author": "Yosif Elessawi",
    "kind": "anchor",
    "description": "heuristic",
    "elo": 3403.686492042002,
@@ -256,7 +256,7 @@
   },
   {
    "name": "Random",
-   "author": "estimation-engine",
+   "author": "Yosif Elessawi",
    "kind": "anchor",
    "description": "random",
    "elo": 400.0,

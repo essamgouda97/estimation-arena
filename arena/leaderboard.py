@@ -77,7 +77,7 @@ def build() -> dict[str, Any]:
         rows.append(
             {
                 "name": a["name"],
-                "author": "estimation-engine",
+                "author": a.get("author", "Yosif Elessawi"),
                 "kind": "anchor",
                 "description": a["spec"],
                 "elo": ratings.get(a["spec"]),

@@ -1,8 +1,8 @@
 [
- {"name": "Random", "spec": "random"},
- {"name": "Heuristic", "spec": "heuristic"},
- {"name": "PIMC", "spec": "pimc"},
- {"name": "Search bot", "spec": "search"},
- {"name": "RL v2", "spec": "rl:checkpoint=runs/m4-rules-v2/checkpoints/final.pt", "needs": "runs/m4-rules-v2/checkpoints/final.pt"},
- {"name": "Hybrid (B-Tig)", "spec": "hybrid", "needs": "runs/m4-rules-v2/checkpoints/final.pt"}
+ {"name": "Random", "author": "Yosif Elessawi", "spec": "random"},
+ {"name": "Heuristic", "author": "Yosif Elessawi", "spec": "heuristic"},
+ {"name": "PIMC", "author": "Yosif Elessawi", "spec": "pimc"},
+ {"name": "Search bot", "author": "Yosif Elessawi", "spec": "search"},
+ {"name": "RL v2", "author": "Yosif Elessawi", "spec": "rl:checkpoint=runs/m4-rules-v2/checkpoints/final.pt", "needs": "runs/m4-rules-v2/checkpoints/final.pt"},
+ {"name": "Hybrid (B-Tig)", "author": "Yosif Elessawi", "spec": "hybrid", "needs": "runs/m4-rules-v2/checkpoints/final.pt"}
 ]
