@@ -1,0 +1,8 @@
+{
+  "name": "highcard-wire",
+  "author": "Essam",
+  "kind": "wire",
+  "command": ["python3", "bot.py"],
+  "description": "Mirror of lowcard-wire: never bids, estimates the minimum, plays the highest legal card. Submitted through a pull request to prove the smoke flow.",
+  "timeout_s": 5
+}
