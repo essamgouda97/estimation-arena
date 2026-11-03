@@ -8,7 +8,12 @@ from train.imitate import main as imitate
 from train.record import record_chunk
 
 
-def test_record_train_play(tmp_path):
+def test_record_train_play(tmp_path, monkeypatch):
+    # A smoke test of the pipeline, not of the GPU: torch can see a GPU it cannot run on
+    # (the home server's Pascal card with a newer torch), so keep this on the CPU.
+    import torch
+
+    monkeypatch.setattr(torch.cuda, "is_available", lambda: False)
     games, rows = record_chunk(range(2), "pimc:samples=2", None, 1.0, tmp_path)
     assert games == 2 and rows > 500
     shard = np.load(next(tmp_path.glob("*.npz")))
