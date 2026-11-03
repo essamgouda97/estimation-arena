@@ -127,7 +127,7 @@ def render(board: dict[str, Any]) -> str:
         elo_text = f"{elo:,.0f}" if elo is not None else "unrated"
         if r["anchor"]:
             name = f'{e(r["name"])} <span class="tag">anchor</span>'
-            meta = f'<span class="desc">{e(r["description"])}</span>'
+            meta = f'{e(r["author"])}<br><span class="desc">{e(r["description"])}</span>'
             detail = ""
         else:
             name = f'<strong>{e(r["name"])}</strong> <span class="tag">{e(r["kind"])}</span>'
