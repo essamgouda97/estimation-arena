@@ -3,6 +3,6 @@
   "author": "Essam",
   "kind": "python",
   "entry": "bot.py:make",
-  "description": "Rung 1: HeuristicBot that shades its estimate by how many tricks the table has already claimed, with a calibrated shift and risk aversion picked by a sweep.",
+  "description": "Rung 1: HeuristicBot that stops chasing tricks once its unbeatable trumps cover what it still needs. Also sweeps table-pressure estimates, which did not help.",
   "timeout_s": 5
 }

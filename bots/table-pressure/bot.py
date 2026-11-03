@@ -28,7 +28,7 @@ from estimation.engine import SANS, Observation, RulesConfig, estimate_action, p
 from estimation.engine.actions import is_bid, is_estimate
 from estimation.engine.cards import FULL_DECK, SUIT_MASKS
 
-DEFAULTS = {"shift": 0.0, "pressure": 0.0, "risk": 0.25, "sure": 0.0}
+DEFAULTS = {"shift": 0.0, "pressure": 0.0, "risk": 0.25, "sure": 1.0}
 FAIR_SHARE = 13 / 4
 
 
