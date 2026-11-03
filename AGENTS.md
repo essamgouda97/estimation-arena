@@ -33,6 +33,8 @@ root so `runs/m4-rules-v2/checkpoints/final.pt` exists. It is git-ignored; keep 
 | `arena/leaderboard.py` | Elo fit, renders `site/` |
 | `anchors.json` | Frozen engine bots everyone is rated against |
 | `docs/training-design.md` | How self-play is made GPU-bound |
+| `train/` | Imitation (`record`, `imitate`) and self-play RL (`rl_cards`, `rl_bid`); see its README |
+| `experiments/` | Write-ups per rung, the TensorBoard board, diagnostic bots that are never rated |
 
 ## Adding or changing a bot
 
