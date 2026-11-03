@@ -1,5 +1,5 @@
 {
- "built_at": "2026-11-03T12:39:27+00:00",
+ "built_at": "2026-11-03T21:50:02+00:00",
  "anchor": "random",
  "anchor_rating": 400.0,
  "ladder": {
@@ -8,7 +8,7 @@
   "seed": 0,
   "imported_at": "2026-11-02T19:24:43+00:00"
  },
- "submissions": 8,
+ "submissions": 9,
  "rows": [
   {
    "name": "Hybrid (B-Tig)",
@@ -18,19 +18,27 @@
    "key": "hybrid",
    "method": [
     [
-     "learned nets",
+     "RL v2 bid net picks the bid",
+     "bid"
+    ],
+    [
+     "RL v2 card net keeps its top 3 cards",
      "net"
     ],
     [
-     "search over dealt hands",
-     "search"
+     "imagine hidden hands that fit everyone's bids x16",
+     "deal"
     ],
     [
-     "best card",
-     "out"
+     "each kept card: RL v2 plays all 4 seats to the end",
+     "rollout"
+    ],
+    [
+     "play the best average score",
+     "pick"
     ]
    ],
-   "elo": 4884.565297374103,
+   "elo": 4822.149884768843,
    "games": null,
    "versus": [],
    "anchor": true
@@ -43,19 +51,19 @@
    "key": "sub:rl-cards",
    "method": [
     [
-     "imitation net (rung 2)",
+     "Heuristic bids: count tricks the hand should win",
+     "bid"
+    ],
+    [
+     "card net: copied PIMC, then self-play PPO",
      "net"
     ],
     [
-     "self-play rounds, PPO",
-     "data"
-    ],
-    [
-     "net plays cards",
-     "out"
+     "play its top card, no search",
+     "pick"
     ]
    ],
-   "elo": 4864.888725154672,
+   "elo": 4808.200123019888,
    "games": 640,
    "sets": 20,
    "seed": 1157764928,
@@ -96,6 +104,88 @@
    "anchor": false
   },
   {
+   "name": "rl-hybrid",
+   "author": "Essam",
+   "kind": "python",
+   "description": "Rung 4: Yosif's Hybrid search (RL v2 bidding, bid-weighted deals) with our self-play RL card net as the prior and the rollout player.",
+   "key": "sub:rl-hybrid",
+   "method": [
+    [
+     "RL v2 bid net picks the bid",
+     "bid"
+    ],
+    [
+     "our RL card net keeps its top 3 cards",
+     "net"
+    ],
+    [
+     "imagine hidden hands that fit everyone's bids x16",
+     "deal"
+    ],
+    [
+     "each kept card: our RL net plays all 4 seats to the end",
+     "rollout"
+    ],
+    [
+     "play the best average score",
+     "pick"
+    ]
+   ],
+   "elo": 4798.4909467004745,
+   "games": 2400,
+   "sets": 20,
+   "seed": 1157764928,
+   "played_at": "2026-11-03T21:49:40+00:00",
+   "engine": "0.1.0",
+   "p95_ms": 162.81862684002866,
+   "over_budget": 0.0061290885718366635,
+   "versus": [
+    {
+     "anchor": "Random",
+     "rsa": 1728.4416666666668,
+     "rsa_low": 1554.3811854123267,
+     "rsa_high": 1902.502147921007,
+     "first_place": 0.5
+    },
+    {
+     "anchor": "Heuristic",
+     "rsa": 137.50416666666666,
+     "rsa_low": 125.77630210468124,
+     "rsa_high": 149.2320312286521,
+     "first_place": 0.49375
+    },
+    {
+     "anchor": "PIMC",
+     "rsa": 64.82083333333334,
+     "rsa_low": 50.29678319490347,
+     "rsa_high": 79.34488347176321,
+     "first_place": 0.4125
+    },
+    {
+     "anchor": "Search bot",
+     "rsa": 68.83333333333334,
+     "rsa_low": 51.33106130180806,
+     "rsa_high": 86.33560536485862,
+     "first_place": 0.4125
+    },
+    {
+     "anchor": "RL v2",
+     "rsa": 28.94166666666667,
+     "rsa_low": 13.000298795790382,
+     "rsa_high": 44.883034537542954,
+     "first_place": 0.346875
+    },
+    {
+     "anchor": "Hybrid (B-Tig)",
+     "rsa": -0.6637499999999998,
+     "rsa_low": -4.980954264771263,
+     "rsa_high": 3.653454264771264,
+     "first_place": 0.2440625
+    }
+   ],
+   "anchor": false
+  },
+  {
    "name": "rl-pimc",
    "author": "Essam",
    "kind": "python",
@@ -103,23 +193,27 @@
    "key": "sub:rl-pimc",
    "method": [
     [
-     "RL card net keeps its top 2",
+     "Heuristic bids: count tricks the hand should win",
+     "bid"
+    ],
+    [
+     "RL card net keeps its top 2 cards",
      "net"
     ],
     [
-     "deal hidden cards x50",
-     "search"
+     "imagine the hidden hands x50",
+     "deal"
     ],
     [
-     "play each of the 2 out",
-     "search"
+     "each kept card: Heuristic plays the round out on every hand",
+     "rollout"
     ],
     [
-     "best average score",
-     "out"
+     "play the best average score",
+     "pick"
     ]
    ],
-   "elo": 4822.432755070763,
+   "elo": 4760.918272087018,
    "games": 2000,
    "sets": 20,
    "seed": 1157764928,
@@ -181,19 +275,23 @@
    "key": "rl:checkpoint=runs/m4-rules-v2/checkpoints/final.pt",
    "method": [
     [
-     "self-play training",
+     "trained by self-play",
      "data"
     ],
     [
-     "net bids",
+     "bid net scores every bid",
+     "bid"
+    ],
+    [
+     "card net scores every legal card",
      "net"
     ],
     [
-     "net plays cards",
-     "out"
+     "play its top card",
+     "pick"
     ]
    ],
-   "elo": 4577.447502776099,
+   "elo": 4522.321680827208,
    "games": null,
    "versus": [],
    "anchor": true
@@ -206,19 +304,23 @@
    "key": "pimc",
    "method": [
     [
-     "deal hidden cards x30",
-     "search"
+     "Heuristic bids: count tricks the hand should win",
+     "bid"
     ],
     [
-     "play each legal card out",
-     "search"
+     "imagine the hidden hands x30",
+     "deal"
     ],
     [
-     "best average score",
-     "out"
+     "each legal card: Heuristic plays the round out on every hand",
+     "rollout"
+    ],
+    [
+     "play the best average score",
+     "pick"
     ]
    ],
-   "elo": 4361.465643374462,
+   "elo": 4305.134853903803,
    "games": null,
    "versus": [],
    "anchor": true
@@ -231,23 +333,27 @@
    "key": "sub:net-pimc",
    "method": [
     [
-     "net keeps its top 3",
+     "Heuristic bids: count tricks the hand should win",
+     "bid"
+    ],
+    [
+     "card net (copies PIMC-100) keeps its top 3 cards",
      "net"
     ],
     [
-     "deal hidden cards x50",
-     "search"
+     "imagine the hidden hands x50",
+     "deal"
     ],
     [
-     "play each of the 3 out",
-     "search"
+     "each kept card: Heuristic plays the round out on every hand",
+     "rollout"
     ],
     [
-     "best average score",
-     "out"
+     "play the best average score",
+     "pick"
     ]
    ],
-   "elo": 4341.238381766642,
+   "elo": 4284.586253785121,
    "games": 960,
    "sets": 20,
    "seed": 1157764928,
@@ -309,19 +415,23 @@
    "key": "search",
    "method": [
     [
-     "deal hidden cards",
-     "search"
+     "Heuristic bids: count tricks the hand should win",
+     "bid"
     ],
     [
-     "play out with a tuned rule",
-     "search"
+     "imagine the hidden hands",
+     "deal"
     ],
     [
-     "best average score",
-     "out"
+     "each legal card: a tuned rule plays the round out",
+     "rollout"
+    ],
+    [
+     "play the best average score",
+     "pick"
     ]
    ],
-   "elo": 4325.468692026341,
+   "elo": 4268.304793754141,
    "games": null,
    "versus": [],
    "anchor": true
@@ -334,23 +444,19 @@
    "key": "sub:pimc-clone",
    "method": [
     [
-     "PIMC-100 plays 800 games",
-     "search"
+     "Heuristic bids: count tricks the hand should win",
+     "bid"
     ],
     [
-     "602k decisions + card values",
-     "data"
-    ],
-    [
-     "net 512x3 learns them",
+     "card net (copies PIMC-100) scores every legal card",
      "net"
     ],
     [
-     "net picks the card",
-     "out"
+     "play its top card, no search",
+     "pick"
     ]
    ],
-   "elo": 4185.733406418717,
+   "elo": 4129.177612879637,
    "games": 640,
    "sets": 20,
    "seed": 1157764928,
@@ -398,23 +504,23 @@
    "key": "sub:table-pressure",
    "method": [
     [
-     "Heuristic bidding",
+     "Heuristic bids: count tricks the hand should win",
+     "bid"
+    ],
+    [
+     "count my trumps nobody can beat",
      "rule"
     ],
     [
-     "count trumps nobody can beat",
+     "they cover the tricks I still need? throw low now",
      "rule"
     ],
     [
-     "they cover what I need?",
-     "rule"
-    ],
-    [
-     "yes: duck now",
-     "out"
+     "else play like Heuristic",
+     "pick"
     ]
    ],
-   "elo": 3475.3663071003584,
+   "elo": 3435.986297760462,
    "games": 960,
    "sets": 20,
    "seed": 1157764928,
@@ -476,19 +582,23 @@
    "key": "sub:cautious-heuristic",
    "method": [
     [
-     "Heuristic bidding",
+     "Heuristic bids: count tricks the hand should win",
+     "bid"
+    ],
+    [
+     "last to estimate? avoid the risky number",
      "rule"
     ],
     [
-     "last estimate avoids risk",
+     "still need tricks? win cheaply, else throw low",
      "rule"
     ],
     [
-     "Heuristic card play",
-     "out"
+     "play that card",
+     "pick"
     ]
    ],
-   "elo": 3287.7253268740033,
+   "elo": 3249.690864664513,
    "games": 640,
    "sets": 20,
    "seed": 1157764928,
@@ -536,19 +646,23 @@
    "key": "heuristic",
    "method": [
     [
-     "hand strength per trump",
+     "Heuristic bids: count tricks the hand should win",
+     "bid"
+    ],
+    [
+     "still need tricks? win as cheaply as possible",
      "rule"
     ],
     [
-     "bid and estimate near it",
+     "no? throw the lowest card",
      "rule"
     ],
     [
-     "win until the estimate, then duck",
-     "out"
+     "play that card",
+     "pick"
     ]
    ],
-   "elo": 3241.0102600298474,
+   "elo": 3203.3460338208943,
    "games": null,
    "versus": [],
    "anchor": true
@@ -561,19 +675,19 @@
    "key": "sub:highcard-wire",
    "method": [
     [
-     "never bid",
+     "never bid; estimate the minimum",
+     "bid"
+    ],
+    [
+     "list legal cards",
      "rule"
     ],
     [
-     "estimate the minimum",
-     "rule"
-    ],
-    [
-     "highest legal card",
-     "out"
+     "play the highest",
+     "pick"
     ]
    ],
-   "elo": 2719.9306174102435,
+   "elo": 2682.1896425237524,
    "games": 640,
    "sets": 20,
    "seed": 1157764928,
@@ -621,19 +735,19 @@
    "key": "sub:lowcard-wire",
    "method": [
     [
-     "never bid",
+     "never bid; estimate the minimum",
+     "bid"
+    ],
+    [
+     "list legal cards",
      "rule"
     ],
     [
-     "estimate the minimum",
-     "rule"
-    ],
-    [
-     "lowest legal card",
-     "out"
+     "play the lowest",
+     "pick"
     ]
    ],
-   "elo": 2719.9306174102435,
+   "elo": 2682.1896425237524,
    "games": 640,
    "sets": 20,
    "seed": 1157764928,
@@ -681,12 +795,16 @@
    "key": "random",
    "method": [
     [
-     "legal moves",
+     "any legal bid",
+     "bid"
+    ],
+    [
+     "list legal cards",
      "rule"
     ],
     [
      "pick one at random",
-     "out"
+     "pick"
     ]
    ],
    "elo": 400.0,

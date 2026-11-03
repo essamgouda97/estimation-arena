@@ -1,0 +1,260 @@
+{
+ "schema": 1,
+ "bot": "rl-hybrid",
+ "manifest": {
+  "name": "rl-hybrid",
+  "author": "Essam",
+  "kind": "python",
+  "description": "Rung 4: Yosif's Hybrid search (RL v2 bidding, bid-weighted deals) with our self-play RL card net as the prior and the rollout player.",
+  "command": [],
+  "entry": "bot.py:make",
+  "timeout_s": 5.0,
+  "method": [
+   [
+    "RL v2 bid net picks the bid",
+    "bid"
+   ],
+   [
+    "our RL card net keeps its top 3 cards",
+    "net"
+   ],
+   [
+    "imagine hidden hands that fit everyone's bids x16",
+    "deal"
+   ],
+   [
+    "each kept card: our RL net plays all 4 seats to the end",
+    "rollout"
+   ],
+   [
+    "play the best average score",
+    "pick"
+   ]
+  ],
+  "needs": "runs/m4-rules-v2/checkpoints/final.pt"
+ },
+ "engine": "0.1.0",
+ "rules": {
+  "with_any_call": true,
+  "with_choose": true
+ },
+ "seed": 1157764928,
+ "sets": 20,
+ "played_at": "2026-11-03T21:49:40+00:00",
+ "versus": [
+  {
+   "anchor": "Random",
+   "spec": "random",
+   "sets": 20,
+   "games": 160,
+   "mean_score": 639.64375,
+   "rsa": {
+    "mean": 1728.4416666666668,
+    "low": 1554.3811854123267,
+    "high": 1902.502147921007,
+    "sets": 20
+   },
+   "first_place": {
+    "mean": 0.5,
+    "low": 0.5,
+    "high": 0.5,
+    "sets": 20
+   },
+   "timing": {
+    "count": 67158,
+    "mean_s": 0.05145935834283332,
+    "p95_s": 0.1362393433905493,
+    "max_s": 0.6091699700336903,
+    "budget_s": 0.25,
+    "over_budget": 218
+   },
+   "wall_s": 637.0082015799126
+  },
+  {
+   "anchor": "Heuristic",
+   "spec": "heuristic",
+   "sets": 20,
+   "games": 160,
+   "mean_score": 243.1125,
+   "rsa": {
+    "mean": 137.50416666666666,
+    "low": 125.77630210468124,
+    "high": 149.2320312286521,
+    "sets": 20
+   },
+   "first_place": {
+    "mean": 0.49375,
+    "low": 0.4806685996599481,
+    "high": 0.5068314003400519,
+    "sets": 20
+   },
+   "timing": {
+    "count": 39754,
+    "mean_s": 0.05350798207976556,
+    "p95_s": 0.14174341286352748,
+    "max_s": 0.6566421010065824,
+    "budget_s": 0.25,
+    "over_budget": 206
+   },
+   "wall_s": 398.4276861739345
+  },
+  {
+   "anchor": "PIMC",
+   "spec": "pimc",
+   "sets": 20,
+   "games": 160,
+   "mean_score": 186.60625,
+   "rsa": {
+    "mean": 64.82083333333334,
+    "low": 50.29678319490347,
+    "high": 79.34488347176321,
+    "sets": 20
+   },
+   "first_place": {
+    "mean": 0.4125,
+    "low": 0.3584805769367827,
+    "high": 0.46651942306321725,
+    "sets": 20
+   },
+   "timing": {
+    "count": 39494,
+    "mean_s": 0.049932971100698845,
+    "p95_s": 0.13356798371622478,
+    "max_s": 0.5969620660180226,
+    "budget_s": 0.25,
+    "over_budget": 141
+   },
+   "wall_s": 468.41201212396845
+  },
+  {
+   "anchor": "Search bot",
+   "spec": "search",
+   "sets": 20,
+   "games": 160,
+   "mean_score": 188.15,
+   "rsa": {
+    "mean": 68.83333333333334,
+    "low": 51.33106130180806,
+    "high": 86.33560536485862,
+    "sets": 20
+   },
+   "first_place": {
+    "mean": 0.4125,
+    "low": 0.3740674358768638,
+    "high": 0.45093256412313615,
+    "sets": 20
+   },
+   "timing": {
+    "count": 40196,
+    "mean_s": 0.04978291679923376,
+    "p95_s": 0.13094900364335765,
+    "max_s": 0.8581861660350114,
+    "budget_s": 0.25,
+    "over_budget": 147
+   },
+   "wall_s": 479.59201593801845
+  },
+  {
+   "anchor": "RL v2",
+   "spec": "rl:checkpoint=runs/m4-rules-v2/checkpoints/final.pt",
+   "sets": 20,
+   "games": 160,
+   "mean_score": 188.65625,
+   "rsa": {
+    "mean": 28.94166666666667,
+    "low": 13.000298795790382,
+    "high": 44.883034537542954,
+    "sets": 20
+   },
+   "first_place": {
+    "mean": 0.346875,
+    "low": 0.2927930905965596,
+    "high": 0.40095690940344036,
+    "sets": 20
+   },
+   "timing": {
+    "count": 40768,
+    "mean_s": 0.05281010901442308,
+    "p95_s": 0.14174341286352748,
+    "max_s": 0.658487498993054,
+    "budget_s": 0.25,
+    "over_budget": 138
+   },
+   "wall_s": 417.1554482859792
+  },
+  {
+   "anchor": "Hybrid (B-Tig)",
+   "spec": "hybrid",
+   "sets": 200,
+   "games": 1600,
+   "mean_score": 158.429375,
+   "rsa": {
+    "mean": -0.6637499999999998,
+    "low": -4.980954264771263,
+    "high": 3.653454264771264,
+    "sets": 200
+   },
+   "first_place": {
+    "mean": 0.2440625,
+    "low": 0.2279622336175986,
+    "high": 0.2601627663824014,
+    "sets": 200
+   },
+   "timing": {
+    "count": 402740,
+    "mean_s": 0.06115570181313751,
+    "p95_s": 0.16281862684002865,
+    "max_s": 0.712933637900278,
+    "budget_s": 0.25,
+    "over_budget": 3012
+   },
+   "wall_s": 9653.585856162943,
+   "carried_from": "2026-11-03T21:09:15+00:00"
+  }
+ ],
+ "pairs": [
+  {
+   "a": "sub:rl-hybrid",
+   "b": "random",
+   "a_wins": 20,
+   "draws": 0,
+   "b_wins": 0
+  },
+  {
+   "a": "sub:rl-hybrid",
+   "b": "heuristic",
+   "a_wins": 20,
+   "draws": 0,
+   "b_wins": 0
+  },
+  {
+   "a": "sub:rl-hybrid",
+   "b": "pimc",
+   "a_wins": 20,
+   "draws": 0,
+   "b_wins": 0
+  },
+  {
+   "a": "sub:rl-hybrid",
+   "b": "search",
+   "a_wins": 20,
+   "draws": 0,
+   "b_wins": 0
+  },
+  {
+   "a": "sub:rl-hybrid",
+   "b": "rl:checkpoint=runs/m4-rules-v2/checkpoints/final.pt",
+   "a_wins": 15,
+   "draws": 0,
+   "b_wins": 5
+  },
+  {
+   "a": "sub:rl-hybrid",
+   "b": "hybrid",
+   "a_wins": 95,
+   "draws": 0,
+   "b_wins": 105
+  }
+ ],
+ "bot_hash": "694269411a60a51d"
+}

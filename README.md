@@ -60,6 +60,15 @@ flowchart LR
 
 Examples: `bots/lowcard-wire` (stdlib, 40 lines), `bots/table-pressure` (rung 1, beats Heuristic).
 
+## Play
+
+```bash
+uv sync --group table && uv run python -m arena.serve    # http://127.0.0.1:8790/
+```
+
+Any mix of people and bots per table; agents join a person's seat over the same WebSocket.
+Protocol: [docs/table.md](docs/table.md).
+
 ## Fair by construction
 
 | Rule | Why |
@@ -76,6 +85,8 @@ Examples: `bots/lowcard-wire` (stdlib, 40 lines), `bots/table-pressure` (rung 1,
 | Smoke + nightly ladder, CPU anchors | GitHub Actions | free (public repo) |
 | RL v2 + Hybrid anchors, training | home server, `runs/` unzipped | free |
 | Page | GitHub Pages | free |
+| Live table | home server, owner-only | free |
+| Promo video ([video/](video/)) | home server render | free |
 
 Secrets: `ENGINE_TOKEN` (read access to the engine repo), `LADDER_SEED`.
 Training design: [docs/training-design.md](docs/training-design.md).

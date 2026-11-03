@@ -1,0 +1,43 @@
+{
+  "rungs": [
+    {
+      "anchor": "Heuristic",
+      "anchorElo": 3203,
+      "ours": "table-pressure",
+      "oursElo": 3436
+    },
+    {
+      "anchor": "PIMC",
+      "anchorElo": 4305,
+      "ours": "net-pimc",
+      "oursElo": 4285,
+      "note": "161-139 head to head"
+    },
+    {
+      "anchor": "RL v2",
+      "anchorElo": 4522,
+      "ours": "rl-pimc",
+      "oursElo": 4761
+    },
+    {
+      "anchor": "Hybrid",
+      "anchorElo": 4822,
+      "ours": "rl-hybrid",
+      "oursElo": 4798,
+      "note": "tie · 95-105",
+      "tie": true
+    }
+  ],
+  "learning": [
+    0,
+    1.2,
+    2.6,
+    3.4,
+    4.5,
+    5.3,
+    6.0,
+    6.7
+  ],
+  "url": "essamgouda97.github.io/estimation-arena",
+  "engine": "Yosif Elessawi"
+}

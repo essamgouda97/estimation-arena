@@ -1,0 +1,31 @@
+{
+  "name": "rl-hybrid",
+  "author": "Essam",
+  "kind": "python",
+  "entry": "bot.py:make",
+  "description": "Rung 4: Yosif's Hybrid search (RL v2 bidding, bid-weighted deals) with our self-play RL card net as the prior and the rollout player.",
+  "timeout_s": 5,
+  "needs": "runs/m4-rules-v2/checkpoints/final.pt",
+  "method": [
+    [
+      "RL v2 bid net picks the bid",
+      "bid"
+    ],
+    [
+      "our RL card net keeps its top 3 cards",
+      "net"
+    ],
+    [
+      "imagine hidden hands that fit everyone's bids x16",
+      "deal"
+    ],
+    [
+      "each kept card: our RL net plays all 4 seats to the end",
+      "rollout"
+    ],
+    [
+      "play the best average score",
+      "pick"
+    ]
+  ]
+}
