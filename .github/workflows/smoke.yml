@@ -6,7 +6,7 @@ name: smoke
 
 on:
   pull_request:
-    paths: ["bots/**", "arena/**", "anchors.json", "pyproject.toml", "uv.lock"]
+    paths: ["bots/**", "arena/**", "tests/**", "anchors.json", "pyproject.toml", "uv.lock"]
 
 permissions:
   contents: read
@@ -25,7 +25,7 @@ jobs:
           python-version: "3.12"
       - name: Allow uv to clone the private engine repo
         run: git config --global url."https://x-access-token:${{ secrets.ENGINE_TOKEN }}@github.com/".insteadOf "https://github.com/"
-      - run: uv sync --frozen
+      - run: uv sync --frozen --group rl
       - run: uv run pytest -q
       - name: Find the bots this pull request touches
         id: bots

@@ -9,6 +9,8 @@ dependencies = [
 
 [dependency-groups]
 dev = ["pytest>=8"]
+# Optional: the PettingZoo environment for RL training (arena/env.py). uv sync --group rl
+rl = ["pettingzoo>=1.24", "gymnasium>=1.0"]
 
 [tool.uv]
 package = false

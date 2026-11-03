@@ -10,6 +10,7 @@ results feed the leaderboard's Elo fit. The result file is small (no moves) and 
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import sys
 import time
@@ -175,6 +176,35 @@ def play_submission(
     }
 
 
+def bot_hash(manifest: Manifest) -> str:
+    """A fingerprint of every file in the bot's folder: same hash, same bot."""
+    digest = hashlib.sha256()
+    for path in sorted(manifest.folder.rglob("*")):
+        if path.is_file() and "__pycache__" not in path.parts:
+            digest.update(path.relative_to(manifest.folder).as_posix().encode())
+            digest.update(path.read_bytes())
+    return digest.hexdigest()[:16]
+
+
+def keep_unplayed(result: dict[str, Any], old: dict[str, Any] | None) -> list[str]:
+    """Carry over the old result's games against anchors this run could not play (the RL and
+    Hybrid anchors exist only where runs/ is unzipped), if the bot and engine are unchanged.
+    Returns the anchors carried over."""
+    if not old or old.get("bot_hash") != result["bot_hash"] or old.get("engine") != result["engine"]:
+        return []
+    played = {v["spec"] for v in result["versus"]}
+    kept = [v for v in old.get("versus", []) if v["spec"] not in played]
+    for v in kept:
+        v["carried_from"] = old.get("played_at")
+        result["versus"].append(v)
+    me = SUB_PREFIX + result["bot"]
+    for pair in old.get("pairs", []):
+        other = pair["b"] if pair["a"] == me else pair["a"]
+        if other in {v["spec"] for v in kept}:
+            result["pairs"].append(pair)
+    return [v["anchor"] for v in kept]
+
+
 def _public(name: str) -> str:
     """Pair records name submissions ``sub:<name>`` and anchors by spec; keep both as is."""
     return name
@@ -200,8 +230,13 @@ def main(argv: list[str] | None = None) -> int:
     if not anchors:
         parser.error("no anchors available: check anchors.json")
     result = play_submission(manifest, anchors, args.sets, args.seed, args.workers, args.progress)
+    result["bot_hash"] = bot_hash(manifest)
     out = args.out or RESULTS_DIR / f"{manifest.name}.json"
     out.parent.mkdir(parents=True, exist_ok=True)
+    old = json.loads(out.read_text()) if out.is_file() else None
+    kept = keep_unplayed(result, old)
+    if kept:
+        print(f"kept earlier games vs {', '.join(kept)} (bot and engine unchanged)")
     out.write_text(json.dumps(result, indent=1) + "\n")
     print(f"{manifest.name}: {args.sets} sets vs {len(anchors)} anchors, seed {args.seed}")
     for v in result["versus"]:
