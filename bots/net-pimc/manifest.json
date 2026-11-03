@@ -7,20 +7,24 @@
   "timeout_s": 5,
   "method": [
     [
-      "net keeps its top 3",
+      "Heuristic bids: count tricks the hand should win",
+      "bid"
+    ],
+    [
+      "card net (copies PIMC-100) keeps its top 3 cards",
       "net"
     ],
     [
-      "deal hidden cards x50",
-      "search"
+      "imagine the hidden hands x50",
+      "deal"
     ],
     [
-      "play each of the 3 out",
-      "search"
+      "each kept card: Heuristic plays the round out on every hand",
+      "rollout"
     ],
     [
-      "best average score",
-      "out"
+      "play the best average score",
+      "pick"
     ]
   ]
 }

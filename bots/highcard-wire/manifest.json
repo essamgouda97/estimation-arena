@@ -10,16 +10,16 @@
   "timeout_s": 5,
   "method": [
     [
-      "never bid",
+      "never bid; estimate the minimum",
+      "bid"
+    ],
+    [
+      "list legal cards",
       "rule"
     ],
     [
-      "estimate the minimum",
-      "rule"
-    ],
-    [
-      "highest legal card",
-      "out"
+      "play the highest",
+      "pick"
     ]
   ]
 }

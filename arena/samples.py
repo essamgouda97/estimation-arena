@@ -2,22 +2,26 @@
 
     uv run python -m arena.samples        # writes site/samples.json
 
-Seat 0 is the bot, seats 1-3 HeuristicBot, deal ``SEED``. From the first round, three of seat
-0's card decisions are kept (its first, a middle one, its last with a choice): its own view
-(hand, trick so far, trump, estimate) and the card it played. Bots that can say why add scores
-per card: ``explain(obs, cards)`` for submissions that define it, the search values for PIMC-type
-anchors. Anchors whose files are missing (RL v2, Hybrid without runs/) are skipped, and samples
+Seat 0 is the bot, seats 1-3 HeuristicBot, deal ``SEED``. Every card decision with a choice in
+the first round is kept: the bot's own view (hand, trick so far, trump, estimate) and the card it
+played; the leaderboard shows the most telling one. Bots that can say why add scores per card:
+``explain(obs, cards)`` for submissions that define it, the search values for PIMC-type anchors,
+the card net's probabilities for RL v2, both for the Hybrid. Anchors whose files are missing (RL v2, Hybrid without runs/) are skipped, and samples
 already in the file for them are kept.
 """
 
 from __future__ import annotations
 
 import json
+import math
 from typing import Any
 
 import estimation.bots  # noqa: F401
 from estimation.bots import HeuristicBot, PIMCBot
+from estimation.bots.hybrid.bot import HybridBot
 from estimation.bots.pimc import best_index
+from estimation.bots.rl import RLBot
+from estimation.rl.encoder import encode
 from estimation.engine import Bola, Phase, cards_of
 from estimation.engine.actions import PLAY_BASE
 from estimation.engine.config import DEFAULT_CONFIG
@@ -52,6 +56,17 @@ def sample(spec: str) -> dict[str, Any]:
             chosen = cand[best_index(totals)]
             n = getattr(bot.config, "samples", 1)
             scores = {"search": {c: t / n for c, t in zip(cand, totals)}}
+        elif isinstance(bot, (HybridBot, RLBot)):
+            z = bot._policy.card_values(encode(obs, DEFAULT_CONFIG)[None])[0]
+            net = _softmax({c: float(z[c]) for c in cards})
+            scores = {"net": net}
+            if isinstance(bot, HybridBot):
+                search = bot.search(obs, cards, [float(z[c]) for c in cards])
+                chosen = search.cards[best_index(search.means)]
+                if search.deals:
+                    scores["search"] = dict(zip(search.cards, search.means))
+            else:
+                chosen = max(cards, key=lambda c: z[c])
         else:
             chosen = bot.act(obs, legal) - PLAY_BASE
         frames.append({
@@ -67,8 +82,14 @@ def sample(spec: str) -> dict[str, Any]:
         bola.step(PLAY_BASE + chosen)
     if hasattr(bot, "close"):
         bot.close()
-    pick = sorted({0, len(frames) // 2, len(frames) - 1}) if frames else []
-    return {"seed": SEED, "frames": [frames[i] for i in pick]}
+    return {"seed": SEED, "frames": frames}
+
+
+def _softmax(values: dict[int, float]) -> dict[int, float]:
+    top = max(values.values())
+    exp = {c: math.exp(v - top) for c, v in values.items()}
+    total = sum(exp.values())
+    return {c: e / total for c, e in exp.items()}
 
 
 def main() -> int:

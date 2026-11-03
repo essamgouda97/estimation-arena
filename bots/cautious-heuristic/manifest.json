@@ -6,16 +6,20 @@
   "description": "Example Python-tier bot: the engine's HeuristicBot with a higher risk aversion.",
   "method": [
     [
-      "Heuristic bidding",
+      "Heuristic bids: count tricks the hand should win",
+      "bid"
+    ],
+    [
+      "last to estimate? avoid the risky number",
       "rule"
     ],
     [
-      "last estimate avoids risk",
+      "still need tricks? win cheaply, else throw low",
       "rule"
     ],
     [
-      "Heuristic card play",
-      "out"
+      "play that card",
+      "pick"
     ]
   ]
 }

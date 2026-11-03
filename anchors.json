@@ -1,8 +1,8 @@
 [
- {"name": "Random", "author": "Yosif Elessawi", "spec": "random", "method": [["legal moves", "rule"], ["pick one at random", "out"]]},
- {"name": "Heuristic", "author": "Yosif Elessawi", "spec": "heuristic", "method": [["hand strength per trump", "rule"], ["bid and estimate near it", "rule"], ["win until the estimate, then duck", "out"]]},
- {"name": "PIMC", "author": "Yosif Elessawi", "spec": "pimc", "method": [["deal hidden cards x30", "search"], ["play each legal card out", "search"], ["best average score", "out"]]},
- {"name": "Search bot", "author": "Yosif Elessawi", "spec": "search", "method": [["deal hidden cards", "search"], ["play out with a tuned rule", "search"], ["best average score", "out"]]},
- {"name": "RL v2", "author": "Yosif Elessawi", "spec": "rl:checkpoint=runs/m4-rules-v2/checkpoints/final.pt", "needs": "runs/m4-rules-v2/checkpoints/final.pt", "method": [["self-play training", "data"], ["net bids", "net"], ["net plays cards", "out"]]},
- {"name": "Hybrid (B-Tig)", "author": "Yosif Elessawi", "spec": "hybrid", "needs": "runs/m4-rules-v2/checkpoints/final.pt", "method": [["learned nets", "net"], ["search over dealt hands", "search"], ["best card", "out"]]}
+ {"name": "Random", "author": "Yosif Elessawi", "spec": "random", "method": [["any legal bid", "bid"], ["list legal cards", "rule"], ["pick one at random", "pick"]]},
+ {"name": "Heuristic", "author": "Yosif Elessawi", "spec": "heuristic", "method": [["Heuristic bids: count tricks the hand should win", "bid"], ["still need tricks? win as cheaply as possible", "rule"], ["no? throw the lowest card", "rule"], ["play that card", "pick"]]},
+ {"name": "PIMC", "author": "Yosif Elessawi", "spec": "pimc", "method": [["Heuristic bids: count tricks the hand should win", "bid"], ["imagine the hidden hands x30", "deal"], ["each legal card: Heuristic plays the round out on every hand", "rollout"], ["play the best average score", "pick"]]},
+ {"name": "Search bot", "author": "Yosif Elessawi", "spec": "search", "method": [["Heuristic bids: count tricks the hand should win", "bid"], ["imagine the hidden hands", "deal"], ["each legal card: a tuned rule plays the round out", "rollout"], ["play the best average score", "pick"]]},
+ {"name": "RL v2", "author": "Yosif Elessawi", "spec": "rl:checkpoint=runs/m4-rules-v2/checkpoints/final.pt", "needs": "runs/m4-rules-v2/checkpoints/final.pt", "method": [["trained by self-play", "data"], ["bid net scores every bid", "bid"], ["card net scores every legal card", "net"], ["play its top card", "pick"]]},
+ {"name": "Hybrid (B-Tig)", "author": "Yosif Elessawi", "spec": "hybrid", "needs": "runs/m4-rules-v2/checkpoints/final.pt", "method": [["RL v2 bid net picks the bid", "bid"], ["RL v2 card net keeps its top 3 cards", "net"], ["imagine hidden hands that fit everyone's bids x16", "deal"], ["each kept card: RL v2 plays all 4 seats to the end", "rollout"], ["play the best average score", "pick"]]}
 ]

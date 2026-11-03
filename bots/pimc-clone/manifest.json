@@ -7,20 +7,16 @@
   "timeout_s": 5,
   "method": [
     [
-      "PIMC-100 plays 800 games",
-      "search"
+      "Heuristic bids: count tricks the hand should win",
+      "bid"
     ],
     [
-      "602k decisions + card values",
-      "data"
-    ],
-    [
-      "net 512x3 learns them",
+      "card net (copies PIMC-100) scores every legal card",
       "net"
     ],
     [
-      "net picks the card",
-      "out"
+      "play its top card, no search",
+      "pick"
     ]
   ]
 }

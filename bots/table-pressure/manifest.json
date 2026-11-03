@@ -7,20 +7,20 @@
   "timeout_s": 5,
   "method": [
     [
-      "Heuristic bidding",
+      "Heuristic bids: count tricks the hand should win",
+      "bid"
+    ],
+    [
+      "count my trumps nobody can beat",
       "rule"
     ],
     [
-      "count trumps nobody can beat",
+      "they cover the tricks I still need? throw low now",
       "rule"
     ],
     [
-      "they cover what I need?",
-      "rule"
-    ],
-    [
-      "yes: duck now",
-      "out"
+      "else play like Heuristic",
+      "pick"
     ]
   ]
 }

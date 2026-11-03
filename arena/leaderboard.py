@@ -117,23 +117,31 @@ tr.anchor td{color:var(--muted);background:var(--tint)}tr:has(+ tr.howrow) td{bo
 .pos{color:var(--good)}.neg{color:var(--bad)}details{margin-top:24px}summary{cursor:pointer;color:var(--muted)}
 @media(max-width:700px){th.opt,td.opt{display:none}}
 details.how{margin:6px 0 2px}details.how summary{font-size:13px}.scroll{overflow-x:auto;margin:10px 0}
-.moves{display:flex;flex-wrap:wrap;gap:14px}.frame{border:1px solid var(--line);border-radius:10px;padding:8px;overflow-x:auto;max-width:100%}
-svg text{fill:var(--fg);font:12.5px system-ui,sans-serif}svg .meta{fill:var(--muted);font-size:12px}
-.flow rect{stroke-width:1.5}.k-rule{fill:var(--tint);stroke:var(--muted)}.k-net{fill:#3987e522;stroke:#3987e5}
-.k-search{fill:#eb683422;stroke:#eb6834}.k-data{fill:#8e7cf022;stroke:#8e7cf0}.k-out{fill:#1baf7a22;stroke:#1baf7a}
+svg text{fill:var(--fg);font:12px system-ui,sans-serif}
+.flow .step{fill:var(--tint);stroke:var(--line)}.i-n{fill:var(--muted)!important;font-size:11px!important}
+.i-line{fill:none;stroke:var(--muted);stroke-width:1.4}.i-t{font-weight:600;font-size:13px!important}.i-s{fill:var(--muted)!important;font-size:10px!important}
+.i-bid{fill:#8e7cf022;stroke:#8e7cf0}.i-wire{stroke:#3987e555;stroke-width:.8}.i-net{fill:#3987e5}
+.i-back{fill:#eb683433;stroke:#eb6834}.i-card{fill:var(--bg);stroke:var(--muted)}.i-win{fill:#1baf7a}.i-loss{fill:#e0525299}
+.i-mean{fill:var(--muted)}.i-best{fill:#eda100!important}.i-tick{fill:none;stroke:#1baf7a;stroke-width:2.5}.i-data{fill:var(--bg);stroke:#8e7cf0}
 .arrow{fill:none;stroke:var(--muted);stroke-width:1.5}
-.card{fill:var(--bg);stroke:var(--line);stroke-width:1}.card.legal{stroke:#3987e5;stroke-width:1.6}.card.chosen{stroke:#eda100;stroke-width:3}
-.card.dim{opacity:.45}.card.played{stroke:var(--muted)}.cardt{font-size:12px!important}.cardt.red{fill:#e05252}
-.bar-net{fill:#3987e5}.bar-search{fill:#eb6834}.neg{opacity:.4}
-.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:4px 0 14px}.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.lbl2{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:12px 0 4px}
+.move{border:1px solid var(--line);border-radius:10px;padding:10px 12px;max-width:520px}
+.sit{margin:2px 0 6px;font-size:13px}.lbl{color:var(--muted);font-size:12px;margin-right:6px}.seat{color:var(--muted);font-size:11px;margin:0 3px 0 8px}
+.pc{display:inline-block;min-width:34px;padding:1px 5px;border:1px solid var(--line);border-radius:5px;background:var(--bg);font-weight:600;text-align:center;font-variant-numeric:tabular-nums}
+.pc.red{color:#e05252}.pc.on{border:2px solid #eda100}.pc.dim{opacity:.5;font-weight:400}
+table.opts{width:auto;margin:4px 0 8px}table.opts td,table.opts th{border:none;padding:3px 10px 3px 0;font-size:13px;color:var(--fg)!important;background:none!important}
+.track{display:inline-block;width:90px;height:9px;border-radius:3px;background:var(--line);margin-right:6px;vertical-align:middle;overflow:hidden}
+.scroll{max-width:calc(100vw - 72px)}.move{max-width:min(520px,calc(100vw - 72px))}
+@media(max-width:700px){.bar{max-width:48px}th,td{padding:8px 6px}.track{width:54px}.sit{line-height:1.9}}
+.fill{display:block;height:100%}.f-net{background:#3987e5}.f-search{background:#eb6834}.tick{color:#1baf7a;font-weight:600}
 """
 
 
 SUITS, RANKS = "♣♦♥♠", "23456789TJQKA"
-KINDS = {"rule": "k-rule", "net": "k-net", "search": "k-search", "data": "k-data", "out": "k-out"}
+SEATS = {1: "left", 2: "across", 3: "right"}
 
 
-def _lines(label: str, width: int = 17) -> list[str]:
+def _lines(label: str, width: int = 19) -> list[str]:
     words, lines, cur = label.split(), [], ""
     for w in words:
         if cur and len(cur) + 1 + len(w) > width:
@@ -141,80 +149,166 @@ def _lines(label: str, width: int = 17) -> list[str]:
             cur = w
         else:
             cur = f"{cur} {w}".strip()
-    return [*lines, cur][:3]
+    return [*lines, cur][:4]
+
+
+def _count(label: str) -> str:
+    """The ``xN`` in a step label (``imagine hidden hands x30``), drawn on the deal icon."""
+    for word in label.split():
+        if word[:1] in "x×" and word[1:].isdigit():
+            return "×" + word[1:]
+    return ""
+
+
+# Each icon is drawn in a 130x56 box at (x, y): a small picture of what the step does.
+def _icon(kind: str, x: float, y: float, label: str) -> str:
+    cx = x + 65
+    if kind == "rule":  # a decision diamond with two branches
+        return (f'<path class="i-line" d="M{cx} {y + 2}l16 14l-16 14l-16 -14z"/>'
+                f'<text class="i-t" x="{cx}" y="{y + 16}" text-anchor="middle" dominant-baseline="central">?</text>'
+                f'<path class="i-line" d="M{cx - 16} {y + 16}h-22v22M{cx + 16} {y + 16}h22v22"/>'
+                f'<text class="i-s" x="{cx - 38}" y="{y + 50}" text-anchor="middle">yes</text>'
+                f'<text class="i-s" x="{cx + 38}" y="{y + 50}" text-anchor="middle">no</text>')
+    if kind == "bid":  # a speech bubble with a number
+        return (f'<path class="i-bid" d="M{cx - 26} {y + 6}h52a6 6 0 0 1 6 6v20a6 6 0 0 1 -6 6h-34l-10 10v-10h-8a6 6 0 0 1 -6 -6v-20a6 6 0 0 1 6 -6z"/>'
+                f'<text class="i-t" x="{cx}" y="{y + 23}" text-anchor="middle" dominant-baseline="central">3?</text>')
+    if kind == "net":  # input dots, a hidden layer, output bars (one tall)
+        out = []
+        ins = [y + 8 + 10 * k for k in range(5)]
+        hid = [y + 13 + 10 * k for k in range(4)]
+        for a in ins:
+            for b in hid:
+                out.append(f'<path class="i-wire" d="M{x + 22} {a}L{x + 58} {b}"/>')
+        for b in hid:
+            out.append(f'<path class="i-wire" d="M{x + 58} {b}L{x + 84} {y + 28}"/>')
+        out += [f'<circle class="i-net" cx="{x + 22}" cy="{a}" r="3.5"/>' for a in ins]
+        out += [f'<circle class="i-net" cx="{x + 58}" cy="{b}" r="3.5"/>' for b in hid]
+        for k, h in enumerate((10, 34, 16, 6)):
+            out.append(f'<rect class="i-net{" i-best" if k == 1 else ""}" x="{x + 88 + k * 9}" y="{y + 48 - h}" width="6" height="{h}" rx="1"/>')
+        return "".join(out)
+    if kind == "deal":  # three fanned hands of card backs, times N
+        out = []
+        for k in range(3):
+            hx = x + 16 + k * 30
+            for j in range(3):
+                out.append(f'<rect class="i-back" x="{hx + j * 6}" y="{y + 10 + j * 2}" width="16" height="24" rx="2"/>')
+        n = _count(label)
+        if n:
+            out.append(f'<text class="i-t" x="{x + 116}" y="{y + 24}" text-anchor="middle" dominant-baseline="central">{n}</text>')
+        out.append(f'<text class="i-s" x="{cx - 14}" y="{y + 48}" text-anchor="middle">left · across · right</text>')
+        return "".join(out)
+    if kind == "rollout":  # rows = cards, columns = imagined deals, cells = result, then the mean
+        out = []
+        pattern = ("+-++-", "--+--", "+++-+")
+        for r, row in enumerate(pattern):
+            ry = y + 6 + r * 14
+            out.append(f'<rect class="i-card" x="{x + 12}" y="{ry}" width="12" height="14" rx="2"/>')
+            for c, s in enumerate(row):
+                out.append(f'<rect class="{"i-win" if s == "+" else "i-loss"}" x="{x + 28 + c * 14}" y="{ry + 1}" width="12" height="12" rx="2"/>')
+            w = 6 + 8 * row.count("+")
+            out.append(f'<rect class="i-mean{" i-best" if r == 2 else ""}" x="{x + 102}" y="{ry + 2}" width="{w * 0.55:.0f}" height="8" rx="2"/>')
+        out.append(f'<text class="i-s" x="{x + 56}" y="{y + 58}" text-anchor="middle">deal 1 … N</text>')
+        return "".join(out)
+    if kind == "pick":  # bars, the highest one ticked
+        out = []
+        for k, h in enumerate((18, 30, 40, 24)):
+            out.append(f'<rect class="i-mean{" i-best" if k == 2 else ""}" x="{cx - 34 + k * 18}" y="{y + 46 - h}" width="12" height="{h}" rx="2"/>')
+        out.append(f'<path class="i-tick" d="M{cx + 2} {y + 1}l4 4l8 -8"/>')
+        return "".join(out)
+    if kind == "data":  # stacked game records
+        return "".join(f'<rect class="i-data" x="{cx - 28 + k * 6}" y="{y + 6 + k * 7}" width="44" height="22" rx="3"/>' for k in range(4))
+    return ""
 
 
 def method_svg(steps: list[list[str]]) -> str:
-    """A left-to-right flow of rounded boxes, coloured by kind."""
+    """The algorithm as a strip of steps, each a small picture of what it does and a short
+    label, left to right."""
     if not steps:
         return ""
-    bw, gap, h = 150, 28, 64
+    bw, gap, h = 140, 22, 132
     width = len(steps) * bw + (len(steps) - 1) * gap
-    parts = [f'<svg class="flow" viewBox="0 0 {width} {h + 4}" width="{width}" role="img">']
+    parts = [f'<svg class="flow" viewBox="0 0 {width} {h}" width="{width}" role="img">']
     for i, (label, kind) in enumerate(steps):
         x = i * (bw + gap)
-        parts.append(f'<rect class="{KINDS.get(kind, "k-rule")}" x="{x + 1}" y="2" width="{bw - 2}" height="{h}" rx="10"/>')
-        lines = _lines(label)
-        y0 = 2 + h / 2 - (len(lines) - 1) * 8
-        for j, line in enumerate(lines):
-            parts.append(f'<text x="{x + bw / 2}" y="{y0 + j * 16}" text-anchor="middle" dominant-baseline="central">{html.escape(line)}</text>')
+        parts.append(f'<rect class="step" x="{x + 1}" y="1" width="{bw - 2}" height="{h - 2}" rx="10"/>')
+        parts.append(f'<text class="i-n" x="{x + 12}" y="16">{i + 1}</text>')
+        parts.append(_icon(kind, x + 5, 12, label))
+        for j, line in enumerate(_lines(label)):
+            parts.append(f'<text x="{x + bw / 2}" y="{86 + j * 14}" text-anchor="middle">{html.escape(line)}</text>')
         if i < len(steps) - 1:
-            ax = x + bw + 3
-            parts.append(f'<path class="arrow" d="M{ax} {2 + h / 2}h{gap - 10}m-6 -5l6 5l-6 5"/>')
+            ax = x + bw + 2
+            parts.append(f'<path class="arrow" d="M{ax} {h / 2}h{gap - 6}m-5 -4l5 4l-5 4"/>')
     parts.append("</svg>")
     return "".join(parts)
 
 
-def _card(x: float, y: float, c: int, cls: str) -> str:
+def _card(c: int, cls: str = "") -> str:
     red = " red" if c // 13 in (1, 2) else ""
-    return (f'<rect class="card {cls}" x="{x}" y="{y}" width="26" height="36" rx="4"/>'
-            f'<text class="cardt{red}" x="{x + 13}" y="{y + 12}" text-anchor="middle">{RANKS[c % 13]}</text>'
-            f'<text class="cardt{red}" x="{x + 13}" y="{y + 27}" text-anchor="middle">{SUITS[c // 13]}</text>')
+    return f'<span class="pc{red} {cls}">{RANKS[c % 13].replace("T", "10")}{SUITS[c // 13]}</span>'
 
 
-def move_svg(frame: dict[str, Any]) -> str:
-    """One card decision: the trick so far, the hand (legal cards lit, the played card gold),
-    and per-card scores when the bot reports them (net odds, search values)."""
-    hand, legal, chosen = frame["hand"], set(frame["legal"]), frame["chosen"]
-    scores = frame.get("scores", {})
-    width, top = 13 * 28 + 8, 84
-    height = top + 40 + len(scores) * 14 + 6
-    trump = "NT" if frame["trump"] == 4 else SUITS[frame["trump"]]
-    est = "-" if frame["estimate"] is None else frame["estimate"]
-    out = [f'<svg class="move" viewBox="0 0 {width} {height}" width="{width}" role="img">',
-           f'<text class="meta" x="4" y="14">trump {trump} · won {frame["won"]}/{est}</text>']
-    for k, (seat, c) in enumerate(frame["trick"]):
-        out.append(f'<text class="meta" x="{4 + k * 34 + 13}" y="{top - 48}" text-anchor="middle">{seat}</text>')
-        out.append(_card(4 + k * 34, top - 44, c, "played"))
-    if not frame["trick"]:
-        out.append(f'<text class="meta" x="4" y="{top - 22}">leads</text>')
-    pos = {}
-    for k, c in enumerate(sorted(hand, key=lambda c: (c // 13, c % 13))):
-        x = 4 + k * 28
-        pos[c] = x
-        cls = "chosen" if c == chosen else ("legal" if c in legal else "dim")
-        out.append(_card(x, top, c, cls))
-    for r, (name, vals) in enumerate(sorted(scores.items())):
-        y = top + 42 + r * 14
-        lo, hi = min(vals.values(), default=0), max(vals.values(), default=1)
-        span = (hi - lo) or 1
-        for c_str, v in vals.items():
-            c = int(c_str)
-            if c in pos:  # each row runs from its worst card (short) to its best (full width)
-                w = 3 + 21 * (v - lo) / span
-                out.append(f'<rect class="bar-{name}" x="{pos[c] + 1}" y="{y}" width="{w:.1f}" height="9" rx="2"/>')
-    out.append("</svg>")
-    return "".join(out)
+def _pick_frame(frames: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """The most telling decision: one the bot explained, where the search overruled the net if
+    any, with the most legal cards."""
+    if not frames:
+        return None
+
+    def telling(f: dict[str, Any]) -> tuple[bool, bool, int]:
+        net, search = f.get("scores", {}).get("net"), f.get("scores", {}).get("search")
+        overruled = bool(net and search) and max(net, key=net.get) != max(search, key=search.get)
+        return bool(f.get("scores")), overruled, len(f["legal"])  # search overruling the net first
+
+    return max(frames, key=telling)
+
+
+def move_html(frame: dict[str, Any]) -> str:
+    """One real decision: the situation, then one row per legal card with the net's
+    probability and the search's average score, the played card ticked."""
+    trump = "no trump" if frame["trump"] == 4 else f'trump {SUITS[frame["trump"]]}'
+    est = frame["estimate"]
+    goal = f'won {frame["won"]} of {est} tricks bid' if est is not None else f'won {frame["won"]}'
+    table = " ".join(f'<span class="seat">{SEATS.get(seat, seat)}</span>{_card(c)}' for seat, c in frame["trick"])
+    table = table or '<span class="desc">empty: it leads</span>'
+    legal, chosen = frame["legal"], frame["chosen"]
+    rest = [c for c in sorted(frame["hand"], key=lambda c: (c // 13, c % 13)) if c not in legal]
+    scores = {name: {int(k): v for k, v in vals.items()} for name, vals in frame.get("scores", {}).items()}
+    net, search = scores.get("net", {}), scores.get("search", {})
+    lo, hi = (min(search.values()), max(search.values())) if search else (0.0, 1.0)
+    head = "<tr><th>card</th>" + ("<th>net</th>" if net else "") + ("<th>search avg</th>" if search else "") + "<th></th></tr>"
+    rows = []
+    order = sorted(legal, key=lambda c: (-search.get(c, -1e9), -net.get(c, 0.0), c))
+    for c in order:
+        cells = f"<td>{_card(c, 'on' if c == chosen else '')}</td>"
+        if net:
+            p = net.get(c, 0.0)
+            cells += f'<td><span class="track"><span class="fill f-net" style="width:{100 * p:.0f}%"></span></span>{100 * p:.0f}%</td>'
+        if search:
+            if c in search:
+                v = search[c]
+                w = 8 + 92 * (v - lo) / ((hi - lo) or 1)
+                cells += f'<td><span class="track"><span class="fill f-search" style="width:{w:.0f}%"></span></span>{v:+.1f}</td>'
+            else:
+                cells += '<td class="desc">not searched</td>'
+        cells += f'<td class="tick">{"✓ played" if c == chosen else ""}</td>'
+        rows.append(f"<tr>{cells}</tr>")
+    rest_html = " ".join(_card(c, "dim") for c in rest)
+    return (f'<div class="move"><div class="sit"><b>{trump}</b> · {goal}</div>'
+            f'<div class="sit"><span class="lbl">table</span> {table}</div>'
+            f'<table class="opts">{head}{"".join(rows)}</table>'
+            + (f'<div class="sit"><span class="lbl">rest of hand</span> {rest_html}</div>' if rest else "")
+            + "</div>")
 
 
 def how_it_plays(row: dict[str, Any], samples: dict[str, Any]) -> str:
-    frames = samples.get(row["key"], {}).get("frames", [])
-    moves = "".join(f'<div class="frame">{move_svg(f)}</div>' for f in frames)
-    if not row.get("method") and not moves:
+    frame = _pick_frame(samples.get(row["key"], {}).get("frames", []))
+    if not row.get("method") and frame is None:
         return ""
+    move = ""
+    if frame is not None:
+        move = f'<div class="lbl2">one real decision</div>{move_html(frame)}'
     return (f'<details class="how"><summary>how it plays</summary>'
-            f'<div class="scroll">{method_svg(row.get("method", []))}</div>'
-            f'<div class="moves">{moves}</div></details>')
+            f'<div class="lbl2">algorithm</div><div class="scroll">{method_svg(row.get("method", []))}</div>'
+            f"{move}</details>")
 
 
 def render(board: dict[str, Any]) -> str:
@@ -266,7 +360,7 @@ def render(board: dict[str, Any]) -> str:
 <body><main>
 <h1>Estimation Arena</h1>
 <p class="sub">{board["submissions"]} submissions and {len(anchors)} anchors, one Elo scale (Random = {board["anchor_rating"]:.0f}). Built {built}.</p>
-<div class="legend"><span><span class="sw" style="background:var(--tint);border:1px solid var(--muted)"></span>rule</span><span><span class="sw" style="background:#3987e5"></span>net</span><span><span class="sw" style="background:#eb6834"></span>search</span><span><span class="sw" style="background:#8e7cf0"></span>data</span><span><span class="sw" style="background:#1baf7a"></span>decision</span><span><span class="sw" style="border:2px solid #3987e5"></span>legal card</span><span><span class="sw" style="border:2px solid #eda100"></span>played</span><span>every bot: same deal, seat 0, vs 3 Heuristic</span></div>
+<p class="desc">Open “how it plays” under any bot: its algorithm, then one real decision from the same deal (seat 0 vs three Heuristic bots).</p>
 <table>
 <thead><tr><th class="num">#</th><th>Bot</th><th class="opt">Author</th><th class="num">Elo</th><th class="opt">Score advantage vs anchors (RSA)</th></tr></thead>
 <tbody>

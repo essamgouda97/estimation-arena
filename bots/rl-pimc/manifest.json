@@ -5,5 +5,26 @@
   "entry": "bot.py:make",
   "description": "Rung 3: PIMC search over the top 2 cards of a card net trained by imitation, then self-play PPO. Heuristic bidding.",
   "timeout_s": 5,
-  "method": [["RL card net keeps its top 2", "net"], ["deal hidden cards x50", "search"], ["play each of the 2 out", "search"], ["best average score", "out"]]
+  "method": [
+    [
+      "Heuristic bids: count tricks the hand should win",
+      "bid"
+    ],
+    [
+      "RL card net keeps its top 2 cards",
+      "net"
+    ],
+    [
+      "imagine the hidden hands x50",
+      "deal"
+    ],
+    [
+      "each kept card: Heuristic plays the round out on every hand",
+      "rollout"
+    ],
+    [
+      "play the best average score",
+      "pick"
+    ]
+  ]
 }

@@ -5,5 +5,18 @@
   "entry": "bot.py:make",
   "description": "Rung 3: the imitation card net, fine-tuned by self-play PPO. Heuristic bidding.",
   "timeout_s": 5,
-  "method": [["imitation net (rung 2)", "net"], ["self-play rounds, PPO", "data"], ["net plays cards", "out"]]
+  "method": [
+    [
+      "Heuristic bids: count tricks the hand should win",
+      "bid"
+    ],
+    [
+      "card net: copied PIMC, then self-play PPO",
+      "net"
+    ],
+    [
+      "play its top card, no search",
+      "pick"
+    ]
+  ]
 }
