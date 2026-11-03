@@ -1,5 +1,5 @@
 {
- "built_at": "2026-11-03T06:16:11+00:00",
+ "built_at": "2026-11-03T07:08:01+00:00",
  "anchor": "random",
  "anchor_rating": 400.0,
  "ladder": {
@@ -8,7 +8,7 @@
   "seed": 0,
   "imported_at": "2026-11-02T19:24:43+00:00"
  },
- "submissions": 4,
+ "submissions": 6,
  "rows": [
   {
    "name": "Hybrid (B-Tig)",
@@ -30,7 +30,7 @@
      "out"
     ]
    ],
-   "elo": 5146.101115211089,
+   "elo": 5023.094177614314,
    "games": null,
    "versus": [],
    "anchor": true
@@ -55,10 +55,88 @@
      "out"
     ]
    ],
-   "elo": 4827.415763286275,
+   "elo": 4706.646656988073,
    "games": null,
    "versus": [],
    "anchor": true
+  },
+  {
+   "name": "net-pimc",
+   "author": "Essam",
+   "kind": "python",
+   "description": "Rung 2: PIMC search that only considers the cards a net trained on PIMC-100 rates highest, with the saved effort spent on deeper search. HeuristicBot bidding, like PIMC.",
+   "key": "sub:net-pimc",
+   "method": [
+    [
+     "net keeps its top 3",
+     "net"
+    ],
+    [
+     "deal hidden cards x50",
+     "search"
+    ],
+    [
+     "play each of the 3 out",
+     "search"
+    ],
+    [
+     "best average score",
+     "out"
+    ]
+   ],
+   "elo": 4529.388202030423,
+   "games": 960,
+   "sets": 20,
+   "seed": 0,
+   "played_at": "2026-11-03T06:54:02+00:00",
+   "engine": "0.1.0",
+   "p95_ms": 27.944014688439193,
+   "over_budget": 0.0051018449561218305,
+   "versus": [
+    {
+     "anchor": "Random",
+     "rsa": 1702.2541666666668,
+     "rsa_low": 1617.890751229185,
+     "rsa_high": 1786.6175821041486,
+     "first_place": 0.5
+    },
+    {
+     "anchor": "Heuristic",
+     "rsa": 144.57916666666668,
+     "rsa_low": 129.41820963979072,
+     "rsa_high": 159.74012369354264,
+     "first_place": 0.5
+    },
+    {
+     "anchor": "PIMC",
+     "rsa": 10.395833333333334,
+     "rsa_low": -3.0669826474065403,
+     "rsa_high": 23.858649314073208,
+     "first_place": 0.303125
+    },
+    {
+     "anchor": "Search bot",
+     "rsa": 14.4125,
+     "rsa_low": 2.1702848587319075,
+     "rsa_high": 26.654715141268092,
+     "first_place": 0.275
+    },
+    {
+     "anchor": "RL v2",
+     "rsa": -26.695833333333333,
+     "rsa_low": -42.14192736051923,
+     "rsa_high": -11.24973930614743,
+     "first_place": 0.15
+    },
+    {
+     "anchor": "Hybrid (B-Tig)",
+     "rsa": -41.94583333333333,
+     "rsa_low": -53.66480535627864,
+     "rsa_high": -30.226861310388024,
+     "first_place": 0.13125
+    }
+   ],
+   "anchor": false
   },
   {
    "name": "PIMC",
@@ -80,7 +158,7 @@
      "out"
     ]
    ],
-   "elo": 4607.5593357309945,
+   "elo": 4484.301758432243,
    "games": null,
    "versus": [],
    "anchor": true
@@ -105,10 +183,88 @@
      "out"
     ]
    ],
-   "elo": 4584.951391618708,
+   "elo": 4464.318680869327,
    "games": null,
    "versus": [],
    "anchor": true
+  },
+  {
+   "name": "pimc-clone",
+   "author": "Essam",
+   "kind": "python",
+   "description": "Rung 2 baseline: net-pimc's card net playing alone, no search. Shows what imitation gives without search.",
+   "key": "sub:pimc-clone",
+   "method": [
+    [
+     "PIMC-100 plays 800 games",
+     "search"
+    ],
+    [
+     "602k decisions + card values",
+     "data"
+    ],
+    [
+     "net 512x3 learns them",
+     "net"
+    ],
+    [
+     "net picks the card",
+     "out"
+    ]
+   ],
+   "elo": 4356.445928463504,
+   "games": 960,
+   "sets": 20,
+   "seed": 0,
+   "played_at": "2026-11-03T07:07:25+00:00",
+   "engine": "0.1.0",
+   "p95_ms": 0.9269562944785031,
+   "over_budget": 0.0,
+   "versus": [
+    {
+     "anchor": "Random",
+     "rsa": 2108.4083333333333,
+     "rsa_low": 1855.2346948301904,
+     "rsa_high": 2361.581971836476,
+     "first_place": 0.5
+    },
+    {
+     "anchor": "Heuristic",
+     "rsa": 99.825,
+     "rsa_low": 81.73832911202965,
+     "rsa_high": 117.91167088797036,
+     "first_place": 0.475
+    },
+    {
+     "anchor": "PIMC",
+     "rsa": -11.141666666666667,
+     "rsa_low": -23.537644053873407,
+     "rsa_high": 1.2543107205400723,
+     "first_place": 0.2375
+    },
+    {
+     "anchor": "Search bot",
+     "rsa": -12.98333333333333,
+     "rsa_low": -25.783707599517143,
+     "rsa_high": -0.18295906714952004,
+     "first_place": 0.23125
+    },
+    {
+     "anchor": "RL v2",
+     "rsa": -43.43333333333333,
+     "rsa_low": -61.73035818786015,
+     "rsa_high": -25.136308478806516,
+     "first_place": 0.10625
+    },
+    {
+     "anchor": "Hybrid (B-Tig)",
+     "rsa": -76.75416666666666,
+     "rsa_low": -90.96381300734583,
+     "rsa_high": -62.544520325987484,
+     "first_place": 0.05625
+    }
+   ],
+   "anchor": false
   },
   {
    "name": "table-pressure",
@@ -134,7 +290,7 @@
      "out"
     ]
    ],
-   "elo": 3836.5618753681297,
+   "elo": 3741.302111034701,
    "games": 960,
    "sets": 20,
    "seed": 0,
@@ -208,7 +364,7 @@
      "out"
     ]
    ],
-   "elo": 3489.888367370636,
+   "elo": 3405.246471513036,
    "games": 96,
    "sets": 3,
    "seed": 1157764928,
@@ -268,7 +424,7 @@
      "out"
     ]
    ],
-   "elo": 3403.686492042002,
+   "elo": 3319.6483561825144,
    "games": null,
    "versus": [],
    "anchor": true
@@ -293,7 +449,7 @@
      "out"
     ]
    ],
-   "elo": 3402.246451873824,
+   "elo": 3317.8620063468293,
    "games": 32,
    "sets": 1,
    "seed": 1157764928,
@@ -353,7 +509,7 @@
      "out"
     ]
    ],
-   "elo": 3212.1940706334562,
+   "elo": 3127.9999251943327,
    "games": 96,
    "sets": 3,
    "seed": 1157764928,
