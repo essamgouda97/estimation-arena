@@ -1,5 +1,5 @@
 {
- "built_at": "2026-11-03T12:03:56+00:00",
+ "built_at": "2026-11-03T12:39:27+00:00",
  "anchor": "random",
  "anchor_rating": 400.0,
  "ladder": {
@@ -30,88 +30,10 @@
      "out"
     ]
    ],
-   "elo": 4878.843046170618,
+   "elo": 4884.565297374103,
    "games": null,
    "versus": [],
    "anchor": true
-  },
-  {
-   "name": "rl-pimc",
-   "author": "Essam",
-   "kind": "python",
-   "description": "Rung 3: PIMC search over the top 2 cards of a card net trained by imitation, then self-play PPO. Heuristic bidding.",
-   "key": "sub:rl-pimc",
-   "method": [
-    [
-     "RL card net keeps its top 2",
-     "net"
-    ],
-    [
-     "deal hidden cards x50",
-     "search"
-    ],
-    [
-     "play each of the 2 out",
-     "search"
-    ],
-    [
-     "best average score",
-     "out"
-    ]
-   ],
-   "elo": 4869.988645605294,
-   "games": 960,
-   "sets": 20,
-   "seed": 1157764928,
-   "played_at": "2026-11-03T11:58:28+00:00",
-   "engine": "0.1.0",
-   "p95_ms": 25.815950154732278,
-   "over_budget": 0.009501677890826257,
-   "versus": [
-    {
-     "anchor": "Random",
-     "rsa": 1658.2791666666667,
-     "rsa_low": 1509.6551136430646,
-     "rsa_high": 1806.9032196902688,
-     "first_place": 0.5
-    },
-    {
-     "anchor": "Heuristic",
-     "rsa": 127.65,
-     "rsa_low": 115.5010191157701,
-     "rsa_high": 139.7989808842299,
-     "first_place": 0.49375
-    },
-    {
-     "anchor": "PIMC",
-     "rsa": 55.791666666666664,
-     "rsa_low": 41.999603513998004,
-     "rsa_high": 69.58372981933533,
-     "first_place": 0.4125
-    },
-    {
-     "anchor": "Search bot",
-     "rsa": 63.775,
-     "rsa_low": 50.47974722156586,
-     "rsa_high": 77.07025277843414,
-     "first_place": 0.41875
-    },
-    {
-     "anchor": "RL v2",
-     "rsa": 28.4625,
-     "rsa_low": 12.11594697574171,
-     "rsa_high": 44.80905302425829,
-     "first_place": 0.29375
-    },
-    {
-     "anchor": "Hybrid (B-Tig)",
-     "rsa": 5.433333333333333,
-     "rsa_low": -11.898655515947038,
-     "rsa_high": 22.765322182613705,
-     "first_place": 0.2375
-    }
-   ],
-   "anchor": false
   },
   {
    "name": "rl-cards",
@@ -133,7 +55,7 @@
      "out"
     ]
    ],
-   "elo": 4864.884965600286,
+   "elo": 4864.888725154672,
    "games": 640,
    "sets": 20,
    "seed": 1157764928,
@@ -174,6 +96,84 @@
    "anchor": false
   },
   {
+   "name": "rl-pimc",
+   "author": "Essam",
+   "kind": "python",
+   "description": "Rung 3: PIMC search over the top 2 cards of a card net trained by imitation, then self-play PPO. Heuristic bidding.",
+   "key": "sub:rl-pimc",
+   "method": [
+    [
+     "RL card net keeps its top 2",
+     "net"
+    ],
+    [
+     "deal hidden cards x50",
+     "search"
+    ],
+    [
+     "play each of the 2 out",
+     "search"
+    ],
+    [
+     "best average score",
+     "out"
+    ]
+   ],
+   "elo": 4822.432755070763,
+   "games": 2000,
+   "sets": 20,
+   "seed": 1157764928,
+   "played_at": "2026-11-03T11:58:28+00:00",
+   "engine": "0.1.0",
+   "p95_ms": 25.815950154732278,
+   "over_budget": 0.008039155233544011,
+   "versus": [
+    {
+     "anchor": "Random",
+     "rsa": 1658.2791666666667,
+     "rsa_low": 1509.6551136430646,
+     "rsa_high": 1806.9032196902688,
+     "first_place": 0.5
+    },
+    {
+     "anchor": "Heuristic",
+     "rsa": 127.65,
+     "rsa_low": 115.5010191157701,
+     "rsa_high": 139.7989808842299,
+     "first_place": 0.49375
+    },
+    {
+     "anchor": "PIMC",
+     "rsa": 55.791666666666664,
+     "rsa_low": 41.999603513998004,
+     "rsa_high": 69.58372981933533,
+     "first_place": 0.4125
+    },
+    {
+     "anchor": "Search bot",
+     "rsa": 63.775,
+     "rsa_low": 50.47974722156586,
+     "rsa_high": 77.07025277843414,
+     "first_place": 0.41875
+    },
+    {
+     "anchor": "RL v2",
+     "rsa": 28.4625,
+     "rsa_low": 12.11594697574171,
+     "rsa_high": 44.80905302425829,
+     "first_place": 0.29375
+    },
+    {
+     "anchor": "Hybrid (B-Tig)",
+     "rsa": -7.581111111111111,
+     "rsa_low": -12.912901173335914,
+     "rsa_high": -2.2493210488863076,
+     "first_place": 0.20625
+    }
+   ],
+   "anchor": false
+  },
+  {
    "name": "RL v2",
    "author": "Yosif Elessawi",
    "kind": "anchor",
@@ -193,7 +193,7 @@
      "out"
     ]
    ],
-   "elo": 4577.433440584927,
+   "elo": 4577.447502776099,
    "games": null,
    "versus": [],
    "anchor": true
@@ -218,7 +218,7 @@
      "out"
     ]
    ],
-   "elo": 4361.461441475804,
+   "elo": 4361.465643374462,
    "games": null,
    "versus": [],
    "anchor": true
@@ -247,7 +247,7 @@
      "out"
     ]
    ],
-   "elo": 4340.900754830255,
+   "elo": 4341.238381766642,
    "games": 960,
    "sets": 20,
    "seed": 1157764928,
@@ -321,7 +321,7 @@
      "out"
     ]
    ],
-   "elo": 4325.465458091188,
+   "elo": 4325.468692026341,
    "games": null,
    "versus": [],
    "anchor": true
@@ -350,7 +350,7 @@
      "out"
     ]
    ],
-   "elo": 4185.729748326338,
+   "elo": 4185.733406418717,
    "games": 640,
    "sets": 20,
    "seed": 1157764928,
@@ -414,7 +414,7 @@
      "out"
     ]
    ],
-   "elo": 3475.3561558622023,
+   "elo": 3475.3663071003584,
    "games": 960,
    "sets": 20,
    "seed": 1157764928,
@@ -488,7 +488,7 @@
      "out"
     ]
    ],
-   "elo": 3287.725259533057,
+   "elo": 3287.7253268740033,
    "games": 640,
    "sets": 20,
    "seed": 1157764928,
@@ -548,7 +548,7 @@
      "out"
     ]
    ],
-   "elo": 3241.010260029305,
+   "elo": 3241.0102600298474,
    "games": null,
    "versus": [],
    "anchor": true
@@ -573,7 +573,7 @@
      "out"
     ]
    ],
-   "elo": 2719.930603216263,
+   "elo": 2719.9306174102435,
    "games": 640,
    "sets": 20,
    "seed": 1157764928,
@@ -633,7 +633,7 @@
      "out"
     ]
    ],
-   "elo": 2719.930603216263,
+   "elo": 2719.9306174102435,
    "games": 640,
    "sets": 20,
    "seed": 1157764928,
