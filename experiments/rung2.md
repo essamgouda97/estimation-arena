@@ -1,7 +1,8 @@
 # Rung 2: beat PIMC
 
 **Result: passed at equal compute.** `bots/net-pimc`: a net trained to imitate PIMC-100 picks
-the 3 cards worth searching; PIMC searches only those.
+the 3 cards worth searching; PIMC searches only those. Confirmed on fresh deals (seed 2000,
+300 sets): **161-139, +5.5 points per game [+2.6, +8.4]**.
 
 ```mermaid
 flowchart LR
@@ -33,7 +34,8 @@ The net alone sits between Heuristic and PIMC. Its top 3 almost always holds the
 | **net-pimc top 3 × 50 deals** | **150** | **96-54** | **+8.6 [+4.8, +12.4]** |
 | net-pimc top 3 × 100 deals | 300 | 57-43 | +6.0 [+0.8, +11.3] |
 
-Doubling the deals did not help: the search is limited by its Heuristic playouts, not by depth.
+The confirmation on a fresh seed is smaller than on the tuning seed (+5.5 vs +8.6), as expected
+when the best of several settings is picked on the same deals. Doubling the deals did not help: the search is limited by its Heuristic playouts, not by depth.
 
 ## Lessons
 
