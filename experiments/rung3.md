@@ -31,6 +31,12 @@ flowchart LR
     C["card net<br/>imitation (rung 2)"] --> R1["PPO self-play<br/>cards, Heuristic bids"] --> R2["PPO bidding<br/>for the new card net"] --> R3["repeat"] --> S["net guides the search<br/>(net-pimc)"]
 ```
 
+## Against the Hybrid (#1): not yet
+
+The 20-set rating put rl-pimc 11 Elo above the Hybrid, inside the noise. A dedicated match on
+fresh deals (seed 2000, 150 sets) settles it: **63-1-86, −7.6 points per game [−12.9, −2.2]**.
+The Hybrid is still stronger; rl-pimc is #2. The leaderboard now uses these 150 sets.
+
 ## Card play: PPO from the imitation net
 
 | Run | Iterations | Edge over its starting net, points per round |
