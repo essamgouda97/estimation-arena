@@ -1,0 +1,9 @@
+{
+  "name": "rl-pimc",
+  "author": "Essam",
+  "kind": "python",
+  "entry": "bot.py:make",
+  "description": "Rung 3: PIMC search over the top 2 cards of a card net trained by imitation, then self-play PPO. Heuristic bidding.",
+  "timeout_s": 5,
+  "method": [["RL card net keeps its top 2", "net"], ["deal hidden cards x50", "search"], ["play each of the 2 out", "search"], ["best average score", "out"]]
+}
