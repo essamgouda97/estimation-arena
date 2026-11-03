@@ -1,0 +1,9 @@
+{
+  "name": "rl-cards",
+  "author": "Essam",
+  "kind": "python",
+  "entry": "bot.py:make",
+  "description": "Rung 3: the imitation card net, fine-tuned by self-play PPO. Heuristic bidding.",
+  "timeout_s": 5,
+  "method": [["imitation net (rung 2)", "net"], ["self-play rounds, PPO", "data"], ["net plays cards", "out"]]
+}
