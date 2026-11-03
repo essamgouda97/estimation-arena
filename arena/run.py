@@ -238,6 +238,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.sets < 1 or args.workers < 1:
         parser.error("--sets and --workers must be at least 1")
     manifest = load_manifest(args.bot)
+    if manifest.needs and not (ROOT / manifest.needs).exists():
+        print(f"{manifest.name}: skipped, needs {manifest.needs} (its last result is kept)")
+        return 0
     anchors = load_anchors(args.anchors.split(",") if args.anchors else None)
     if not anchors:
         parser.error("no anchors available: check anchors.json")

@@ -5,13 +5,16 @@
 The diagnosis (experiments/rung3.md): giving our bot RL v2's bidding barely closed the gap to
 RL v2, so the gap is card play. This trainer fine-tunes the imitation card net by self-play.
 
-- Episode: one round, fresh deal, carry 1. Bidding: HeuristicBot in every seat.
+- Episode: one round, fresh deal, carry 1. Bidding: HeuristicBot in every seat, or with
+  ``--bidder rl`` RL v2's BiddingNet (as the Hybrid bids; rung 4).
 - Card play: the learner (sampled from its policy) in some seats; in the others either the
   learner too (self-play) or the frozen imitation net it started from.
 - Reward per learner card decision: its seat's round score minus the mean of the other three,
   / 50, the same for every card of the round; a value head is the baseline.
 - Start: the imitation net's weights (bots/net-pimc/net.npz) plus a fresh value head. A KL
   penalty to the starting policy keeps early updates from undoing what imitation learned.
+- ``--opponent rl``: the non-learner seats play RL v2's CardPlayNet instead of the frozen net
+  (the KL still pulls toward the starting net). Rung 4 trains in the Hybrid's world this way.
 - Evaluation: greedy learner in seats 0 and 2 vs the frozen imitation net in 1 and 3, then
   swapped, same deals: the learner's edge in points per round.
 """
@@ -37,6 +40,12 @@ from estimation.rl.encoder import encode
 from train.rl_bid import MLP, ROOT, load_card_net, new_round
 
 PLAY_BASE = 68
+RL_V2 = "runs/m4-rules-v2/checkpoints/final.pt"
+WORLD: dict = {"bid": None, "opp": None}  # RL v2 Policy for bidding / opponents' card play, or None
+
+
+def _argmax_legal(values: np.ndarray, legal: list[int], offset: int = 0) -> int:
+    return max(legal, key=lambda action: values[action - offset])
 
 
 class CardPolicy(nn.Module):
@@ -60,21 +69,32 @@ def play(rounds: list[Round], learner_seats, policy: CardPolicy, frozen: MLP, de
     rec = {"x": [], "mask": [], "action": [], "logp": [], "value": [], "round": [], "seat": []}
     active = list(range(len(rounds)))
     while active:
-        mine, theirs, actions = [], [], {}
+        mine, theirs, bids, actions = [], [], [], {}
         for i in active:
             r = rounds[i]
             seat = r.current_player
             obs = r.observation(seat)
             legal = r.legal_actions()
             if r.phase is not Phase.PLAY:
-                actions[i] = heuristic.act(obs, legal)
+                if WORLD["bid"] is None or len(legal) == 1:
+                    actions[i] = heuristic.act(obs, legal)
+                else:
+                    bids.append((i, encode(obs), legal))
             elif len(legal) == 1:
                 actions[i] = legal[0]
             elif seat in learner_seats[i]:
                 mine.append((i, seat, encode(obs), r.legal_mask()[PLAY_BASE:]))
             else:
                 theirs.append((i, encode(obs), r.legal_mask()[PLAY_BASE:]))
-        if theirs:
+        if bids:
+            values = WORLD["bid"].bid_values(np.stack([b[1] for b in bids]))
+            for (i, _, legal), v in zip(bids, values):
+                actions[i] = _argmax_legal(v, legal)
+        if theirs and WORLD["opp"] is not None:
+            values = WORLD["opp"].card_values(np.stack([t[1] for t in theirs]))
+            for (i, _, m), v in zip(theirs, values):
+                actions[i] = PLAY_BASE + int(np.where(m, v, -np.inf).argmax())
+        elif theirs:
             x = torch.as_tensor(np.stack([t[1] for t in theirs]), device=device)
             m = torch.as_tensor(np.stack([t[2] for t in theirs]), device=device)
             for (i, _, _), a in zip(theirs, frozen(x).masked_fill(~m, -1e9).argmax(1).tolist()):
@@ -141,7 +161,15 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--eval-rounds", type=int, default=1500)
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--logdir", type=Path)
+    p.add_argument("--bidder", choices=("heuristic", "rl"), default="heuristic")
+    p.add_argument("--opponent", choices=("init", "rl"), default="init")
     a = p.parse_args(argv)
+    if a.bidder == "rl" or a.opponent == "rl":
+        from estimation.bots.rl import policy_at
+
+        rl_v2 = policy_at(str(ROOT / RL_V2))
+        WORLD["bid"] = rl_v2 if a.bidder == "rl" else None
+        WORLD["opp"] = rl_v2 if a.opponent == "rl" else None
     torch.manual_seed(a.seed)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     frozen = load_card_net(a.init, device)
@@ -152,7 +180,7 @@ def main(argv: list[str] | None = None) -> int:
 
         writer = SummaryWriter(str(a.logdir.expanduser() / f"rl-cards-{a.out.stem}"))
     best = evaluate(policy, frozen, device, a.eval_rounds, 999)
-    print(f"iteration 0: edge vs imitation net {best:+.2f} points/round (should be ~0)", flush=True)
+    print(f"iteration 0: edge vs {a.opponent} opponent {best:+.2f} points/round", flush=True)
     meta = {"args": {k: str(v) for k, v in vars(a).items()}, "history": [{"iteration": 0, "edge": best}]}
     opt = torch.optim.Adam(policy.parameters(), lr=a.lr)
     rng = random.Random(a.seed + 1)

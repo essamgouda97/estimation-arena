@@ -1,0 +1,8 @@
+{
+  "name": "mix-hybrid",
+  "author": "Essam",
+  "kind": "python",
+  "entry": "bot.py:make",
+  "description": "Rung 4 screening only: the Hybrid's search with a chosen card net for the prior and the rollouts, and a chosen bidder. Lives in experiments/bots, so it is never rated.",
+  "needs": "runs/m4-rules-v2/checkpoints/final.pt"
+}
