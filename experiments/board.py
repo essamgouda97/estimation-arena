@@ -72,6 +72,10 @@ def methods() -> dict[str, plt.Figure]:
                                "PIMC (anchor)"),
         "methods/4_imitation": flow([("PIMC-100 plays\n800 games", ORANGE), ("602k decisions\n+ card values", GRAY),
                                      ("net 512x3\nGTX 1070", BLUE), ("net picks\nthe card", BLUE)], "pimc-clone"),
+        "methods/6_rl_cards": flow([("imitation net\n(rung 2)", BLUE), ("self-play rounds\nPPO, GPU batched", "#8e7cf0"),
+                                    ("+6.7 points\nper round", GREEN)], "rl-cards (rung 3)"),
+        "methods/7_rl_pimc": flow([("RL card net\nkeeps its top 2", BLUE), ("deal hidden\ncards x50", ORANGE),
+                                   ("play each\nof the 2 out", ORANGE), ("best average", GREEN)], "rl-pimc (rung 3)"),
         "methods/5_net_pimc": flow([("legal cards", GRAY), ("net keeps\nits top 3", BLUE),
                                     ("deal hidden\ncards x50", ORANGE), ("play each\nof the 3 out", ORANGE),
                                     ("best average", GREEN)], "net-pimc (rung 2)"),
@@ -123,6 +127,21 @@ def data_figures(shards: list[str]) -> dict[str, plt.Figure]:
 
 # ---------- results ----------
 
+def diagnosis() -> plt.Figure:
+    """Rung 3: swapping either half with RL v2's leaves the gap the same."""
+    rows = [("Heuristic bids + net-pimc cards", -20.8, -29.5, -12.1),
+            ("RL v2 bids + net-pimc cards", -18.0, -26.0, -10.0),
+            ("Heuristic bids + RL v2 cards", -19.4, -30.5, -8.2)]
+    fig, ax = plt.subplots(figsize=(9, 3))
+    for i, (label, m, lo, hi) in enumerate(rows):
+        ax.plot([lo, hi], [i, i], color=RED, lw=3, solid_capstyle="round")
+        ax.plot(m, i, "o", color=RED, ms=9)
+    ax.axvline(0, color=FG, lw=1)
+    ax.set_yticks(range(len(rows)), [r[0] for r in rows])
+    ax.set_xlabel("points per game vs RL v2")
+    return fig
+
+
 def leaderboard(path: Path) -> plt.Figure:
     rows = [r for r in json.loads(path.read_text())["rows"] if r["elo"] is not None and r["name"] != "Random"]
     rows.sort(key=lambda r: r["elo"])
@@ -158,22 +177,37 @@ def regret_ladder(nets: Path, gap_log: Path) -> plt.Figure:
     return fig
 
 
-def matches(logs: list[str]) -> plt.Figure:
+DEFAULT_TOP = {"net-pimc": 3, "rl-pimc": 2}  # search bots run without a top= option use these
+
+
+def matches(logs: list[str], opponent: str = "pimc") -> plt.Figure:
     pat = re.compile(r"^\s+(.+?)\s+sets\s+(\d+)-(\d+)-(\d+)\s+first\s+[\d.]+%\s+RSA\s+([+-][\d.]+)\s+\[([+-][\d.]+),\s*([+-][\d.]+)\]")
+    head_re = re.compile(r"^(\S+) vs (\S+), \d+ sets")
     rows = []
     for log in logs:
-        head = Path(log).read_text().splitlines()
-        title = head[0] if head else ""
-        if " vs pimc" not in title:
-            continue
-        bot = title.split(" vs ")[0]
-        for line in head:
+        bot = vs = None
+        for line in Path(log).read_text().splitlines():
+            h = head_re.match(line)
+            if h:
+                bot, vs = h.group(1), h.group(2)
+                continue
             m = pat.match(line)
-            if m:
-                g = m.group(1)
-                tm = re.search(r"top=(\d+) samples=(\d+)", g)
-                label = f"{bot}: top {tm.group(1)} x {tm.group(2)} deals" if tm else f"{bot}: net alone"
-                rows.append((label, int(m.group(2)), int(m.group(4)), float(m.group(5)), float(m.group(6)), float(m.group(7))))
+            if not m or bot is None or not vs.startswith(opponent):
+                continue
+            g = m.group(1)
+            net = re.search(r"net=\S*?([\w-]+)\.npz", g)
+            tag = f" [{net.group(1)}]" if net else ""
+            if bot == "combo":
+                label = (g.replace(";checkpoint=runs/m4-rules-v2/checkpoints/final.pt", "")
+                          .replace("sub;", "").replace("bid=", "bids ").replace("cards=", "+ cards "))
+            elif "top=" in g:
+                sm = re.search(r"samples=(\d+)", g)
+                label = f"{bot}{tag}: top {re.search(r'top=(\d+)', g).group(1)}" + (f" x {sm.group(1)} deals" if sm else "")
+            elif bot in DEFAULT_TOP:
+                label = f"{bot}{tag}: top {DEFAULT_TOP[bot]}"
+            else:
+                label = f"{bot}{tag}: net alone"
+            rows.append((label, int(m.group(2)), int(m.group(4)), float(m.group(5)), float(m.group(6)), float(m.group(7))))
     fig, ax = plt.subplots(figsize=(9, 0.6 * max(1, len(rows)) + 1))
     for i, (label, w, l, rsa, lo, hi) in enumerate(rows):
         color = GREEN if lo > 0 else (RED if hi < 0 else GOLD)
@@ -182,7 +216,7 @@ def matches(logs: list[str]) -> plt.Figure:
         ax.text(max(hi, 0) + 1.5, i, f"{w}-{l}", va="center", color=MUTED, fontsize=11)
     ax.axvline(0, color=FG, lw=1)
     ax.set_yticks(range(len(rows)), [r[0] for r in rows])
-    ax.set_xlabel("points per game vs PIMC, 95% interval")
+    ax.set_xlabel(f"points per game vs {'PIMC' if opponent == 'pimc' else 'RL v2'}, 95% interval")
     return fig
 
 
@@ -284,6 +318,10 @@ def main() -> None:
     emit("results/leaderboard", leaderboard(a.leaderboard))
     emit("results/regret_ladder", regret_ladder(data / "nets", data / "teacher-gap.log"))
     emit("results/vs_pimc", matches(sorted(glob.glob(str(data / "*.log")))))
+    emit("results/rung3_diagnosis", diagnosis())
+    rung3 = data.parent / "rung3"
+    if rung3.is_dir():
+        emit("results/vs_rl_v2", matches(sorted(glob.glob(str(rung3 / "*.log"))), opponent="rl:"))
     trace = json.loads(a.trace.read_text())
     for i, step in enumerate(trace["steps"]):
         emit("games/replay", replay_frame(step, trace["seats"]), i)
