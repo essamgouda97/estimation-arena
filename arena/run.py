@@ -49,6 +49,14 @@ def load_anchors(only: Sequence[str] | None = None) -> list[dict[str, str]]:
     return chosen
 
 
+def _one_thread() -> None:
+    """Worker initializer: one thread per process. Left alone, every worker's PyTorch starts a
+    thread per core, so 5 workers on 6 cores run 30 threads and the RL anchors crawl."""
+    import torch
+
+    torch.set_num_threads(1)
+
+
 def _task(
     lineup: tuple[str, ...], seed: int, config: RulesConfig, budget: float, index: int
 ) -> tuple[SetResult, dict[str, Timing]]:
@@ -84,7 +92,7 @@ def run_sets(
         for index in range(sets):
             collect(task(index))
     else:
-        with ProcessPoolExecutor(max_workers=workers) as pool:
+        with ProcessPoolExecutor(max_workers=workers, initializer=_one_thread) as pool:
             for outcome in pool.map(task, range(sets)):
                 collect(outcome)
     return ArenaRun(
