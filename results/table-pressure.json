@@ -1,0 +1,236 @@
+{
+ "schema": 1,
+ "bot": "table-pressure",
+ "manifest": {
+  "name": "table-pressure",
+  "author": "Essam",
+  "kind": "python",
+  "description": "Rung 1: HeuristicBot that stops chasing tricks once its unbeatable trumps cover what it still needs. Also sweeps table-pressure estimates, which did not help.",
+  "command": [],
+  "entry": "bot.py:make",
+  "timeout_s": 5.0
+ },
+ "engine": "0.1.0",
+ "rules": {
+  "with_any_call": true,
+  "with_choose": true
+ },
+ "seed": 0,
+ "sets": 20,
+ "played_at": "2026-11-03T01:34:41+00:00",
+ "versus": [
+  {
+   "anchor": "Random",
+   "spec": "random",
+   "sets": 20,
+   "games": 160,
+   "mean_score": 586.61875,
+   "rsa": {
+    "mean": 1651.3916666666669,
+    "low": 1537.289477812499,
+    "high": 1765.4938555208348,
+    "sets": 20
+   },
+   "first_place": {
+    "mean": 0.49375,
+    "low": 0.4806685996599481,
+    "high": 0.5068314003400519,
+    "sets": 20
+   },
+   "timing": {
+    "count": 66482,
+    "mean_s": 6.9026388044884334e-06,
+    "p95_s": 9.187962993982937e-06,
+    "max_s": 0.0003525590291246772,
+    "budget_s": 0.25,
+    "over_budget": 0
+   },
+   "wall_s": 0.7838224510196596
+  },
+  {
+   "anchor": "Heuristic",
+   "spec": "heuristic",
+   "sets": 20,
+   "games": 160,
+   "mean_score": 128.65,
+   "rsa": {
+    "mean": 15.258333333333335,
+    "low": 3.084184300856551,
+    "high": 27.432482365810117,
+    "sets": 20
+   },
+   "first_place": {
+    "mean": 0.25,
+    "low": 0.1842496520996913,
+    "high": 0.3157503479003087,
+    "sets": 20
+   },
+   "timing": {
+    "count": 38168,
+    "mean_s": 6.41481455669671e-06,
+    "p95_s": 8.658022738221854e-06,
+    "max_s": 0.0001868860563263297,
+    "budget_s": 0.25,
+    "over_budget": 0
+   },
+   "wall_s": 0.5104450189974159
+  },
+  {
+   "anchor": "PIMC",
+   "spec": "pimc",
+   "sets": 20,
+   "games": 160,
+   "mean_score": 46.10625,
+   "rsa": {
+    "mean": -100.0375,
+    "low": -112.72890985991866,
+    "high": -87.34609014008133,
+    "sets": 20
+   },
+   "first_place": {
+    "mean": 0.03125,
+    "low": -0.0009329875036336033,
+    "high": 0.0634329875036336,
+    "sets": 20
+   },
+   "timing": {
+    "count": 38168,
+    "mean_s": 9.520756052190316e-06,
+    "p95_s": 1.1424077133199195e-05,
+    "max_s": 0.0074153420282527804,
+    "budget_s": 0.25,
+    "over_budget": 0
+   },
+   "wall_s": 84.21297479397617
+  },
+  {
+   "anchor": "Search bot",
+   "spec": "search",
+   "sets": 20,
+   "games": 160,
+   "mean_score": 55.525,
+   "rsa": {
+    "mean": -89.99583333333334,
+    "low": -102.90511272643919,
+    "high": -77.08655394022749,
+    "sets": 20
+   },
+   "first_place": {
+    "mean": 0.025,
+    "low": -0.005605121368041005,
+    "high": 0.05560512136804101,
+    "sets": 20
+   },
+   "timing": {
+    "count": 38142,
+    "mean_s": 9.681000498138536e-06,
+    "p95_s": 1.2123322046368054e-05,
+    "max_s": 0.002104793908074498,
+    "budget_s": 0.25,
+    "over_budget": 0
+   },
+   "wall_s": 88.22872341400944
+  },
+  {
+   "anchor": "RL v2",
+   "spec": "rl:checkpoint=runs/m4-rules-v2/checkpoints/final.pt",
+   "sets": 20,
+   "games": 160,
+   "mean_score": 59.225,
+   "rsa": {
+    "mean": -119.28333333333333,
+    "low": -140.64626643280292,
+    "high": -97.92040023386375,
+    "sets": 20
+   },
+   "first_place": {
+    "mean": 0.0,
+    "low": 0.0,
+    "high": 0.0,
+    "sets": 20
+   },
+   "timing": {
+    "count": 39156,
+    "mean_s": 1.192821817856778e-05,
+    "p95_s": 1.507382716484852e-05,
+    "max_s": 0.003041420946829021,
+    "budget_s": 0.25,
+    "over_budget": 0
+   },
+   "wall_s": 6.899446129100397
+  },
+  {
+   "anchor": "Hybrid (B-Tig)",
+   "spec": "hybrid",
+   "sets": 20,
+   "games": 160,
+   "mean_score": 58.75625,
+   "rsa": {
+    "mean": -109.82083333333333,
+    "low": -124.96827574021978,
+    "high": -94.67339092644687,
+    "sets": 20
+   },
+   "first_place": {
+    "mean": 0.028125,
+    "low": 0.00397610168474281,
+    "high": 0.052273898315257195,
+    "sets": 20
+   },
+   "timing": {
+    "count": 39156,
+    "mean_s": 1.529147024721626e-05,
+    "p95_s": 2.0693134452910604e-05,
+    "max_s": 0.007741414941847324,
+    "budget_s": 0.25,
+    "over_budget": 0
+   },
+   "wall_s": 575.0598031390691
+  }
+ ],
+ "pairs": [
+  {
+   "a": "sub:table-pressure",
+   "b": "random",
+   "a_wins": 20,
+   "draws": 0,
+   "b_wins": 0
+  },
+  {
+   "a": "sub:table-pressure",
+   "b": "heuristic",
+   "a_wins": 18,
+   "draws": 0,
+   "b_wins": 2
+  },
+  {
+   "a": "sub:table-pressure",
+   "b": "pimc",
+   "a_wins": 0,
+   "draws": 0,
+   "b_wins": 20
+  },
+  {
+   "a": "sub:table-pressure",
+   "b": "search",
+   "a_wins": 0,
+   "draws": 0,
+   "b_wins": 20
+  },
+  {
+   "a": "sub:table-pressure",
+   "b": "rl:checkpoint=runs/m4-rules-v2/checkpoints/final.pt",
+   "a_wins": 0,
+   "draws": 0,
+   "b_wins": 20
+  },
+  {
+   "a": "sub:table-pressure",
+   "b": "hybrid",
+   "a_wins": 0,
+   "draws": 0,
+   "b_wins": 20
+  }
+ ],
+ "bot_hash": "405d2d00e1d5044c"
+}

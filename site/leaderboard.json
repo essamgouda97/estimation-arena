@@ -1,5 +1,5 @@
 {
- "built_at": "2026-11-03T00:27:53+00:00",
+ "built_at": "2026-11-03T01:34:59+00:00",
  "anchor": "random",
  "anchor_rating": 400.0,
  "ladder": {
@@ -8,14 +8,14 @@
   "seed": 0,
   "imported_at": "2026-11-02T19:24:43+00:00"
  },
- "submissions": 3,
+ "submissions": 4,
  "rows": [
   {
    "name": "Hybrid (B-Tig)",
    "author": "estimation-engine",
    "kind": "anchor",
    "description": "hybrid",
-   "elo": 5224.010917875513,
+   "elo": 5146.101115211089,
    "games": null,
    "versus": [],
    "anchor": true
@@ -25,7 +25,7 @@
    "author": "estimation-engine",
    "kind": "anchor",
    "description": "rl:checkpoint=runs/m4-rules-v2/checkpoints/final.pt",
-   "elo": 4903.423771955367,
+   "elo": 4827.415763286275,
    "games": null,
    "versus": [],
    "anchor": true
@@ -35,7 +35,7 @@
    "author": "estimation-engine",
    "kind": "anchor",
    "description": "pimc",
-   "elo": 4682.440444979447,
+   "elo": 4607.5593357309945,
    "games": null,
    "versus": [],
    "anchor": true
@@ -45,17 +45,76 @@
    "author": "estimation-engine",
    "kind": "anchor",
    "description": "search",
-   "elo": 4660.838607448087,
+   "elo": 4584.951391618708,
    "games": null,
    "versus": [],
    "anchor": true
+  },
+  {
+   "name": "table-pressure",
+   "author": "Essam",
+   "kind": "python",
+   "description": "Rung 1: HeuristicBot that stops chasing tricks once its unbeatable trumps cover what it still needs. Also sweeps table-pressure estimates, which did not help.",
+   "elo": 3836.5618753681297,
+   "games": 960,
+   "sets": 20,
+   "seed": 0,
+   "played_at": "2026-11-03T01:34:41+00:00",
+   "engine": "0.1.0",
+   "p95_ms": 0.020693134452910603,
+   "over_budget": 0.0,
+   "versus": [
+    {
+     "anchor": "Random",
+     "rsa": 1651.3916666666669,
+     "rsa_low": 1537.289477812499,
+     "rsa_high": 1765.4938555208348,
+     "first_place": 0.49375
+    },
+    {
+     "anchor": "Heuristic",
+     "rsa": 15.258333333333335,
+     "rsa_low": 3.084184300856551,
+     "rsa_high": 27.432482365810117,
+     "first_place": 0.25
+    },
+    {
+     "anchor": "PIMC",
+     "rsa": -100.0375,
+     "rsa_low": -112.72890985991866,
+     "rsa_high": -87.34609014008133,
+     "first_place": 0.03125
+    },
+    {
+     "anchor": "Search bot",
+     "rsa": -89.99583333333334,
+     "rsa_low": -102.90511272643919,
+     "rsa_high": -77.08655394022749,
+     "first_place": 0.025
+    },
+    {
+     "anchor": "RL v2",
+     "rsa": -119.28333333333333,
+     "rsa_low": -140.64626643280292,
+     "rsa_high": -97.92040023386375,
+     "first_place": 0.0
+    },
+    {
+     "anchor": "Hybrid (B-Tig)",
+     "rsa": -109.82083333333333,
+     "rsa_low": -124.96827574021978,
+     "rsa_high": -94.67339092644687,
+     "first_place": 0.028125
+    }
+   ],
+   "anchor": false
   },
   {
    "name": "cautious-heuristic",
    "author": "Essam",
    "kind": "python",
    "description": "Example Python-tier bot: the engine's HeuristicBot with a higher risk aversion.",
-   "elo": 3534.8502043597077,
+   "elo": 3489.888367370636,
    "games": 96,
    "sets": 3,
    "seed": 1157764928,
@@ -100,7 +159,7 @@
    "author": "estimation-engine",
    "kind": "anchor",
    "description": "heuristic",
-   "elo": 3448.2414786594013,
+   "elo": 3403.686492042002,
    "games": null,
    "versus": [],
    "anchor": true
@@ -110,7 +169,7 @@
    "author": "Essam",
    "kind": "wire",
    "description": "Mirror of lowcard-wire: never bids, estimates the minimum, plays the highest legal card. Submitted through a pull request to prove the smoke flow.",
-   "elo": 3447.0340092005003,
+   "elo": 3402.246451873824,
    "games": 32,
    "sets": 1,
    "seed": 1157764928,
@@ -155,7 +214,7 @@
    "author": "Essam",
    "kind": "wire",
    "description": "Example wire-protocol bot: never bids, estimates the minimum, plays the lowest legal card. Pure stdlib, no engine import.",
-   "elo": 3256.853585704614,
+   "elo": 3212.1940706334562,
    "games": 96,
    "sets": 3,
    "seed": 1157764928,
