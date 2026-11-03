@@ -1,0 +1,254 @@
+{
+ "schema": 1,
+ "bot": "rl-pimc",
+ "manifest": {
+  "name": "rl-pimc",
+  "author": "Essam",
+  "kind": "python",
+  "description": "Rung 3: PIMC search over the top 2 cards of a card net trained by imitation, then self-play PPO. Heuristic bidding.",
+  "command": [],
+  "entry": "bot.py:make",
+  "timeout_s": 5.0,
+  "method": [
+   [
+    "RL card net keeps its top 2",
+    "net"
+   ],
+   [
+    "deal hidden cards x50",
+    "search"
+   ],
+   [
+    "play each of the 2 out",
+    "search"
+   ],
+   [
+    "best average score",
+    "out"
+   ]
+  ]
+ },
+ "engine": "0.1.0",
+ "rules": {
+  "with_any_call": true,
+  "with_choose": true
+ },
+ "seed": 0,
+ "sets": 20,
+ "played_at": "2026-11-03T09:40:48+00:00",
+ "versus": [
+  {
+   "anchor": "Random",
+   "spec": "random",
+   "sets": 20,
+   "games": 160,
+   "mean_score": 606.1875,
+   "rsa": {
+    "mean": 1571.2666666666669,
+    "low": 1455.7819704031172,
+    "high": 1686.7513629302166,
+    "sets": 20
+   },
+   "first_place": {
+    "mean": 0.5,
+    "low": 0.5,
+    "high": 0.5,
+    "sets": 20
+   },
+   "timing": {
+    "count": 65364,
+    "mean_s": 0.011567940511367114,
+    "p95_s": 0.01573561857132862,
+    "max_s": 1.0172127900877967,
+    "budget_s": 0.25,
+    "over_budget": 214
+   },
+   "wall_s": 163.57396783097647
+  },
+  {
+   "anchor": "Heuristic",
+   "spec": "heuristic",
+   "sets": 20,
+   "games": 160,
+   "mean_score": 231.4875,
+   "rsa": {
+    "mean": 144.4,
+    "low": 127.56182119021402,
+    "high": 161.23817880978598,
+    "sets": 20
+   },
+   "first_place": {
+    "mean": 0.49375,
+    "low": 0.4806685996599481,
+    "high": 0.5068314003400519,
+    "sets": 20
+   },
+   "timing": {
+    "count": 38168,
+    "mean_s": 0.012309841534767345,
+    "p95_s": 0.019565263858287774,
+    "max_s": 0.7895639189518988,
+    "budget_s": 0.25,
+    "over_budget": 181
+   },
+   "wall_s": 109.97879459499381
+  },
+  {
+   "anchor": "PIMC",
+   "spec": "pimc",
+   "sets": 20,
+   "games": 160,
+   "mean_score": 171.09375,
+   "rsa": {
+    "mean": 51.416666666666664,
+    "low": 41.63834236341954,
+    "high": 61.19499096991379,
+    "sets": 20
+   },
+   "first_place": {
+    "mean": 0.3875,
+    "low": 0.34139654869285035,
+    "high": 0.43360345130714967,
+    "sets": 20
+   },
+   "timing": {
+    "count": 38168,
+    "mean_s": 0.012691610526697757,
+    "p95_s": 0.018075279524481028,
+    "max_s": 1.0093994879862294,
+    "budget_s": 0.25,
+    "over_budget": 210
+   },
+   "wall_s": 204.98477607802488
+  },
+  {
+   "anchor": "Search bot",
+   "spec": "search",
+   "sets": 20,
+   "games": 160,
+   "mean_score": 173.2375,
+   "rsa": {
+    "mean": 54.55,
+    "low": 43.159088081230664,
+    "high": 65.94091191876933,
+    "sets": 20
+   },
+   "first_place": {
+    "mean": 0.4,
+    "low": 0.35929138303191255,
+    "high": 0.4407086169680875,
+    "sets": 20
+   },
+   "timing": {
+    "count": 38584,
+    "mean_s": 0.013330251138451172,
+    "p95_s": 0.02247433817779162,
+    "max_s": 1.1737067790236324,
+    "budget_s": 0.25,
+    "over_budget": 250
+   },
+   "wall_s": 228.83353089506272
+  },
+  {
+   "anchor": "RL v2",
+   "spec": "rl:checkpoint=runs/m4-rules-v2/checkpoints/final.pt",
+   "sets": 20,
+   "games": 160,
+   "mean_score": 165.8,
+   "rsa": {
+    "mean": 28.4625,
+    "low": 12.11594697574171,
+    "high": 44.80905302425829,
+    "sets": 20
+   },
+   "first_place": {
+    "mean": 0.29375,
+    "low": 0.24620396593602856,
+    "high": 0.34129603406397147,
+    "sets": 20
+   },
+   "timing": {
+    "count": 39416,
+    "mean_s": 0.012967811091587173,
+    "p95_s": 0.01703273959909935,
+    "max_s": 1.2917580499779433,
+    "budget_s": 0.25,
+    "over_budget": 244
+   },
+   "wall_s": 128.6083193719387
+  },
+  {
+   "anchor": "Hybrid (B-Tig)",
+   "spec": "hybrid",
+   "sets": 20,
+   "games": 160,
+   "mean_score": 147.6875,
+   "rsa": {
+    "mean": 5.433333333333333,
+    "low": -11.898655515947038,
+    "high": 22.765322182613705,
+    "sets": 20
+   },
+   "first_place": {
+    "mean": 0.2375,
+    "low": 0.17202418502273886,
+    "high": 0.3029758149772611,
+    "sets": 20
+   },
+   "timing": {
+    "count": 39208,
+    "mean_s": 0.014859854308431954,
+    "p95_s": 0.025815950154732276,
+    "max_s": 1.5885182940401137,
+    "budget_s": 0.25,
+    "over_budget": 285
+   },
+   "wall_s": 667.0349044429604
+  }
+ ],
+ "pairs": [
+  {
+   "a": "sub:rl-pimc",
+   "b": "random",
+   "a_wins": 20,
+   "draws": 0,
+   "b_wins": 0
+  },
+  {
+   "a": "sub:rl-pimc",
+   "b": "heuristic",
+   "a_wins": 20,
+   "draws": 0,
+   "b_wins": 0
+  },
+  {
+   "a": "sub:rl-pimc",
+   "b": "pimc",
+   "a_wins": 20,
+   "draws": 0,
+   "b_wins": 0
+  },
+  {
+   "a": "sub:rl-pimc",
+   "b": "search",
+   "a_wins": 20,
+   "draws": 0,
+   "b_wins": 0
+  },
+  {
+   "a": "sub:rl-pimc",
+   "b": "rl:checkpoint=runs/m4-rules-v2/checkpoints/final.pt",
+   "a_wins": 15,
+   "draws": 0,
+   "b_wins": 5
+  },
+  {
+   "a": "sub:rl-pimc",
+   "b": "hybrid",
+   "a_wins": 13,
+   "draws": 0,
+   "b_wins": 7
+  }
+ ],
+ "bot_hash": "85293f2e4a46c329"
+}

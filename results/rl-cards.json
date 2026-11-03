@@ -1,0 +1,250 @@
+{
+ "schema": 1,
+ "bot": "rl-cards",
+ "manifest": {
+  "name": "rl-cards",
+  "author": "Essam",
+  "kind": "python",
+  "description": "Rung 3: the imitation card net, fine-tuned by self-play PPO. Heuristic bidding.",
+  "command": [],
+  "entry": "bot.py:make",
+  "timeout_s": 5.0,
+  "method": [
+   [
+    "imitation net (rung 2)",
+    "net"
+   ],
+   [
+    "self-play rounds, PPO",
+    "data"
+   ],
+   [
+    "net plays cards",
+    "out"
+   ]
+  ]
+ },
+ "engine": "0.1.0",
+ "rules": {
+  "with_any_call": true,
+  "with_choose": true
+ },
+ "seed": 0,
+ "sets": 20,
+ "played_at": "2026-11-03T09:54:35+00:00",
+ "versus": [
+  {
+   "anchor": "Random",
+   "spec": "random",
+   "sets": 20,
+   "games": 160,
+   "mean_score": 625.98125,
+   "rsa": {
+    "mean": 1945.8125,
+    "low": 1530.7849388179077,
+    "high": 2360.8400611820925,
+    "sets": 20
+   },
+   "first_place": {
+    "mean": 0.5,
+    "low": 0.5,
+    "high": 0.5,
+    "sets": 20
+   },
+   "timing": {
+    "count": 64454,
+    "mean_s": 0.00039422983135259257,
+    "p95_s": 0.0005995915159824138,
+    "max_s": 0.028863519080914557,
+    "budget_s": 0.25,
+    "over_budget": 0
+   },
+   "wall_s": 7.091383154969662
+  },
+  {
+   "anchor": "Heuristic",
+   "spec": "heuristic",
+   "sets": 20,
+   "games": 160,
+   "mean_score": 210.0625,
+   "rsa": {
+    "mean": 112.6,
+    "low": 94.99820991972616,
+    "high": 130.2017900802738,
+    "sets": 20
+   },
+   "first_place": {
+    "mean": 0.4625,
+    "low": 0.41963601738253964,
+    "high": 0.5053639826174604,
+    "sets": 20
+   },
+   "timing": {
+    "count": 38168,
+    "mean_s": 0.0003922796595053448,
+    "p95_s": 0.0005995915159824138,
+    "max_s": 0.04145068000070751,
+    "budget_s": 0.25,
+    "over_budget": 0
+   },
+   "wall_s": 4.660190624999814
+  },
+  {
+   "anchor": "PIMC",
+   "spec": "pimc",
+   "sets": 20,
+   "games": 160,
+   "mean_score": 150.56875,
+   "rsa": {
+    "mean": 27.183333333333337,
+    "low": 11.26098256713981,
+    "high": 43.10568409952687,
+    "sets": 20
+   },
+   "first_place": {
+    "mean": 0.334375,
+    "low": 0.2756618966515068,
+    "high": 0.39308810334849315,
+    "sets": 20
+   },
+   "timing": {
+    "count": 38168,
+    "mean_s": 0.00027799152750995597,
+    "p95_s": 0.0004035079018309662,
+    "max_s": 0.027591535006649792,
+    "budget_s": 0.25,
+    "over_budget": 0
+   },
+   "wall_s": 101.97678199794609
+  },
+  {
+   "anchor": "Search bot",
+   "spec": "search",
+   "sets": 20,
+   "games": 160,
+   "mean_score": 162.225,
+   "rsa": {
+    "mean": 44.79166666666667,
+    "low": 33.63965975467425,
+    "high": 55.943673578659094,
+    "sets": 20
+   },
+   "first_place": {
+    "mean": 0.35,
+    "low": 0.2943382754627712,
+    "high": 0.40566172453722876,
+    "sets": 20
+   },
+   "timing": {
+    "count": 38324,
+    "mean_s": 0.0002764076709111784,
+    "p95_s": 0.0004035079018309662,
+    "max_s": 0.012906432035379112,
+    "budget_s": 0.25,
+    "over_budget": 0
+   },
+   "wall_s": 104.49664563301485
+  },
+  {
+   "anchor": "RL v2",
+   "spec": "rl:checkpoint=runs/m4-rules-v2/checkpoints/final.pt",
+   "sets": 20,
+   "games": 160,
+   "mean_score": 148.725,
+   "rsa": {
+    "mean": -0.91666666666667,
+    "low": -23.988818126288372,
+    "high": 22.15548479295503,
+    "sets": 20
+   },
+   "first_place": {
+    "mean": 0.23125,
+    "low": 0.14578508529387102,
+    "high": 0.316714914706129,
+    "sets": 20
+   },
+   "timing": {
+    "count": 39260,
+    "mean_s": 0.00040354894556800816,
+    "p95_s": 0.0005995915159824138,
+    "max_s": 0.046806170023046434,
+    "budget_s": 0.25,
+    "over_budget": 0
+   },
+   "wall_s": 12.072954418021254
+  },
+  {
+   "anchor": "Hybrid (B-Tig)",
+   "spec": "hybrid",
+   "sets": 20,
+   "games": 160,
+   "mean_score": 143.9875,
+   "rsa": {
+    "mean": -17.891666666666666,
+    "low": -30.303779427392588,
+    "high": -5.479553905940744,
+    "sets": 20
+   },
+   "first_place": {
+    "mean": 0.1375,
+    "low": 0.09139654869285035,
+    "high": 0.18360345130714967,
+    "sets": 20
+   },
+   "timing": {
+    "count": 39390,
+    "mean_s": 0.0005436335049758823,
+    "p95_s": 0.0009087806808612776,
+    "max_s": 0.04619335394818336,
+    "budget_s": 0.25,
+    "over_budget": 0
+   },
+   "wall_s": 594.2977699849289
+  }
+ ],
+ "pairs": [
+  {
+   "a": "sub:rl-cards",
+   "b": "random",
+   "a_wins": 20,
+   "draws": 0,
+   "b_wins": 0
+  },
+  {
+   "a": "sub:rl-cards",
+   "b": "heuristic",
+   "a_wins": 20,
+   "draws": 0,
+   "b_wins": 0
+  },
+  {
+   "a": "sub:rl-cards",
+   "b": "pimc",
+   "a_wins": 15,
+   "draws": 0,
+   "b_wins": 5
+  },
+  {
+   "a": "sub:rl-cards",
+   "b": "search",
+   "a_wins": 19,
+   "draws": 0,
+   "b_wins": 1
+  },
+  {
+   "a": "sub:rl-cards",
+   "b": "rl:checkpoint=runs/m4-rules-v2/checkpoints/final.pt",
+   "a_wins": 9,
+   "draws": 0,
+   "b_wins": 11
+  },
+  {
+   "a": "sub:rl-cards",
+   "b": "hybrid",
+   "a_wins": 5,
+   "draws": 0,
+   "b_wins": 15
+  }
+ ],
+ "bot_hash": "daf98dae60d331df"
+}
