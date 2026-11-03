@@ -8,9 +8,11 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["pytest>=8"]
+dev = ["pytest>=8", "httpx2"]
 # Optional: the PettingZoo environment for RL training (arena/env.py). uv sync --group rl
 rl = ["pettingzoo>=1.24", "gymnasium>=1.0"]
+# The live table server (arena/serve.py): uv sync --group table
+table = ["websockets>=13"]
 
 [tool.uv]
 package = false

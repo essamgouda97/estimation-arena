@@ -1,0 +1,33 @@
+:root{--bg:#f6f7f9;--panel:#fff;--fg:#1b1b1f;--muted:#6b6f76;--line:#e1e4e8;--felt:#e9efe9;--accent:#2f6fd0;--gold:#d99a00;--red:#d23c3c;--good:#2e8b57}
+@media(prefers-color-scheme:dark){:root{--bg:#111316;--panel:#191c20;--fg:#e8e9ec;--muted:#9aa0a6;--line:#2b2f35;--felt:#16201a;--accent:#6ea3f0;--gold:#f0b429;--red:#f06b6b;--good:#6fcf97}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+main{max-width:1000px;margin:0 auto;padding:20px 16px 40px}h1{font-size:22px;margin:0 0 4px}.muted{color:var(--muted)}.small{font-size:13px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:14px 0}
+button{font:inherit;border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:8px;padding:6px 12px;cursor:pointer}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}button:disabled{opacity:.35;cursor:default}
+select,input{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);max-width:100%}
+.seatrow{display:grid;grid-template-columns:70px 1fr 1fr;gap:8px;align-items:center;margin:6px 0}
+@media(max-width:560px){.seatrow{grid-template-columns:1fr}}
+.links div{display:flex;gap:8px;align-items:center;margin:6px 0;flex-wrap:wrap}.links code{font-size:12px;word-break:break-all;color:var(--muted)}
+.bar{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:14px}.chip{border:1px solid var(--line);border-radius:999px;padding:1px 9px;font-size:13px}
+.board{display:grid;grid-template-columns:1fr 2fr 1fr;grid-template-rows:auto auto auto;gap:10px;background:var(--felt);border-radius:16px;padding:14px;margin-top:12px}
+.p-top{grid-column:2;grid-row:1}.p-left{grid-column:1;grid-row:2}.p-right{grid-column:3;grid-row:2}.p-me{grid-column:2;grid-row:3}
+.plate{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px 10px;text-align:center;min-width:0}
+.plate.turn{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold) inset}.plate .nm{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--muted);margin-right:5px;vertical-align:1px}.dot.on{background:var(--good)}
+.tally{font-variant-numeric:tabular-nums;font-size:13px}.score{font-size:12px;color:var(--muted)}
+.trick{grid-column:2;grid-row:2;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,auto);place-items:center;min-height:170px}
+.trick .t-top{grid-column:2;grid-row:1}.trick .t-left{grid-column:1;grid-row:2}.trick .t-right{grid-column:3;grid-row:2}.trick .t-me{grid-column:2;grid-row:3}
+.trick .note{grid-column:2;grid-row:2;font-size:12px;color:var(--muted);text-align:center}.trick.old .card{opacity:.55}
+.card{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;width:46px;height:64px;border-radius:7px;background:#fff;color:#1b1b1f;border:1px solid #cfd3d8;font-weight:700;font-size:16px;line-height:1.05;user-select:none}
+.card.red{color:#d23c3c}.card .s{font-size:18px}.card.win{box-shadow:0 0 0 3px var(--gold)}
+.hand{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:14px 0 4px}.hand .card{transition:transform .15s}
+.hand .card.legal{cursor:pointer;border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}.hand .card.legal:hover{transform:translateY(-6px)}
+.hand .card.off{opacity:.45}.hand.wait .card{opacity:1}
+.actions{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0}
+.bidgrid{display:grid;gap:3px;max-width:560px;margin:6px auto;overflow-x:auto}.bidgrid .h{text-align:center;color:var(--muted);font-size:13px}
+.bidgrid button{padding:3px 0;font-size:13px}a{color:var(--accent)}.prompt{text-align:center;font-weight:600;margin-top:8px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:700px){.cols{grid-template-columns:1fr}.board{grid-template-columns:1fr 1.4fr 1fr;padding:8px;gap:6px}.card{width:38px;height:54px;font-size:14px}.card .s{font-size:15px}.trick{min-height:150px}}
+table{border-collapse:collapse;width:100%;font-size:13px}td,th{padding:4px 6px;border-bottom:1px solid var(--line);text-align:left}td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.log{max-height:220px;overflow:auto;font-size:13px}.log div{padding:2px 0;border-bottom:1px dashed var(--line)}
+.err{color:var(--red);text-align:center;min-height:20px;font-size:13px}.win{color:var(--good)}
