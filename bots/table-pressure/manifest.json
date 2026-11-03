@@ -1,0 +1,8 @@
+{
+  "name": "table-pressure",
+  "author": "Essam",
+  "kind": "python",
+  "entry": "bot.py:make",
+  "description": "Rung 1: HeuristicBot that shades its estimate by how many tricks the table has already claimed, with a calibrated shift and risk aversion picked by a sweep.",
+  "timeout_s": 5
+}

@@ -10,8 +10,10 @@
       "timeout_s": 5                     # optional hard limit per decision (wire only)
     }
 
-A lineup names a submission as ``sub:<name>``; anything else is an engine bot spec such as
-``heuristic`` or ``pimc:samples=8`` (see ``estimation.bots.registry``).
+A lineup names a submission as ``sub:<name>``, or ``sub:<name>:key=value:...`` to pass string
+options to a python bot's factory as ``make(seed, rules, key=value)`` (for parameter sweeps);
+anything else is an engine bot spec such as ``heuristic`` or ``pimc:samples=8`` (see
+``estimation.bots.registry``).
 """
 
 from __future__ import annotations
@@ -92,8 +94,24 @@ def load_manifest(name: str) -> Manifest:
     )
 
 
-def make_submission(manifest: Manifest, seed: int, rules: RulesConfig) -> Bot:
+def parse_sub(spec: str) -> tuple[str, dict[str, str]]:
+    """``sub:name:key=value:...`` as the name and its options."""
+    name, *pairs = spec[len(SUB_PREFIX) :].split(":")
+    options: dict[str, str] = {}
+    for pair in pairs:
+        key, sep, value = pair.partition("=")
+        if not sep or not key:
+            raise ValueError(f"bot option {pair!r} must look like key=value")
+        options[key] = value
+    return name, options
+
+
+def make_submission(
+    manifest: Manifest, seed: int, rules: RulesConfig, options: dict[str, str] | None = None
+) -> Bot:
     if manifest.kind == "wire":
+        if options:
+            raise ValueError(f"{manifest.name} is a wire bot; it takes no options")
         return WireBot(manifest.command, manifest.folder, seed, rules, manifest.timeout_s)
     file, function = manifest.entry.split(":", 1)
     path = manifest.folder / file
@@ -103,11 +121,12 @@ def make_submission(manifest: Manifest, seed: int, rules: RulesConfig) -> Bot:
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     factory = getattr(module, function)
-    return factory(seed, rules)
+    return factory(seed, rules, **(options or {}))
 
 
 def maker(spec: str, seed: int, rules: RulesConfig) -> Bot:
     """The arena's ``BotMaker``: a submission for ``sub:<name>``, else an engine bot."""
     if spec.startswith(SUB_PREFIX):
-        return make_submission(load_manifest(spec[len(SUB_PREFIX) :]), seed, rules)
+        name, options = parse_sub(spec)
+        return make_submission(load_manifest(name), seed, rules, options)
     return make_bot(spec, seed, rules)
