@@ -120,8 +120,7 @@ def render(board: dict[str, Any]) -> str:
     rank = 0
     for r in rows:
         e = html.escape
-        if not r["anchor"]:
-            rank += 1
+        rank += 1  # one global ranking: anchors and submissions alike
         elo = r["elo"]
         bar = f'<span class="bar" style="width:{max(2, int(140 * (elo / top)))}px"></span>' if elo else ""
         elo_text = f"{elo:,.0f}" if elo is not None else "unrated"
@@ -143,7 +142,7 @@ def render(board: dict[str, Any]) -> str:
             )
         lines.append(
             f'<tr class="{"anchor" if r["anchor"] else "sub"}">'
-            f'<td class="num">{"" if r["anchor"] else rank}</td>'
+            f'<td class="num">{rank if elo is not None else ""}</td>'
             f"<td>{name}</td><td class=\"opt\">{meta}</td>"
             f'<td class="num">{bar}{elo_text}</td><td class="opt">{detail}</td></tr>'
         )
