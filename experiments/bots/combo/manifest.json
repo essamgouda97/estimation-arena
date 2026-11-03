@@ -1,0 +1,7 @@
+{
+  "name": "combo",
+  "author": "Essam",
+  "kind": "python",
+  "entry": "bot.py:make",
+  "description": "Diagnostic only: one bot's bidding with another bot's card play. Lives in experiments/bots, so it is never rated."
+}

@@ -32,6 +32,7 @@ from .protocol import DEFAULT_TIMEOUT_S, WireBot
 
 ROOT = Path(__file__).resolve().parents[1]
 BOTS_DIR = ROOT / "bots"
+EXPERIMENT_BOTS_DIR = ROOT / "experiments" / "bots"  # same format, never rated on the leaderboard
 SUB_PREFIX = "sub:"
 NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,39}$")
 
@@ -69,6 +70,8 @@ def load_manifest(name: str) -> Manifest:
     if not NAME_RE.match(name):
         raise ValueError(f"bad bot name {name!r}")
     folder = BOTS_DIR / name
+    if not (folder / "manifest.json").is_file() and (EXPERIMENT_BOTS_DIR / name / "manifest.json").is_file():
+        folder = EXPERIMENT_BOTS_DIR / name
     path = folder / "manifest.json"
     if not path.is_file():
         raise ValueError(f"no submission named {name!r}: {path} is missing")
