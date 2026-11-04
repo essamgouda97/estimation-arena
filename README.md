@@ -90,6 +90,7 @@ Protocol: [docs/table.md](docs/table.md).
 
 Secrets: `ENGINE_TOKEN` (read access to the engine repo), `LADDER_SEED`.
 Training design: [docs/training-design.md](docs/training-design.md).
+GPU rules for self-play at scale: [docs/jax-rules.md](docs/jax-rules.md).
 
 ## Using a coding agent?
 
