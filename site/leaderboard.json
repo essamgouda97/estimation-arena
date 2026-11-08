@@ -31393,6 +31393,43 @@
    "file": "hybrid-b-tig.vs.table-pressure.json"
   },
   {
+   "a": "sub:llm-claude-api",
+   "b": "heuristic",
+   "kind": "benchmark",
+   "a_wins": 1,
+   "draws": 0,
+   "b_wins": 0,
+   "sets": 1,
+   "clear": false,
+   "played_at": "2026-11-08",
+   "detail": [
+    {
+     "outcome": "W",
+     "games": [
+      [
+       59.5,
+       66.5
+      ],
+      [
+       151.0,
+       43.5
+      ],
+      [
+       116.5,
+       58.0
+      ],
+      [
+       129.0,
+       64.0
+      ]
+     ]
+    }
+   ],
+   "a_name": "Claude Opus 5.5",
+   "b_name": "Basic rules",
+   "file": "heuristic.vs.llm-claude-api.json"
+  },
+  {
    "a": "sub:bitter-net",
    "b": "sub:bitter-search",
    "kind": "direct",
@@ -33841,7 +33878,7 @@
   "sub:highcard-wire",
   "random"
  ],
- "built_at": "2026-11-07T20:51:49+00:00",
+ "built_at": "2026-11-08T00:41:12+00:00",
  "anchor": "random",
  "anchor_rating": 400.0,
  "ladder": {
@@ -35094,6 +35131,62 @@
    ],
    "anchor": false,
    "code_name": "pimc-clone"
+  },
+  {
+   "name": "Claude Opus 5.5",
+   "author": "Essam",
+   "kind": "wire",
+   "description": "Anthropic's general AI model, not built for this game. For each move it reads the rules and its own view of the table in words, then picks one. It has no tools and remembers nothing between moves.",
+   "key": "sub:llm-claude-api",
+   "provisional": true,
+   "method": [
+    [
+     "put the rules and this seat's view into words",
+     "data"
+    ],
+    [
+     "Claude thinks it over and picks a move",
+     "net"
+    ],
+    [
+     "play that move",
+     "pick"
+    ]
+   ],
+   "elo": 1187.4933777717715,
+   "king_elo": 1161.3494046051846,
+   "score_elo": 3286.620946249591,
+   "positions": [
+    0.375,
+    0.375,
+    0.125,
+    0.125
+   ],
+   "games": 8,
+   "sets": 1,
+   "played_at": "2026-11-08T00:33:42+00:00",
+   "engine": "0.1.0+2dbf68df",
+   "p95_ms": 17431.89589251501,
+   "over_budget": 0.7825854700854701,
+   "versus": [
+    {
+     "anchor": "Heuristic",
+     "rsa": 37.33333333333333,
+     "rsa_low": null,
+     "rsa_high": null,
+     "first_place": 0.375,
+     "positions": [
+      0.375,
+      0.375,
+      0.125,
+      0.125
+     ],
+     "position_reward": 0.3,
+     "delta": 56.0
+    }
+   ],
+   "anchor": false,
+   "code_name": "llm-claude-api"
   },
   {
    "name": "Rules + trump count",

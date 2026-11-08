@@ -69,7 +69,7 @@ def record_game(seats: list[str], seed: int, rounds: int = 0, bots: list[Any] | 
         action = bots[seat].act(view, game.legal_actions())
         current["moves"].append([seat, action])
         game.step(action)
-    final = list(game.observation(0).scores)
+    final = list(game.scores)  # what play_bola scores the game by; the last observation can lag it
     if current is not None:
         current["after"] = final
     return {"seats": seats, "seed": seed, "rounds": played, "final": final, "finished": game.is_over}

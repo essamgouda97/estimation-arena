@@ -159,7 +159,7 @@ def _early_board(tmp_path):
     early = {"bot": "llm-claude-api", "bot_hash": "h", "engine": "e", "sets": 1, "played_at": "2026-11-07T00:00:00+00:00",
              "manifest": {"name": "llm-claude-api", "author": "Essam", "kind": "wire"}, "versus": [entry],
              "pairs": [pair], "position_pairs": [pair], "king_pairs": [pair]}  # fmt: skip
-    (tmp_path / "results" / "early").mkdir()
+    (tmp_path / "results" / "early").mkdir(exist_ok=True)
     (tmp_path / "results" / "early" / "llm-claude-api.json").write_text(json.dumps(early))
     return leaderboard.build(tmp_path)
 
@@ -186,3 +186,17 @@ def test_an_early_bot_is_on_the_page_without_a_rank_and_has_a_browser_page(tmp_p
 def test_the_ladder_never_plays_an_early_bot(tmp_path):
     _early_board(tmp_path)
     assert not any("llm-claude-api" in pair for pair in duels.due(tmp_path))
+
+
+def test_recorded_game_scores_match_the_arena():
+    from estimation.arena.duplicate import bot_seed, deal_seed
+    from estimation.arena.match import play_bola
+    from estimation.engine.config import DEFAULT_CONFIG
+
+    from arena.bots import maker
+    from arena.replay import record_game
+
+    seats = ["heuristic", "random", "heuristic", "random"]
+    bots = lambda: [maker(s, bot_seed(2000, 0, 0, k), DEFAULT_CONFIG) for k, s in enumerate(seats)]  # noqa: E731
+    real = play_bola(deal_seed(2000, 0), bots(), DEFAULT_CONFIG)
+    assert record_game(seats, deal_seed(2000, 0), bots=bots())["final"] == list(real.scores)

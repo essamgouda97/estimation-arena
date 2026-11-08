@@ -1,0 +1,122 @@
+{
+ "schema": 1,
+ "bot": "llm-claude-api",
+ "manifest": {
+  "name": "llm-claude-api",
+  "author": "Essam",
+  "kind": "wire",
+  "description": "Experiment: Claude Opus 5.5 chooses every move through its SDK, with no tools and only this seat's view. Lives in experiments/bots, so it is never rated.",
+  "command": [
+   "python3",
+   "bot.py"
+  ],
+  "entry": "",
+  "timeout_s": 400.0,
+  "method": [
+   [
+    "describe this seat's view in words",
+    "data"
+   ],
+   [
+    "ask Claude Opus 5.5 for a move",
+    "net"
+   ],
+   [
+    "play the move it picks",
+    "pick"
+   ]
+  ],
+  "needs": ""
+ },
+ "engine": "0.1.0+2dbf68df",
+ "rules": {
+  "with_any_call": true,
+  "with_choose": true
+ },
+ "seed": 2000,
+ "sets": 1,
+ "played_at": "2026-11-08T00:33:42+00:00",
+ "versus": [
+  {
+   "anchor": "Heuristic",
+   "spec": "heuristic",
+   "sets": 1,
+   "games": 8,
+   "mean_score": 114.0,
+   "rsa": {
+    "mean": 37.33333333333333,
+    "low": null,
+    "high": null,
+    "sets": 1
+   },
+   "first_place": {
+    "mean": 0.375,
+    "low": null,
+    "high": null,
+    "sets": 1
+   },
+   "positions": [
+    0.375,
+    0.375,
+    0.125,
+    0.125
+   ],
+   "position_reward": {
+    "mean": 0.3,
+    "low": 0.3,
+    "high": 0.3,
+    "sets": 1
+   },
+   "king": {
+    "mean": 0.375,
+    "low": 0.375,
+    "high": 0.375,
+    "sets": 1
+   },
+   "delta": {
+    "mean": 56.0,
+    "low": 56.0,
+    "high": 56.0,
+    "sets": 1
+   },
+   "scores": "31 96 88 37,108 144 -21 158,157 53 76 63,81 63 47 195",
+   "timing": {
+    "count": 1872,
+    "mean_s": 6.8749563610614315,
+    "p95_s": 17.431895892515012,
+    "max_s": 42.958658972987905,
+    "budget_s": 0.25,
+    "over_budget": 1465
+   },
+   "wall_s": 14947.018711965065
+  }
+ ],
+ "pairs": [
+  {
+   "a": "sub:llm-claude-api",
+   "b": "heuristic",
+   "a_wins": 1,
+   "draws": 0,
+   "b_wins": 0
+  }
+ ],
+ "position_pairs": [
+  {
+   "a": "sub:llm-claude-api",
+   "b": "heuristic",
+   "a_wins": 1,
+   "draws": 0,
+   "b_wins": 0
+  }
+ ],
+ "king_pairs": [
+  {
+   "a": "sub:llm-claude-api",
+   "b": "heuristic",
+   "a_wins": 1,
+   "draws": 0,
+   "b_wins": 0
+  }
+ ],
+ "bot_hash": "268bd5a0383c5507"
+}
