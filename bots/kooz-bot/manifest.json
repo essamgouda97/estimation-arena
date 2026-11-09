@@ -1,0 +1,16 @@
+{
+  "name": "kooz-bot",
+  "author": "Abdulrahman Boudi",
+  "kind": "python",
+  "entry": "bot.py:make",
+  "description": "A deep-search Hybrid on nets trained from scratch: it imagines 64 hidden deals from its guess net, searches every legal card, and only Dash Calls when the bid net rates the Dash Call +10 or better.",
+  "timeout_s": 5,
+  "needs": "runs/kooz-bot/final.pt",
+  "method": [
+    ["trained from scratch by self-play", "data"],
+    ["the bid net picks the bid; a Dash Call only if it is worth +10 or more", "bid"],
+    ["imagine hidden hands from the guess net, keep those that fit the bids x64", "deal"],
+    ["each legal card: the card net plays all 4 seats to the end", "rollout"],
+    ["play the best average score", "pick"]
+  ]
+}

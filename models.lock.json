@@ -35,6 +35,12 @@
   "file": "hybrid.pt",
   "sha256": "b7171823f75e01d4f325ecfddd2b296986aa3797ebc3ccfb48340a2109a20b6b"
  },
+ "runs/kooz-bot/final.pt": {
+  "repo": "aboudi-dev/kooz-bot",
+  "revision": "2dbf79025153ff78070ded065dd61f9e78b64c9f",
+  "file": "final.pt",
+  "sha256": "d4e104148a0a8fe74e56e6c82670fbee8aade0e9163b122316dc4aeab808fda0"
+ },
  "runs/m4-rules-v2/checkpoints/final.pt": {
   "repo": "GoudaGame/estimation-rl-v2",
   "revision": "c8be2f53401cf381104eeca15d387d994d58fcee",
