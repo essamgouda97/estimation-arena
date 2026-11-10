@@ -5,6 +5,9 @@
 Each anchor gets its own run with the lineup (submission, anchor, submission, anchor): every
 deal is played four times with the seats rotated, so deal luck cancels and the pairwise set
 results feed the leaderboard's Elo fit. The result file is small (no moves) and goes in git.
+
+The ladder plays micro games (``GAME_ROUNDS``): the first 5 rounds of a game, each with 13 cards
+and open bidding. ``--rounds 0`` plays full games, as the weekly full-game ladder does.
 """
 
 from __future__ import annotations
@@ -22,11 +25,13 @@ from importlib.metadata import PackageNotFoundError, distribution
 from pathlib import Path
 from typing import Any
 
-from estimation.arena.duplicate import ArenaRun, SetResult, play_set
+from estimation.arena.duplicate import ROTATIONS, ArenaRun, SetResult, bot_seed, deal_seed, slot_at
 from estimation.arena.games import changed_rules
+from estimation.arena.match import BotError
 from estimation.arena.report import build_report
 from estimation.arena.timing import DEFAULT_BUDGET, Timing
-from estimation.engine import RulesConfig
+from estimation.bots import Bot
+from estimation.engine import Bola, IllegalActionError, Phase, RulesConfig
 from estimation.engine.config import DEFAULT_CONFIG
 
 from .bots import ROOT, SUB_PREFIX, Manifest, load_manifest, maker
@@ -36,6 +41,8 @@ from .positions import encode_scores, summarize
 ANCHORS_FILE = ROOT / "anchors.json"
 RESULTS_DIR = ROOT / "results"
 SCHEMA = 1
+GAME_ROUNDS = 5  # micro games: a game's first 5 rounds, 13 cards each with open bidding
+FULL_GAME = 0  # all 18 rounds: 13 open rounds, then 5 with a fixed trump
 
 
 def load_anchors(only: Sequence[str] | None = None) -> list[dict[str, str]]:
@@ -59,10 +66,55 @@ def _one_thread() -> None:
     torch.set_num_threads(1)
 
 
+def play_game(
+    seed: int, bots: Sequence[Bot], config: RulesConfig, timers: Sequence[Timing], rounds: int = GAME_ROUNDS
+) -> Bola:
+    """Play one game dealt from ``seed`` and stop after ``rounds`` rounds (0: the whole game).
+
+    Each bot sees only its own seat. Card decisions are timed into ``timers[seat]``. The game's
+    ``scores`` after the last round played are its result."""
+    bola = Bola(seed, config)
+    while not bola.is_over and not (rounds and len(bola.history) >= rounds):
+        seat = bola.current_player
+        if seat is None:
+            raise RuntimeError("a game that is not over always has a player to act")
+        legal, obs = bola.legal_actions(), bola.observation(seat)
+        start = time.perf_counter()
+        action = bots[seat].act(obs, legal)
+        if obs.phase is Phase.PLAY:
+            timers[seat].add(time.perf_counter() - start)
+        try:
+            bola.step(action)
+        except IllegalActionError as error:
+            raise BotError(f"seat {seat} ({bots[seat]!r}) chose an illegal action: {error}") from error
+    return bola
+
+
+def play_set(
+    lineup: Sequence[str], seed: int, index: int, config: RulesConfig = DEFAULT_CONFIG,
+    budget: float = DEFAULT_BUDGET, rounds: int = GAME_ROUNDS,
+) -> tuple[SetResult, dict[str, Timing]]:  # fmt: skip
+    """Duplicate set ``index``: one deal played once per rotation of the lineup, so every bot
+    plays every hand. The same seeds as the engine's own duplicate runner."""
+    if len(lineup) != 4:
+        raise ValueError("a lineup has exactly 4 bots")
+    deals = deal_seed(seed, index)
+    timings = {name: Timing(budget) for name in dict.fromkeys(lineup)}
+    scores: list[tuple[int, int, int, int]] = []
+    played: list[int] = []
+    for rotation in range(ROTATIONS):
+        names = [lineup[slot_at(seat, rotation)] for seat in range(4)]
+        bots = [maker(names[seat], bot_seed(seed, index, rotation, seat), config) for seat in range(4)]
+        game = play_game(deals, bots, config, [timings[name] for name in names], rounds)
+        scores.append(game.scores)
+        played.append(len(game.history))
+    return SetResult(index, deals, tuple(scores), tuple(played)), timings
+
+
 def _task(
-    lineup: tuple[str, ...], seed: int, config: RulesConfig, budget: float, index: int
+    lineup: tuple[str, ...], seed: int, config: RulesConfig, budget: float, rounds: int, index: int
 ) -> tuple[SetResult, dict[str, Timing]]:
-    return play_set(lineup, seed, index, config, make=maker, budget=budget)
+    return play_set(lineup, seed, index, config, budget, rounds)
 
 
 def run_sets(
@@ -74,10 +126,12 @@ def run_sets(
     budget: float = DEFAULT_BUDGET,
     progress: bool = False,
     kind: str = "rating",
+    rounds: int = GAME_ROUNDS,
 ) -> ArenaRun:
-    """``estimation.arena.run_arena`` with submissions allowed in the lineup."""
+    """``estimation.arena.run_arena`` with submissions allowed in the lineup, playing ``rounds``
+    rounds a game (0: whole games)."""
     names = tuple(lineup)
-    task = partial(_task, names, seed, config, budget)
+    task = partial(_task, names, seed, config, budget, rounds)
     timings = {name: Timing(budget) for name in dict.fromkeys(names)}
     results: list[SetResult] = []
     start = time.perf_counter()
@@ -128,16 +182,24 @@ def _timing(timing: Timing) -> dict[str, float | int]:
     }
 
 
-def engine_version() -> str:
-    """The engine's version and commit: the version stays the same across commits, and a result
-    played on a different commit must be replayed."""
+def engine_version(rounds: int = GAME_ROUNDS) -> str:
+    """The engine's version and commit, and how many rounds a game had (``/r5`` for micro games,
+    nothing for whole games). A result played on another commit or another game length must be
+    replayed, and every check that compares this string does that."""
     try:
         engine = distribution("estimation-engine")
     except PackageNotFoundError:
-        return "unknown"
-    source = json.loads(engine.read_text("direct_url.json") or "{}")
-    commit = source.get("vcs_info", {}).get("commit_id", "")
-    return f"{engine.version}+{commit[:8]}" if commit else engine.version
+        version = "unknown"
+    else:
+        source = json.loads(engine.read_text("direct_url.json") or "{}")
+        commit = source.get("vcs_info", {}).get("commit_id", "")
+        version = f"{engine.version}+{commit[:8]}" if commit else engine.version
+    return f"{version}/r{rounds}" if rounds else version
+
+
+def base_engine(engine: str) -> str:
+    """The engine part of ``engine_version``, without the game length."""
+    return engine.split("/")[0]
 
 
 def play_submission(
@@ -147,6 +209,7 @@ def play_submission(
     seed: int,
     workers: int,
     progress: bool,
+    rounds: int = GAME_ROUNDS,
 ) -> dict[str, Any]:
     me = SUB_PREFIX + manifest.name
     versus: list[dict[str, Any]] = []
@@ -157,7 +220,7 @@ def play_submission(
         lineup = (me, anchor["spec"], me, anchor["spec"])
         if progress:
             print(f"[{manifest.name}] vs {anchor['name']} ({anchor['spec']})", file=sys.stderr)
-        run = run_sets(lineup, sets, seed, workers, progress=progress)
+        run = run_sets(lineup, sets, seed, workers, progress=progress, rounds=rounds)
         report = build_report(run)
         mine = next(b for b in report.bots if b.name == me)
         places, by_position = summarize(run.results, lineup)
@@ -195,7 +258,8 @@ def play_submission(
         "schema": SCHEMA,
         "bot": manifest.name,
         "manifest": manifest.to_dict(),
-        "engine": engine_version(),
+        "engine": engine_version(rounds),
+        "rounds": rounds,
         "rules": changed_rules(DEFAULT_CONFIG),
         "seed": seed,
         "sets": sets,

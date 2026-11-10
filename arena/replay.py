@@ -21,7 +21,7 @@ from estimation.engine.config import DEFAULT_CONFIG
 from .bots import ROOT, SUB_PREFIX, load_manifest, maker
 from .direct import game_file
 from .leaderboard import SITE_DIR, build
-from .run import bot_hash, engine_version
+from .run import GAME_ROUNDS, bot_hash, engine_version
 
 GAMES_DIR = Path("games")
 PUBLIC_SEED = 20261107
@@ -99,7 +99,7 @@ def due(root: Path = ROOT, out: Path = SITE_DIR) -> list[tuple[str, str]]:
 
 
 def play(a: str, b: str, root: Path = ROOT, out: Path = SITE_DIR) -> Path:
-    game = record_game([a, b, a, b], game_seed(a, b))
+    game = record_game([a, b, a, b], game_seed(a, b), rounds=GAME_ROUNDS)
     game |= {"engine": engine_version(), "versions": {a: _version(a), b: _version(b)}}
     path = out / GAMES_DIR / game_file(*(names_of(root)[k] for k in (a, b)))
     path.parent.mkdir(parents=True, exist_ok=True)

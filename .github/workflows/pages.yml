@@ -11,7 +11,7 @@ on:
     branches: [main]
     paths: ["site/**"]
   workflow_run:
-    workflows: [ladder]
+    workflows: [ladder, ladder-full]
     types: [completed]
   workflow_dispatch:
 

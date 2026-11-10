@@ -73,6 +73,7 @@ The nightly ladder plays only what is new or out of date:
 
 - **A bot's folder changed:** that bot plays every benchmark again.
 - **The engine commit changed:** every bot plays every benchmark again.
+- **The game length changed:** results record how many rounds a game had (`/r5` at the end of `engine` for micro games), so changing `GAME_ROUNDS` in `arena/run.py` replays everything.
 - **Only a model changed, under `needs` in `models.lock.json`:** nothing is replayed automatically. Replay that bot by hand:
 
   ```bash
@@ -82,6 +83,14 @@ The nightly ladder plays only what is new or out of date:
 Direct games between bots follow the same rule: changing a bot or the engine voids its direct games, and they're played again. Each bot's result is saved as soon as it finishes. If a run hits its 350-minute limit, the next night's run carries on with the bots still out of date, so large replays need no splitting. Merging during a run is safe.
 
 A hand-started `replay=true` run plays every named bot again even if nothing changed, and the name list defaults to all of them. Name the bots you mean.
+
+## The weekly full-game ladder
+
+The nightly ladder plays micro games: the first 5 rounds of a game, each with 13 cards and open bidding. That keeps a deep search bot inside one night. Every Saturday, `ladder-full.yml` takes the top 5 of the main standings and plays each pair in whole games, one pair per runner, 20 sets a batch. A new pair plays first; a pair too close to call plays another batch the next week, up to 100 sets. Results go to `results/full/direct/` and the page `site/full/`. A changed bot voids its whole-game matches too. To start it by hand:
+
+```bash
+gh workflow run ladder-full.yml
+```
 
 ## When something fails
 

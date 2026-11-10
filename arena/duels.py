@@ -18,10 +18,10 @@ from pathlib import Path
 from typing import Any
 
 from .bots import ROOT, SUB_PREFIX, load_manifest
-from .direct import current, is_clear, load_matches, match_file, record
+from .direct import DIRECT_DIR, current, is_clear, load_matches, match_file, record
 from .leaderboard import build
 from .positions import encode_scores, summarize
-from .run import RESULTS_DIR, bot_hash, engine_version, run_sets
+from .run import GAME_ROUNDS, RESULTS_DIR, bot_hash, engine_version, run_sets
 
 BATCH_SETS = 20
 MAX_SETS = 100
@@ -72,19 +72,23 @@ def estimate(a: str, b: str, sets: int = BATCH_SETS, root: Path = ROOT) -> float
     return MARGIN * max(guess, before)
 
 
-def play(a: str, b: str, seed: int, workers: int = 4, sets: int = BATCH_SETS, root: Path = ROOT) -> dict[str, Any]:
-    """One more batch for this pair, added to its file. No seed is saved: the ladder's is secret."""
+def play(
+    a: str, b: str, seed: int, workers: int = 4, sets: int = BATCH_SETS, root: Path = ROOT,
+    rounds: int = GAME_ROUNDS, folder: Path = DIRECT_DIR,
+) -> dict[str, Any]:  # fmt: skip
+    """One more batch for this pair, added to its file. No seed is saved: the ladder's is secret.
+    ``rounds`` and ``folder`` are for the weekly full-game ladder (arena.full)."""
     first, second = sorted((a, b))
-    path = match_file(root, first, second)
+    path = match_file(root, first, second, folder)
     hashes = (bot_hash(load_manifest(first)), bot_hash(load_manifest(second)))
-    engine = engine_version()
+    engine = engine_version(rounds)
     match = json.loads(path.read_text()) if path.is_file() else None
     if not match or (match["hash_a"], match["hash_b"]) != hashes or match["engine"] != engine:
-        match = {"a": first, "b": second, "hash_a": hashes[0], "hash_b": hashes[1], "engine": engine,
+        match = {"a": first, "b": second, "hash_a": hashes[0], "hash_b": hashes[1], "engine": engine, "rounds": rounds,
                  "batches": [], "pairs": [], "position_pairs": [], "king_pairs": []}  # fmt: skip
     me, other = SUB_PREFIX + first, SUB_PREFIX + second
     lineup = (me, other, me, other)
-    run = run_sets(lineup, sets, pair_seed(seed, first, second, len(match["batches"])), workers)
+    run = run_sets(lineup, sets, pair_seed(seed, first, second, len(match["batches"])), workers, rounds=rounds)
     _, by_position = summarize(run.results, lineup)
     match["pairs"] += by_position["delta"]
     match["position_pairs"] += by_position["weighted"]

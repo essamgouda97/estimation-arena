@@ -18,10 +18,10 @@ DIRECT_DIR = Path("results") / "direct"
 SIGNIFICANCE = 0.05
 
 
-def match_file(root: Path, a: str, b: str) -> Path:
+def match_file(root: Path, a: str, b: str, folder: Path = DIRECT_DIR) -> Path:
     """One file per pair of bots, whichever way round they are named."""
     first, second = sorted((a, b))
-    return root / DIRECT_DIR / f"{first}.vs.{second}.json"
+    return root / folder / f"{first}.vs.{second}.json"
 
 
 def game_file(a: str, b: str) -> str:
@@ -31,17 +31,25 @@ def game_file(a: str, b: str) -> str:
     return f"{first}.vs.{second}.json"
 
 
-def load_matches(root: Path) -> list[dict[str, Any]]:
-    return [json.loads(p.read_text()) for p in sorted((root / DIRECT_DIR).glob("*.vs.*.json"))]
+def load_matches(root: Path, folder: Path = DIRECT_DIR) -> list[dict[str, Any]]:
+    return [json.loads(p.read_text()) for p in sorted((root / folder).glob("*.vs.*.json"))]
 
 
-def current(matches: Iterable[dict[str, Any]], results: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
-    """The matches both of whose bots are still as they were: a changed bot or engine voids them."""
+def current(
+    matches: Iterable[dict[str, Any]], results: Iterable[dict[str, Any]], engine: str | None = None
+) -> list[dict[str, Any]]:
+    """The matches both of whose bots are still as they were: a changed bot or engine voids them.
+
+    Matches are played in the results' game length, unless ``engine`` names another one (the
+    weekly full-game ladder): then they must be played in that, on the results' engine commit."""
     rated = {r["bot"]: r for r in results}
     kept = []
     for match in matches:
         bots = (rated.get(match["a"]), rated.get(match["b"]))
-        if all(r and r.get("engine") == match["engine"] for r in bots) and (
+        same = (lambda r: r.get("engine") == match["engine"]) if engine is None else (
+            lambda r: match["engine"] == engine and r.get("engine", "").split("/")[0] == engine.split("/")[0]
+        )  # fmt: skip
+        if all(r and same(r) for r in bots) and (
             bots[0]["bot_hash"], bots[1]["bot_hash"]
         ) == (match["hash_a"], match["hash_b"]):  # fmt: skip
             kept.append(match)
