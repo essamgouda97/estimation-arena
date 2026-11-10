@@ -67,6 +67,18 @@ _BITTER = {
     "repeat": "5,000 times, about 4.6 hours",
 }
 
+_GUESSES = {
+    "title": "Then learn who holds the hidden cards",
+    "steps": [
+        ["the Self-taught model plays 512 games at once against itself", "play"],
+        ["at every card, save the hands the player can't see", "data"],
+        ["a second model guesses which player holds each unseen card", "net"],
+        ["check its guesses against the real hands", "reward"],
+        ["adjust the guess model", "update"],
+    ],
+    "repeat": "300 times, a few minutes",
+}
+
 TRAINING: dict[str, dict[str, Any]] = {
     "llm-claude-api": {
         "summary": "Nothing here is trained on this game. It is Anthropic's general model, given the rules in words at every move.",
@@ -140,6 +152,11 @@ TRAINING: dict[str, dict[str, Any]] = {
         "stages": [_BITTER],
         "curves": "bitter-run2",
         "lab": True,
+    },
+    "guess-search": {
+        "summary": "The look-ahead isn't trained. It uses the Self-taught model, and a guess model trained on that model's own games.",
+        "stages": [_BITTER, _GUESSES],
+        "curves": "bitter-run2",
     },
     "kooz-bot": {
         "summary": "The look-ahead isn't trained. It uses three models of its own, for bids, cards and guessing who holds each hidden card, trained from scratch by playing itself, with no human games.",

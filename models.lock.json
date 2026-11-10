@@ -11,6 +11,12 @@
   "file": "net.npz",
   "sha256": "3797358d96b83b67dd8370c047c3004ad4e333587bbef66ac65b14d1b25081dc"
  },
+ "bots/guess-search/guess.npz": {
+  "repo": "GoudaGame/estimation-guess-net",
+  "revision": "2e5f9ffeb8a5dde9e9ab1d1d92540b445727140f",
+  "file": "guess.npz",
+  "sha256": "4001db5166ec1ad7dd4ee26825c984427f9c34ddeadc61b16d6c3ba5dc78e0ba"
+ },
  "bots/net-pimc/net.npz": {
   "repo": "GoudaGame/estimation-copycat",
   "revision": "0902ebe311867eee693e6efd91a65c284c0753e6",
