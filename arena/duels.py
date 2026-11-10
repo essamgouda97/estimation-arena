@@ -2,6 +2,7 @@
 
     uv run python -m arena.duels due                       # what still needs playing, best first
     uv run python -m arena.duels play a b --seed S         # play one batch and save it
+    uv run python -m arena.duels estimate a b              # seconds one batch should take
 
 Every pair plays. A close pair at the top keeps playing fresh deals, a batch at a time.
 """
@@ -25,6 +26,7 @@ from .run import RESULTS_DIR, bot_hash, engine_version, run_sets
 BATCH_SETS = 20
 MAX_SETS = 100
 TOP = 4
+MARGIN = 1.25  # a batch can run slower than the games it was estimated from
 
 
 def pair_seed(seed: int, a: str, b: str, batch: int) -> int:
@@ -50,6 +52,24 @@ def due(root: Path = ROOT) -> list[tuple[str, str]]:
         if rank[a] < TOP and rank[b] < TOP and not is_clear(wins, losses) and wins + draws + losses < MAX_SETS:
             close.append((a, b))
     return sorted(unplayed, key=lambda p: (rank[p[0]] + rank[p[1]], rank[p[0]])) + close
+
+
+def estimate(a: str, b: str, sets: int = BATCH_SETS, root: Path = ROOT) -> float:
+    """Seconds one batch should take, so the ladder starts only what it can finish.
+
+    Each bot's games against Random cost about what its own moves cost, so a pair costs the sum of
+    the two. A batch this pair already played is a better guide, and wins when it is longer."""
+    guess = 0.0
+    for name in (a, b):
+        path = root / RESULTS_DIR.relative_to(ROOT) / f"{name}.json"
+        versus = json.loads(path.read_text())["versus"] if path.is_file() else []
+        cheap = [v for v in versus if v.get("spec") == "random" and v.get("wall_s")] or [v for v in versus if v.get("wall_s")]
+        guess += min((v["wall_s"] / v["sets"] for v in cheap), default=0.0) * sets
+    first, second = sorted((a, b))
+    path = match_file(root, first, second)
+    played = json.loads(path.read_text())["batches"] if path.is_file() else []
+    before = max((x["wall_s"] / x["sets"] for x in played if x.get("wall_s")), default=0.0) * sets
+    return MARGIN * max(guess, before)
 
 
 def play(a: str, b: str, seed: int, workers: int = 4, sets: int = BATCH_SETS, root: Path = ROOT) -> dict[str, Any]:
@@ -85,10 +105,16 @@ def main(argv: list[str] | None = None) -> int:
     one.add_argument("b")
     one.add_argument("--seed", type=int, default=0)
     one.add_argument("--workers", type=int, default=4)
+    cost = commands.add_parser("estimate", help="print the seconds one batch for a pair should take")
+    cost.add_argument("a")
+    cost.add_argument("b")
     args = parser.parse_args(argv)
     if args.command == "due":
         for a, b in due():
             print(f"{a}:{b}")
+        return 0
+    if args.command == "estimate":
+        print(round(estimate(args.a, args.b)))
         return 0
     play(args.a, args.b, args.seed, args.workers)
     wins, draws, losses = record(json.loads(match_file(ROOT, args.a, args.b).read_text()))
