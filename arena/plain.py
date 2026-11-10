@@ -110,6 +110,11 @@ BOTS: dict[str, dict[str, Any]] = {
         "about": "The Self-taught model bids alone and picks its best cards, then tries each one on imagined hands.",
         "method": [["the model picks the bid", "bid"], ["the model keeps its top 3 cards", "net"], ["imagine the hidden hands x16", "deal"], ["try each card: the model plays out the round", "rollout"], _BEST],
     },
+    "guess-search": {
+        "name": "Self-taught + guesses",
+        "about": "Self-taught + look-ahead with a second model of its own that guesses who holds each hidden card. It learned those guesses only from its own games, and imagines many more hands from them.",
+        "method": [["the model picks the bid", "bid"], ["the model keeps its top 2 cards", "net"], ["imagine 256 hands from where its guess model thinks the cards are", "deal"], ["try each card: the model plays out the round", "rollout"], _BEST],
+    },
 }
 
 # Test versions of a bot, as they appear in its key after the bot's own name.

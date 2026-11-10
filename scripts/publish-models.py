@@ -28,6 +28,7 @@ PUBLISH = {
         "final.pt": ["runs/m4-rules-v2/checkpoints/final.pt"],
         "rlv2.npz": ["runs/m4-rules-v2/rlv2.npz"],
     },
+    "estimation-guess-net": {"guess.npz": ["bots/guess-search/guess.npz"]},
     "estimation-hybrid-v4": {"hybrid.pt": ["runs/expert/round-1/hybrid.pt"]},  # --owner yosifelessawi
 }
 

@@ -1,0 +1,31 @@
+{
+  "name": "guess-search",
+  "author": "Essam Gouda",
+  "kind": "python",
+  "entry": "bot.py:make",
+  "description": "Self-taught + look-ahead with a guess net of its own, trained only on its own games: it imagines 256 hidden deals per card from where the guess net thinks each card is, kept by how well they fit the bids.",
+  "timeout_s": 5,
+  "needs": "runs/m4-rules-v2/checkpoints/final.pt",
+  "method": [
+    [
+      "the net picks the bid",
+      "bid"
+    ],
+    [
+      "the net keeps its top 2 cards",
+      "net"
+    ],
+    [
+      "imagine hidden hands from its own guess net, keep those that fit the bids x256",
+      "deal"
+    ],
+    [
+      "each kept card: play all 4 seats to the end of the round",
+      "rollout"
+    ],
+    [
+      "play the best average score",
+      "pick"
+    ]
+  ]
+}
