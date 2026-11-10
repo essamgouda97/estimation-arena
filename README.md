@@ -14,14 +14,16 @@
 | Term | Meaning |
 |---|---|
 | **Anchor** | A fixed bot that every other bot is measured against, so ratings stay comparable. The page calls these benchmarks. |
-| **Bola** | One full game of Estimation, played over many rounds. |
+| **Bola** | One full game of Estimation: 13 open rounds, then 5 with a fixed trump. |
+| **Micro game** | The first 5 rounds of a Bola, each with 13 cards and open bidding. The nightly ladder plays these. |
 | **King, Sub-King, Sub-Kooz, Kooz** | Final places in a Bola, from first to last. |
 | **Set** | One deal played 4 times with the seats rotated, so lucky cards cancel out. |
 | **Elo** | A rating from who won each set. 200 points ahead means winning about 76% of sets. Random is fixed at 400. |
 | **Weighted rank, King only, score delta** | The three ways bots are ranked: by final place, by coming first, and by points won. See [docs/metrics.md](docs/metrics.md). |
 | **Harness** | The code that runs the games, talks to each bot and records the results. |
 | **Wire tier, python tier** | Two ways to enter a bot: a program in any language that exchanges JSON, or a Python function. |
-| **Ladder** | The nightly run that rates the bots and rebuilds the page. |
+| **Ladder** | The nightly run that rates the bots in micro games and rebuilds the page. |
+| **Full-game ladder** | The weekly run where the top 5 play each other in whole Bolas, with its own page (`site/full/`). |
 | **Smoke test** | A quick 2-set run on a pull request, to check that a bot works. |
 | **Seed** | The number that fixes which deals are played. The same seed gives the same deals. |
 | **Rung** | A step in our climb past the anchors, in order: Heuristic, PIMC, RL v2, Hybrid. |

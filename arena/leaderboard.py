@@ -540,7 +540,7 @@ def render(board: dict[str, Any]) -> str:
 <p class="sub">{len(rows)} bots ranked three ways from the same games, including {len(anchors)} fixed benchmarks. Updated {built}.</p>
 <div class="metrics" role="group" aria-label="Rank by">{"".join(f'<button type="button" data-rank="{m}"{" aria-pressed=true" if m == "weighted" else " aria-pressed=false"}>{label}</button>' for m, _, label in METRICS)}</div>
 <p class="desc"><span class="key p0"></span>King +1<span class="key p1"></span>Sub-King +0.2<span class="key p2"></span>Sub-Kooz −0.2<span class="key p3"></span>Kooz −1</p>
-<p class="desc"><a href="games/">Games</a> · <a href="#guide">What the numbers mean</a> · <a href="diagrams/how-it-works.html">How it works</a> · <a href="https://github.com/essamgouda97/estimation-arena">Code on GitHub</a></p>
+<p class="desc"><a href="games/">Games</a> · <a href="full/">Whole games</a> · <a href="#guide">What the numbers mean</a> · <a href="diagrams/how-it-works.html">How it works</a> · <a href="https://github.com/essamgouda97/estimation-arena">Code on GitHub</a></p>
 <p class="desc">Open “how it plays” under any bot to see how it decides.</p>
 <table>
 <thead><tr><th class="num">#</th><th>Bot</th>{"".join(f'<th class="num m-{m}">{label}</th>' for m, _, label in METRICS)}<th class="opt">Finishing places</th><th class="opt">Against each benchmark</th></tr></thead>

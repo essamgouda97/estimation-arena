@@ -1,0 +1,104 @@
+name: ladder-full
+
+# The weekly full-game ladder (arena/full.py). The nightly ladder plays micro games, the first 5
+# rounds of a game. Once a week its top 5 bots play each other in whole games, 18 rounds. Each
+# pair plays one batch of 20 sets on its own runner, so a slow pair (a deep search takes about
+# 2.5 hours for its side) does not hold up the rest. New pairs play first; a pair still too close
+# to call plays another batch the next week. The results get their own page, site/full/.
+
+on:
+  schedule:
+    - cron: "0 12 * * 6"   # Saturdays, 12:00 UTC, away from the nightly run at 03:00
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ladder-full
+  cancel-in-progress: false
+
+env:
+  UV_NO_SYNC: "1"
+
+jobs:
+  pick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      pairs: ${{ steps.pairs.outputs.pairs }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+      - name: Allow uv to clone the private engine repo
+        run: git config --global url."https://x-access-token:${{ secrets.ENGINE_TOKEN }}@github.com/".insteadOf "https://github.com/"
+      - run: uv sync --frozen
+      - name: Pick this week's pairs among the top 5
+        id: pairs
+        run: |
+          pairs=$(uv run python -m arena.full pairs | jq -R . | jq -sc .)
+          echo "pairs=$pairs" >> "$GITHUB_OUTPUT"
+          echo "pairs: $pairs"
+
+  play:
+    needs: pick
+    if: needs.pick.outputs.pairs != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        pair: ${{ fromJSON(needs.pick.outputs.pairs) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+      - name: Allow uv to clone the private engine repo
+        run: git config --global url."https://x-access-token:${{ secrets.ENGINE_TOKEN }}@github.com/".insteadOf "https://github.com/"
+      - run: uv sync --frozen
+      - run: uv run python -m arena.models fetch
+      - name: Play one batch of whole games
+        id: play
+        env:
+          LADDER_SEED: ${{ secrets.LADDER_SEED }}
+          PAIR: ${{ matrix.pair }}
+        run: |
+          file=$(uv run python -m arena.full play "${PAIR%%:*}" "${PAIR##*:}" --seed "${LADDER_SEED:-0}" --workers 4 | tail -1)
+          echo "file=$file" >> "$GITHUB_OUTPUT"
+          echo "name=$(basename "$file" .json)" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: full-${{ steps.play.outputs.name }}
+          path: ${{ steps.play.outputs.file }}
+
+  save:
+    needs: play
+    if: always() && needs.play.result != 'skipped'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+      - name: Allow uv to clone the private engine repo
+        run: git config --global url."https://x-access-token:${{ secrets.ENGINE_TOKEN }}@github.com/".insteadOf "https://github.com/"
+      - run: uv sync --frozen
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: full-*
+          path: played
+          merge-multiple: true
+      - name: Save each pair and rebuild the pages
+        run: |
+          git config user.name "estimation-arena bot"
+          git config user.email "actions@users.noreply.github.com"
+          mkdir -p results/full/direct
+          for file in played/*.json; do
+            [ -e "$file" ] || continue
+            cp "$file" "results/full/direct/$(basename "$file")"
+            scripts/ladder-save.sh "results/full/direct/$(basename "$file")"
+          done

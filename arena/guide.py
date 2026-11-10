@@ -19,6 +19,7 @@ GUIDE = f"""<section class="guide" id="guide" aria-labelledby="guide-title">
 <h3 class="g-read">Reading the standings</h3>
 <ul class="g-terms">
 <li>The standings show each of the three as a rating, like chess Elo. A bot rated 200 points higher wins about 76% of sets. Random is fixed at 400, and ratings compare only within a column.</li>
+<li>Ranked games are short: the first 5 rounds of a game, each with 13 cards and open bidding, so every bot can be rated every night. Once a week the top 5 also play whole games of 18 rounds against each other, on their own page.</li>
 <li>A set is one deal played four times with the seats rotated, so lucky cards cancel out.</li>
 <li>Benchmark bots are fixed, and every other bot is measured against them.</li>
 <li>An early result comes from only a few test matches, so treat a small lead as a tie.</li>

@@ -14,6 +14,7 @@ for attempt in 1 2 3 4 5; do
   mkdir -p "$(dirname "$file")"
   cp "$keep" "$file"
   uv run python -m arena.leaderboard >/dev/null
+  uv run python -m arena.full build >/dev/null
   git add results site
   git commit -qm "ladder: $(basename "$file" .json)"
   git push -q origin HEAD:main && exit 0
