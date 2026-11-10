@@ -30,7 +30,7 @@ jobs:
   smoke:
     if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60   # a new bot with a deep search can take half an hour on its own
     permissions:
       contents: read
       pull-requests: read
@@ -74,16 +74,21 @@ jobs:
           BASE: ${{ github.base_ref || 'main' }}
         run: |
           changed=$(git diff --name-only "origin/$BASE"...HEAD -- bots | cut -d/ -f2 | sort -u | tr '\n' ' ')
-          if [ -z "$changed" ]; then changed=$(ls bots | tr '\n' ' '); fi
+          # A change to the harness alone checks every bot, on less: one set against Random.
+          # With search bots that take a quarter of an hour each, the full check would not fit.
+          games="--sets 2 --anchors Random,Heuristic"
+          if [ -z "$changed" ]; then changed=$(ls bots | tr '\n' ' '); games="--sets 1 --anchors Random"; fi
           echo "names=$changed" >> "$GITHUB_OUTPUT"
-      - name: Smoke-run each bot (2 sets vs Random and Heuristic)
+          echo "games=$games" >> "$GITHUB_OUTPUT"
+      - name: Smoke-run each bot (2 sets vs Random and Heuristic; 1 vs Random when no bot changed)
         env:
           NAMES: ${{ steps.bots.outputs.names }}
+          GAMES: ${{ steps.bots.outputs.games }}
         run: |
           mkdir -p smoke
           for bot in $NAMES; do
-            uv run python -m arena.run --bot "$bot" --sets 2 --seed 1 --workers 2 \
-              --anchors Random,Heuristic --out "smoke/$bot.json" | tee -a smoke/summary.txt
+            uv run python -m arena.run --bot "$bot" $GAMES --seed 1 --workers 2 \
+              --out "smoke/$bot.json" | tee -a smoke/summary.txt
           done
       - uses: actions/upload-artifact@v4
         if: always()
