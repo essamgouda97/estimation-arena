@@ -71,10 +71,15 @@ jobs:
             fi
           done
           if [ "${{ github.event.inputs.direct }}" != "false" ]; then
-            # Stop starting matches with time left: the job ends at 350 minutes, and the next
-            # night carries on from the matches already saved.
+            # Start a match only if it should finish before the job ends at 350 minutes (340 here,
+            # leaving time to save). A slow pair waits for the next night, which starts with it;
+            # a cheaper pair after it can still use the time left.
             for pair in $(uv run python -m arena.duels due); do
-              [ "$SECONDS" -lt 18000 ] || { echo "out of time; the next run carries on"; break; }
+              need=$(uv run python -m arena.duels estimate "${pair%%:*}" "${pair##*:}")
+              if [ $((SECONDS + need)) -gt 20400 ]; then
+                echo "skipping $pair: needs about $((need / 60)) min, $(((20400 - SECONDS) / 60)) min left"
+                continue
+              fi
               if output=$(uv run python -m arena.duels play "${pair%%:*}" "${pair##*:}" --seed "${LADDER_SEED:-0}" --workers 4); then
                 echo "$output" | head -1
                 scripts/ladder-save.sh "$(echo "$output" | tail -1)"
