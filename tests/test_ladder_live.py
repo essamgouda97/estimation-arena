@@ -85,6 +85,7 @@ def test_the_board_counts_the_ladder_while_it_runs(tmp_path, monkeypatch):
     data = client.get("/api/ladder").json()
     assert data["run"]["running"] and data["run"]["matches"][0]["state"] == "playing"
     assert data["names"]["heuristic"] and data["watch"] is None
+    assert "sub:guess-search" in data["estimate"]["bots"]
     playing = client.get("/api/board").json()["playing"]
     assert any(m["key"] == "sub:guess-search" for m in playing)
     assert client.get("/ladder").status_code == 200
@@ -97,3 +98,16 @@ def test_the_progress_file_never_picks_what_the_server_runs():
         assert not ladder_live.watchable(key)
     assert ladder_live.safe_url("javascript:alert(1)") == ""
     assert ladder_live.safe_url("https://github.com/a/b/actions/runs/1") == "https://github.com/a/b/actions/runs/1"
+
+
+def test_the_estimate_lets_tonights_sets_move_a_rated_bot():
+    from arena.bots import ROOT
+    from arena.leaderboard import build
+
+    win = [{"a": "sub:lowcard-wire", "b": "sub:guess-search", "a_wins": 40, "draws": 0, "b_wins": 0}]
+    match = {**MATCH, "key": "sub:lowcard-wire", "opponent": "sub:guess-search", "alive": True, "state": "playing",
+             "pairs": {"weighted": win, "king": win, "delta": win}}  # fmt: skip
+    elo = lambda rows: next(r["elo"] for r in rows if r["key"] == "sub:lowcard-wire")  # noqa: E731
+    saved = elo(build(ROOT, [match])["rows"])
+    assert saved == elo(build(ROOT)["rows"])  # the board keeps the saved rating
+    assert elo(build(ROOT, [match], keep_official=False)["rows"]) > saved + 100
