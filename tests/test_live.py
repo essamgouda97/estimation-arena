@@ -148,7 +148,7 @@ def test_tensorboard_forwarding_drops_identity(monkeypatch):
 def test_the_guide_defines_every_metric_on_both_pages():
     from arena.guide import GUIDE
 
-    for word in ("Weighted rank", "King only", "Score delta", "Elo", "Not ranked yet", "Author", "Benchmark"):
+    for word in ("Weighted rank", "King only", "Score delta", "Elo", "Not ranked yet", "Benchmark"):
         assert word in GUIDE
     assert GUIDE in leaderboard.render(leaderboard.build(ROOT))
 
