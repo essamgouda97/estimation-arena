@@ -92,13 +92,14 @@ def build(root: Path = ROOT) -> dict[str, Any]:
     top = contenders(root)
     weighted = _records(found, "position_pairs")
     ratings = {m: _ratings(_records(found, f)) for m, f in (("elo", "position_pairs"), ("king_elo", "king_pairs"), ("score_elo", "pairs"))}
-    names = {r["key"]: r["name"] for r in leaderboard.build(root, official_only=True)["rows"]}
+    ranked = {r["key"]: r for r in leaderboard.build(root, official_only=True)["rows"]}
     keys = sorted({k for m in found for k in (SUB_PREFIX + m["a"], SUB_PREFIX + m["b"])}, key=lambda k: -ratings["elo"].get(k, -1e9))
     rows = []
     for key in keys:
         mine = [m for m in found if key in (SUB_PREFIX + m["a"], SUB_PREFIX + m["b"])]
         sets = sum(sum(record(m)) for m in mine)
-        rows.append({"key": key, "code_name": key[len(SUB_PREFIX) :], "name": names.get(key, key[len(SUB_PREFIX) :]),
+        rows.append({"key": key, "code_name": key[len(SUB_PREFIX) :], "name": ranked[key]["name"] if key in ranked else key[len(SUB_PREFIX) :],
+                     "author": ranked[key]["author"] if key in ranked else "",
                      "anchor": False, "contender": key[len(SUB_PREFIX) :] in top, "sets": sets,
                      **{m: r.get(key) for m, r in ratings.items()}})  # fmt: skip
     return {
@@ -119,10 +120,11 @@ def render(board: dict[str, Any]) -> str:
                         for f in ("elo", "king_elo", "score_elo"))  # fmt: skip
         note = "" if r["contender"] else ' <span class="tag">not in the top 5 now</span>'
         lines.append(f'<tr class="sub bot"><td class="num rank">{k}</td><td class="who-cell"><strong>{e(r["name"])}</strong>{note}<br>'
-                     f'<span class="desc who">Code name: {e(r["code_name"])}. {r["sets"]:,} sets of whole games.</span></td>{cells}</tr>')  # fmt: skip
+                     f'<span class="desc who">Code name: {e(r["code_name"])}. {r["sets"]:,} sets of whole games.</span></td>'
+                     f'<td class="author">{e(r.get("author", ""))}</td>{cells}</tr>')  # fmt: skip
     built = board["built_at"].replace("T", " ")[:16] + " UTC"
     empty = "" if lines else '<p class="desc">No whole games yet. The first weekly run fills this page.</p>'
-    table_html = (f'<table><thead><tr><th class="num">#</th><th>Bot</th><th class="num">Weighted rank</th><th class="num">King only</th>'
+    table_html = (f'<table><thead><tr><th class="num">#</th><th>Bot</th><th class="author">Author</th><th class="num">Weighted rank</th><th class="num">King only</th>'
                   f'<th class="num">Score delta</th></tr></thead><tbody>{chr(10).join(lines)}</tbody></table>') if lines else ""  # fmt: skip
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
