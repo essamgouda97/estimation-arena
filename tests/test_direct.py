@@ -228,3 +228,15 @@ def test_benchmarks_go_strongest_first():
     order = [a["spec"] for a in strongest_first(load_anchors())]
     rated = [spec for spec in order if rating.get(spec) is not None]
     assert rated == sorted(rated, key=lambda spec: -rating[spec]) and order[0] == rated[0]
+
+
+def test_a_challenger_meets_the_top_bots_before_anything_else():
+    order = [r["key"][4:] for r in leaderboard.build()["rows"] if not r["anchor"] and not r.get("provisional")]
+    challenger = order[-1]  # the lowest-ranked bot: it would otherwise wait longest
+    pairs = duels.due(first=[challenger])
+    mine = [p for p in pairs if challenger in p]
+    if mine:  # nothing to check once it has met everyone
+        assert pairs[: len(mine)] == mine
+        others = [a if b == challenger else b for a, b in mine]
+        assert others == sorted(others, key=order.index)
+    assert sorted(duels.due()) == sorted(pairs)  # the same matches, only reordered
