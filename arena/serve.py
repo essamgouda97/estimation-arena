@@ -13,6 +13,8 @@ import argparse
 import json
 import random
 import secrets
+import subprocess
+import sys
 import time
 from pathlib import Path
 from typing import Any
@@ -26,7 +28,7 @@ from starlette.routing import Mount, Route, WebSocketRoute
 from starlette.staticfiles import StaticFiles
 from starlette.websockets import WebSocket, WebSocketDisconnect
 
-from . import board, lab, tensorboard
+from . import board, lab, ladder_live, tensorboard
 from .bots import ROOT, SUB_PREFIX, list_submissions, load_manifest
 from .run import load_anchors
 from .table import Seat, Table
@@ -202,6 +204,8 @@ def app() -> Starlette:
         Route("/games/data.json", board.games_data),
         Route("/games/{name}", board.game_file),
         Route("/api/board", board.api),
+        Route("/api/ladder", board.ladder),
+        Route("/ladder", games_page),
         Route("/api/board/bot", board.bot),
         Route("/api/board/guide", board.guide),
         Route("/tb", tensorboard.root),
@@ -231,7 +235,15 @@ def main(argv: list[str] | None = None) -> int:
     asgi = app()
     if args.proxy_key_file:
         asgi = GatewayGuard(asgi, args.proxy_key_file.read_text().strip(), args.service)
-    uvicorn.run(asgi, host=args.host, port=args.port, proxy_headers=True, access_log=False, log_level="info")
+    # Where the home server keeps its data, follow the nightly ladder for /ladder (arena.ladder_live).
+    follower = None
+    if ladder_live.DATA.parent.is_dir():
+        follower = subprocess.Popen([sys.executable, "-m", "arena.ladder_live", "follow"], cwd=ROOT)
+    try:
+        uvicorn.run(asgi, host=args.host, port=args.port, proxy_headers=True, access_log=False, log_level="info")
+    finally:
+        if follower:
+            follower.terminate()
     return 0
 
 

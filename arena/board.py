@@ -13,6 +13,7 @@ from starlette.responses import FileResponse, JSONResponse, Response
 
 from .guide import GUIDE, STYLE as GUIDE_STYLE
 from .leaderboard import browser_data, build, method_svg
+from . import ladder_live
 from .live import LIVE, public, read_matches
 from .plain import about_bot, base_key, plain_name
 from .training import training_of
@@ -40,8 +41,13 @@ def _signature(root: Path) -> tuple:
 
 
 def payload() -> dict[str, Any]:
-    matches = read_matches()
-    signature = (_signature(ROOT), _signature(RESULTS_ROOT), tuple(m["state"] for m in matches))
+    feed = ladder_live.read_feed()
+    local = read_matches()
+    here = {(m["key"], m["opponent"]) for m in local}  # a pairing played here too is shown once
+    remote = [m for m in ladder_live.remote_matches(feed) if (m["key"], m["opponent"]) not in here]
+    matches = sorted(local + remote, key=lambda m: -m["updated_at"])
+    ladder_at = feed["updated_at"] if feed else None
+    signature = (_signature(ROOT), _signature(RESULTS_ROOT), tuple(m["state"] for m in matches), ladder_at)
     if signature != _cache["signature"]:
         board = build(ROOT, matches, RESULTS_ROOT)
         _cache["standings"] = [{k: row.get(k) for k in ROW_FIELDS} for row in board["rows"]]
@@ -97,6 +103,25 @@ def explain(key: str) -> dict[str, Any] | None:
 
 def api(_: Request) -> Response:
     return JSONResponse(payload())
+
+
+def ladder(_: Request) -> Response:
+    """The ladder as it plays: its plan and matches, the bot names, and the game being watched."""
+    feed = ladder_live.read_feed()
+    if _cache["signature"] is None:
+        payload()
+    names = {row["key"]: row["name"] for row in _cache["standings"]}
+    name = lambda key: names.get(key, plain_name(key, public(key)[1]))  # noqa: E731
+    if not feed:
+        return JSONResponse({"run": None, "watch": None, "names": {}})
+    keys = {m["key"] for m in feed["matches"]} | {m["opponent"] for m in feed["matches"]}
+    keys |= {SUB_PREFIX + p["bot"] for p in feed["plan"]} | {p["anchor"] for p in feed["plan"]}
+    watch = ladder_live.read_watch()
+    if watch:
+        keys |= {watch["a"], watch["b"]}
+    run = {**feed, "url": ladder_live.safe_url(feed.get("url", "")), "running": ladder_live.is_running(feed),
+           "matches": ladder_live.remote_matches(feed)}  # fmt: skip
+    return JSONResponse({"run": run, "watch": watch, "names": {k: name(k) for k in keys}})
 
 
 def games_data(_: Request) -> Response:
