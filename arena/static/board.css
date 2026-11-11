@@ -64,7 +64,7 @@ tr.detail>td{padding:6px 10px 22px 2.5em;background:#1b2868}
 .i-back{fill:var(--line);stroke:var(--muted)}.i-card{fill:var(--ivory);stroke:var(--muted)}.i-win{fill:var(--king)}.i-loss{fill:var(--kooz)}
 .i-mean{fill:var(--muted)}.i-best{fill:var(--king)!important}.i-tick{fill:none;stroke:var(--king);stroke-width:2.5}.i-data{fill:var(--raised);stroke:var(--muted)}
 .tag{display:inline-block;margin-left:8px;font-weight:400;font-size:13px;color:var(--muted)}
-td.author{color:var(--muted);font-size:14px}.by{display:none;font-weight:400;font-size:13px;color:var(--muted)}
+td.author{color:var(--muted);font-size:14px;white-space:nowrap}.by{display:none;font-weight:400;font-size:13px;color:var(--muted)}
 tr.unranked td{padding-top:30px;color:var(--muted);font-size:14px}tr.unranked strong{display:block;color:var(--text);font:600 16px/1.3 "Bricolage Grotesque",system-ui,sans-serif}
 .tag.on{color:var(--ink);background:var(--king);padding:0 7px;border-radius:999px;font-weight:600}
 .elo{white-space:nowrap}

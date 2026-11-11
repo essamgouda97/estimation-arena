@@ -90,6 +90,11 @@ BOTS: dict[str, dict[str, Any]] = {
         "about": "Anthropic's general AI model, not built for this game. For each move it reads the rules and its own view of the table in words, then picks one. It has no tools and remembers nothing between moves.",
         "method": [["put the rules and this seat's view into words", "data"], ["Claude thinks it over and picks a move", "net"], ["play that move", "pick"]],
     },
+    "llm-codex-sdk": {
+        "name": "OpenAI Codex",
+        "about": "OpenAI's general coding assistant, not built for this game. For each move it reads its own view of the table in words, then picks one. It has no tools.",
+        "method": [["put this seat's view into words", "data"], ["Codex thinks it over and picks a move", "net"], ["play that move", "pick"]],
+    },
     "hybrid-v4": {
         "name": "Hybrid v4",
         "about": "One model bids, one chooses cards, and one guesses who holds the hidden cards. It tries its top 2 cards on 32 imagined deals built from those guesses.",
