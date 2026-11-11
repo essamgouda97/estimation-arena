@@ -46,3 +46,26 @@ def test_a_hidden_seed_stays_out_of_the_result_and_output(tmp_path: Path, capsys
     assert json.loads(out.read_text())["seed"] is None
     assert "987654" not in out.read_text()
     assert "987654" not in capsys.readouterr().out
+
+
+def test_playing_one_anchor_at_a_time_builds_up_the_result(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    """The ladder plays and saves each anchor on its own, so a bot that runs out of time keeps
+    what it finished: --due lists only the anchors left, and each run adds to the file."""
+    from arena.run import main
+
+    out = tmp_path / "result.json"
+    base = ["--bot", "lowcard-wire", "--out", str(out)]
+    capsys.readouterr()
+    main([*base, "--anchors", "random,heuristic", "--due", "--only-new"])
+    assert capsys.readouterr().out.split() == ["random", "heuristic"]
+
+    main([*base, "--anchors", "random", "--sets", "1"])
+    capsys.readouterr()
+    main([*base, "--anchors", "random,heuristic", "--due", "--only-new"])
+    assert capsys.readouterr().out.split() == ["heuristic"]
+
+    main([*base, "--anchors", "heuristic", "--sets", "1"])
+    assert [v["spec"] for v in json.loads(out.read_text())["versus"]] == ["heuristic", "random"]
+    capsys.readouterr()
+    main([*base, "--anchors", "random,heuristic", "--due", "--only-new"])
+    assert capsys.readouterr().out == ""

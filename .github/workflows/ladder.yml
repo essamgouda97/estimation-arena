@@ -1,8 +1,8 @@
 name: ladder
 
 # The leaderboard run: every new or changed bot plays the anchors it has not met, in duplicate
-# sets. A bot on an older engine commit plays them all again. Each bot's result and the rebuilt
-# site/ are committed as it finishes, so a run that times out carries on from there the next
+# sets. A bot on an older engine commit plays them all again. A bot's result and the rebuilt
+# site/ are committed after each anchor, so a run that times out carries on from there the next
 # night; pages.yml runs when this workflow completes and publishes site/ to GitHub Pages. Model
 # files come from Hugging Face (models.lock.json). An anchor whose files are not there yet is
 # left out.
@@ -63,12 +63,16 @@ jobs:
           only_new="--only-new"
           [ "${{ github.event.inputs.replay }}" != "true" ] || only_new=""
           failed=""
+          # One anchor at a time, saved as it finishes: a slow bot (an hour per anchor) keeps what
+          # it played when the job times out, and the next night plays only the anchors left.
           for bot in $bots; do
-            if uv run python -m arena.run --bot "$bot" --sets "$sets" --seed "${LADDER_SEED:-0}" --workers 4 --progress --hide-seed $only_new; then
-              scripts/ladder-save.sh "results/$bot.json"
-            else
-              failed="$failed $bot"
-            fi
+            for spec in $(uv run python -m arena.run --bot "$bot" --due $only_new); do
+              if uv run python -m arena.run --bot "$bot" --anchors "$spec" --sets "$sets" --seed "${LADDER_SEED:-0}" --workers 4 --progress --hide-seed; then
+                scripts/ladder-save.sh "results/$bot.json"
+              else
+                failed="$failed $bot:$spec"
+              fi
+            done
           done
           if [ "${{ github.event.inputs.direct }}" != "false" ]; then
             # Start a match only if it should finish before the job ends at 350 minutes (340 here,
