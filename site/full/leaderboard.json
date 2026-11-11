@@ -1,5 +1,5 @@
 {
- "built_at": "2026-11-11T00:15:49+00:00",
+ "built_at": "2026-11-11T00:15:55+00:00",
  "contenders": [
   "sub:hybrid-v4",
   "sub:kooz-bot",
@@ -9,15 +9,26 @@
  ],
  "rows": [
   {
+   "key": "sub:hybrid-v4",
+   "code_name": "hybrid-v4",
+   "name": "Yosif's Hybrid v4",
+   "anchor": false,
+   "contender": true,
+   "sets": 20,
+   "elo": 1737.0556927915868,
+   "king_elo": 1647.5111322787773,
+   "score_elo": 1737.0556927915868
+  },
+  {
    "key": "sub:bitter-search",
    "code_name": "bitter-search",
    "name": "Self-taught + look-ahead",
    "anchor": false,
    "contender": true,
    "sets": 20,
-   "elo": 1589.9938017352094,
-   "king_elo": 1589.9938017352094,
-   "score_elo": 1589.9938017352094
+   "elo": 1471.4659553394335,
+   "king_elo": 1516.2382355958384,
+   "score_elo": 1471.4659553394335
   },
   {
    "key": "sub:bitter-net",
@@ -25,10 +36,10 @@
    "name": "Self-taught",
    "anchor": false,
    "contender": true,
-   "sets": 20,
-   "elo": 1410.0061982647906,
-   "king_elo": 1410.0061982647906,
-   "score_elo": 1410.0061982647906
+   "sets": 40,
+   "elo": 1291.4783518689796,
+   "king_elo": 1336.2506321253843,
+   "score_elo": 1291.4783518689796
   }
  ],
  "direct": [
@@ -40,9 +51,19 @@
    "b_wins": 14,
    "sets": 20,
    "clear": true
+  },
+  {
+   "a": "sub:bitter-net",
+   "b": "sub:hybrid-v4",
+   "a_wins": 0,
+   "draws": 2,
+   "b_wins": 18,
+   "sets": 20,
+   "clear": true
   }
  ],
  "runoff": [
+  "sub:hybrid-v4",
   "sub:bitter-search",
   "sub:bitter-net"
  ],
