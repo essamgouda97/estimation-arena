@@ -25,6 +25,7 @@ RESULTS_ROOT = Path(os.environ.get("ESTIMATION_RESULTS_ROOT", Path.home() / "wor
 RECENT = 8
 GAME_NAME = re.compile(r"[a-z0-9-]+\.vs\.[a-z0-9-]+\.json")
 _cache: dict[str, Any] = {"signature": None, "standings": [], "direct": [], "runoff": []}
+_estimate: dict[str, Any] = {"at": None, "value": {}}
 ROW_FIELDS = ("name", "author", "code_name", "key", "kind", "anchor", "provisional", "elo", "king_elo", "score_elo", "positions", "games", "played_at")
 MATCH_FIELDS = ("id", "kind", "key", "name", "opponent", "sets", "done", "state", "strip", "shares", "reward", "king", "delta", "started_at", "updated_at")
 
@@ -121,7 +122,21 @@ def ladder(_: Request) -> Response:
         keys |= {watch["a"], watch["b"]}
     run = {**feed, "url": ladder_live.safe_url(feed.get("url", "")), "running": ladder_live.is_running(feed),
            "matches": ladder_live.remote_matches(feed)}  # fmt: skip
-    return JSONResponse({"run": run, "watch": watch, "names": {k: name(k) for k in keys}})
+    return JSONResponse({"run": run, "watch": watch, "names": {k: name(k) for k in keys}, "estimate": estimate(feed)})
+
+
+def estimate(feed: dict[str, Any]) -> dict[str, Any]:
+    """Where each bot on the ladder would land if it stopped now: the standings refitted with the
+    ladder's sets counted, even for a bot that already has a saved result. Rebuilt only when the
+    ladder reports, since a build takes seconds."""
+    if _estimate["at"] != feed["updated_at"]:
+        rows = build(ROOT, ladder_live.remote_matches(feed), keep_official=False)["rows"]
+        ranked = [r for r in rows if r["elo"] is not None and not r.get("provisional")]
+        mine = {SUB_PREFIX + p["bot"] for p in feed["plan"]}
+        _estimate["value"] = {"rows": [{"key": r["key"], "name": r["name"], "anchor": r["anchor"], "elo": r["elo"]} for r in ranked],
+                              "bots": sorted(mine & {r["key"] for r in ranked})}  # fmt: skip
+        _estimate["at"] = feed["updated_at"]
+    return _estimate["value"]
 
 
 def games_data(_: Request) -> Response:

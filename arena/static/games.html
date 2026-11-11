@@ -287,15 +287,16 @@ function statusLine(run) {
 }
 
 function places(run) {
-  const box = el("div");
-  if (!board || !run) return box;
+  // The estimate refits every rating with tonight's sets counted, so it moves with each set.
+  const box = el("div"), est = ladder?.estimate;
+  if (!run || !est?.rows) return box;
   const keys = [...new Set(run.plan.map((p) => "sub:" + p.bot))];
-  const ranked = board.standings.filter((r) => r.elo !== null && !r.provisional && !keys.includes(r.key));
   for (const key of keys) {
-    const me = board.standings.find((r) => r.key === key);
-    if (!me || me.elo === null) { box.append(el("p", "note", `${nameOf(key)} has no rating yet. It gets one after its first sets.`)); continue; }
-    const rows = [...ranked, me].sort((p, q) => q.elo - p.elo), at = rows.indexOf(me);
-    box.append(el("p", "note", `${me.name} is rated ${Math.round(me.elo)} so far, which would place it ${at + 1} of ${rows.length}. The rating moves as each set comes in.`));
+    const rows = est.rows.filter((r) => r.key === key || !keys.includes(r.key)), me = rows.find((r) => r.key === key);
+    if (!me) { box.append(el("p", "note", `${nameOf(key)} has no rating yet. It gets one after its first sets.`)); continue; }
+    const at = rows.indexOf(me), saved = board?.standings.find((r) => r.key === key && !r.provisional);
+    const was = saved?.elo != null ? ` Its saved rating is ${Math.round(saved.elo)} until the ladder saves this benchmark.` : "";
+    box.append(el("p", "note", `With tonight's sets counted, ${me.name} would be rated about ${Math.round(me.elo)}, place ${at + 1} of ${rows.length}.${was}`));
     const list = el("ol", "places");
     rows.forEach((r, k) => {
       if (k > 4 && Math.abs(k - at) > 2) { if (list.lastChild && !list.lastChild.classList.contains("gap")) list.append(el("li", "gap", "")); return; }

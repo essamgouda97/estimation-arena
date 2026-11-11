@@ -109,13 +109,16 @@ def build(
     live: list[dict[str, Any]] | None = None,
     experiments: Path | None = None,
     official_only: bool = False,
+    keep_official: bool = True,
 ) -> dict[str, Any]:
     """Standings from the finished results under ``root``, plus any ``live`` matches
     (arena.live.read_matches), which count for pairings no finished result covers, plus results
     under ``experiments`` for bots ``root`` has not rated, plus ``results/early``, committed results
     of bots the ladder can't play. Those three are marked provisional, can't move an official rating
     and are listed after the ranked bots. A test version of a bot already on the board gets no row:
-    the board shows one row per bot. ``official_only`` leaves the early results out."""
+    the board shows one row per bot. ``official_only`` leaves the early results out.
+    ``keep_official=False`` lets live matches move a rated bot's numbers too: an estimate of where
+    the ladder will leave it, never shown as its rating."""
     anchors: list[dict[str, str]] = json.loads((root / ANCHORS_FILE.relative_to(ROOT)).read_text())
     ladder_file, positions_file = root / LADDER_FILE.relative_to(ROOT), root / POSITIONS_FILE.relative_to(ROOT)
     ladder = json.loads(ladder_file.read_text()) if ladder_file.is_file() else {"pairs": []}
@@ -231,7 +234,7 @@ def build(
         about = about_bot(row["key"])
         row["description"] = about.get("about", row["description"])
         row["method"] = about.get("method", row["method"])
-    if live or experiments or early:
+    if keep_official and (live or experiments or early):
         # Provisional bots must not move official ratings, so every board keeps the ladder's numbers.
         official_rows = {row["key"]: row for row in build(root, official_only=True)["rows"]}
         for row in rows:
