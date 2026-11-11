@@ -1,5 +1,5 @@
 {
- "built_at": "2026-11-11T00:16:30+00:00",
+ "built_at": "2026-11-11T00:16:35+00:00",
  "contenders": [
   "sub:hybrid-v4",
   "sub:kooz-bot",
@@ -15,9 +15,9 @@
    "anchor": false,
    "contender": true,
    "sets": 80,
-   "elo": 1749.495895912424,
-   "king_elo": 1683.2247433560092,
-   "score_elo": 1774.0779649798153
+   "elo": 1749.2668602178796,
+   "king_elo": 1682.118122248208,
+   "score_elo": 1760.9570496565213
   },
   {
    "key": "sub:kooz-bot",
@@ -25,10 +25,10 @@
    "name": "kooz-bot",
    "anchor": false,
    "contender": true,
-   "sets": 60,
-   "elo": 1619.8397086017553,
-   "king_elo": 1621.9847293637285,
-   "score_elo": 1736.8798971195515
+   "sets": 80,
+   "elo": 1618.865885649505,
+   "king_elo": 1613.543658479835,
+   "score_elo": 1696.3761851560876
   },
   {
    "key": "sub:bitter-search",
@@ -37,9 +37,9 @@
    "anchor": false,
    "contender": true,
    "sets": 80,
-   "elo": 1435.0531625395172,
-   "king_elo": 1437.3961821532425,
-   "score_elo": 1381.4879038259571
+   "elo": 1435.1169244979442,
+   "king_elo": 1437.902180768988,
+   "score_elo": 1389.3357217764883
   },
   {
    "key": "sub:bitter-net",
@@ -48,9 +48,9 @@
    "anchor": false,
    "contender": true,
    "sets": 80,
-   "elo": 1361.1631428141352,
-   "king_elo": 1358.288271202094,
-   "score_elo": 1288.2960461428486
+   "elo": 1361.2984962817986,
+   "king_elo": 1359.2416912493404,
+   "score_elo": 1299.1817554313754
   },
   {
    "key": "sub:rl-hybrid",
@@ -58,10 +58,10 @@
    "name": "Yosif's bidding, our cards + look-ahead",
    "anchor": false,
    "contender": true,
-   "sets": 60,
-   "elo": 1334.448090132168,
-   "king_elo": 1399.1060739249258,
-   "score_elo": 1319.2581879318275
+   "sets": 80,
+   "elo": 1335.4518333528724,
+   "king_elo": 1407.1943472536286,
+   "score_elo": 1354.1492879795273
   }
  ],
  "direct": [
@@ -143,6 +143,15 @@
    "a_wins": 18,
    "draws": 1,
    "b_wins": 1,
+   "sets": 20,
+   "clear": true
+  },
+  {
+   "a": "sub:kooz-bot",
+   "b": "sub:rl-hybrid",
+   "a_wins": 17,
+   "draws": 0,
+   "b_wins": 3,
    "sets": 20,
    "clear": true
   }
