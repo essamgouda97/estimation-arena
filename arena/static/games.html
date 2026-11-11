@@ -264,7 +264,9 @@ function pairRow(label, m, sets, now) {
   const [w, d, l] = tally(outcomes);
   slots.setAttribute("aria-label", m ? `${m.done} of ${sets} sets played: ${w} won, ${d} drawn, ${l} lost` : "Not started");
   for (let k = 0; k < sets; k++) slots.append(el("i", outcomes[k] || ""));
-  const count = el("div", "count muted", m ? (m.finished ? `${sets} sets` : `${m.done} of ${sets}`) : "waiting");
+  const early = m?.finished && m.done < sets;
+  const count = el("div", "count muted", !m ? "waiting" : early ? `settled at ${m.done}` : m.finished ? `${m.done} sets` : `${m.done} of ${sets}`);
+  if (early) count.title = "Stopped once more sets could not change the result";
   const rec = el("div", `rec${!m ? "" : w > l ? " won" : l > w ? " lost" : ""}`, m ? `${w}-${d}-${l}` : "");
   rec.title = "Sets won, drawn and lost on weighted rank";
   row.append(name, slots, count, rec);
@@ -328,7 +330,7 @@ function showLadder() {
       extra.forEach((m) => plan.append(pairRow(`${nameOf(m.key)} against ${nameOf(m.opponent)}`, m, m.sets, m.state === "playing")));
     }
     if (!run.plan.length && !extra.length) plan.append(el("p", "note", "Every bot had already played every benchmark, so this run had nothing to rate."));
-    parts.push(el("h2", "", "Rated sets"), el("p", "note", "One square per set, from the rated bot's side: gold won, grey drawn, pink lost. The deals are secret, so these show results only."), plan);
+    parts.push(el("h2", "", "Rated sets"), el("p", "note", "One square per set, from the rated bot's side: gold won, grey drawn, pink lost. The deals are secret, so these show results only. Benchmarks go strongest first, and a match stops once more sets could not change its result."), plan);
     parts.push(el("h2", "", "Where it would place"), places(run));
   }
   parts.push(el("h2", "", "Watch"), watchNote(), gameRoot);

@@ -57,7 +57,7 @@ def test_playing_one_anchor_at_a_time_builds_up_the_result(tmp_path: Path, capsy
     base = ["--bot", "lowcard-wire", "--out", str(out)]
     capsys.readouterr()
     main([*base, "--anchors", "random,heuristic", "--due", "--only-new"])
-    assert capsys.readouterr().out.split() == ["random", "heuristic"]
+    assert capsys.readouterr().out.split() == ["heuristic", "random"]  # strongest first
 
     main([*base, "--anchors", "random", "--sets", "1"])
     capsys.readouterr()

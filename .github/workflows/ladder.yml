@@ -82,7 +82,7 @@ jobs:
           # One anchor at a time, saved as it finishes: a slow bot (an hour per anchor) keeps what
           # it played when the job times out, and the next night plays only the anchors left.
           while IFS=$'\t' read -r bot spec; do
-            if uv run python -m arena.run --bot "$bot" --anchors "$spec" --sets "$sets" --seed "${LADDER_SEED:-0}" --workers 4 --progress --hide-seed </dev/null; then
+            if uv run python -m arena.run --bot "$bot" --anchors "$spec" --sets "$sets" --seed "${LADDER_SEED:-0}" --workers 4 --progress --hide-seed --stop-when-settled </dev/null; then
               scripts/ladder-save.sh "results/$bot.json" </dev/null
             else
               failed="$failed $bot:$spec"
@@ -98,7 +98,7 @@ jobs:
                 echo "skipping $pair: needs about $((need / 60)) min, $(((20400 - SECONDS) / 60)) min left"
                 continue
               fi
-              if output=$(uv run python -m arena.duels play "${pair%%:*}" "${pair##*:}" --seed "${LADDER_SEED:-0}" --workers 4); then
+              if output=$(uv run python -m arena.duels play "${pair%%:*}" "${pair##*:}" --seed "${LADDER_SEED:-0}" --workers 4 --stop-when-settled); then
                 echo "$output" | head -1
                 scripts/ladder-save.sh "$(echo "$output" | tail -1)"
               else

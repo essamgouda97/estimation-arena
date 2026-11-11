@@ -74,7 +74,7 @@ def estimate(a: str, b: str, sets: int = BATCH_SETS, root: Path = ROOT) -> float
 
 def play(
     a: str, b: str, seed: int, workers: int = 4, sets: int = BATCH_SETS, root: Path = ROOT,
-    rounds: int = GAME_ROUNDS, folder: Path = DIRECT_DIR,
+    rounds: int = GAME_ROUNDS, folder: Path = DIRECT_DIR, stop_when_settled: bool = False,
 ) -> dict[str, Any]:  # fmt: skip
     """One more batch for this pair, added to its file. No seed is saved: the ladder's is secret.
     ``rounds`` and ``folder`` are for the weekly full-game ladder (arena.full)."""
@@ -88,13 +88,14 @@ def play(
                  "batches": [], "pairs": [], "position_pairs": [], "king_pairs": []}  # fmt: skip
     me, other = SUB_PREFIX + first, SUB_PREFIX + second
     lineup = (me, other, me, other)
-    run = run_sets(lineup, sets, pair_seed(seed, first, second, len(match["batches"])), workers, rounds=rounds)
+    run = run_sets(lineup, sets, pair_seed(seed, first, second, len(match["batches"])), workers, rounds=rounds,
+                   stop_when_settled=stop_when_settled)  # fmt: skip
     _, by_position = summarize(run.results, lineup)
     match["pairs"] += by_position["delta"]
     match["position_pairs"] += by_position["weighted"]
     match["king_pairs"] += by_position["king"]
     match["scores"] = ",".join(filter(None, (match.get("scores"), encode_scores(run.results))))
-    match["batches"].append({"sets": sets, "played_at": datetime.now(UTC).isoformat(timespec="seconds"), "wall_s": run.wall_seconds})
+    match["batches"].append({"sets": len(run.results), "played_at": datetime.now(UTC).isoformat(timespec="seconds"), "wall_s": run.wall_seconds})
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(match, indent=1) + "\n")
     return match
@@ -109,6 +110,7 @@ def main(argv: list[str] | None = None) -> int:
     one.add_argument("b")
     one.add_argument("--seed", type=int, default=0)
     one.add_argument("--workers", type=int, default=4)
+    one.add_argument("--stop-when-settled", action="store_true", help="end the batch once more sets could not change its result")
     cost = commands.add_parser("estimate", help="print the seconds one batch for a pair should take")
     cost.add_argument("a")
     cost.add_argument("b")
@@ -120,7 +122,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "estimate":
         print(round(estimate(args.a, args.b)))
         return 0
-    play(args.a, args.b, args.seed, args.workers)
+    play(args.a, args.b, args.seed, args.workers, stop_when_settled=args.stop_when_settled)
     wins, draws, losses = record(json.loads(match_file(ROOT, args.a, args.b).read_text()))
     print(f"{min(args.a, args.b)} {wins}-{draws}-{losses} {max(args.a, args.b)}")
     print(match_file(ROOT, args.a, args.b).relative_to(ROOT))

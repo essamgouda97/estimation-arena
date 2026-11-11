@@ -202,3 +202,29 @@ def test_recorded_game_scores_match_the_arena():
     bots = lambda: [maker(s, bot_seed(2000, 0, 0, k), DEFAULT_CONFIG) for k, s in enumerate(seats)]  # noqa: E731
     real = play_bola(deal_seed(2000, 0), bots(), DEFAULT_CONFIG)
     assert record_game(seats, deal_seed(2000, 0), bots=bots())["final"] == list(real.scores)
+
+
+def test_a_match_stops_only_when_more_sets_could_not_change_it():
+    from arena.direct import is_settled
+
+    assert not is_settled("W" * 10)  # 10-0 could still be luck, 1 in 512
+    assert is_settled("W" * 11) and is_settled("L" * 11)
+    assert not is_settled("WL" * 20)
+    assert is_settled("WWWD" * 10)  # 30-10-0, draws set aside
+
+
+def test_a_lopsided_match_stops_early_and_an_even_one_plays_on():
+    from arena.run import run_sets
+
+    run = run_sets(("heuristic", "random", "heuristic", "random"), 40, 3, stop_when_settled=True)
+    assert 11 <= len(run.results) < 40
+    assert len(run_sets(("heuristic", "random", "heuristic", "random"), 12, 3).results) == 12  # off by default
+
+
+def test_benchmarks_go_strongest_first():
+    from arena.run import load_anchors, strongest_first
+
+    rating = {r["key"]: r["elo"] for r in leaderboard.build()["rows"] if r["anchor"]}
+    order = [a["spec"] for a in strongest_first(load_anchors())]
+    rated = [spec for spec in order if rating.get(spec) is not None]
+    assert rated == sorted(rated, key=lambda spec: -rating[spec]) and order[0] == rated[0]

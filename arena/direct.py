@@ -16,6 +16,12 @@ from typing import Any
 
 DIRECT_DIR = Path("results") / "direct"
 SIGNIFICANCE = 0.05
+# A match stops early once its result would happen by chance between equal bots less than once in
+# a thousand, checked after every set from the 10th. Checking that often, a 40-set match between
+# equal bots still stops early less than 0.5% of the time (worked out exactly, with no draws).
+# Chess engine testing stops matches early too: Stockfish's Fishtest uses a sequential test.
+SETTLED = 0.001
+SETTLED_AFTER = 10
 
 
 def match_file(root: Path, a: str, b: str, folder: Path = DIRECT_DIR) -> Path:
@@ -66,13 +72,24 @@ def record(match: dict[str, Any]) -> tuple[int, int, int]:
     return wins, draws, losses
 
 
-def is_clear(wins: int, losses: int) -> bool:
-    """Whether a result is unlikely between equal bots: a two-sided sign test, draws set aside."""
+def chance(wins: int, losses: int) -> float:
+    """How likely a result at least this one-sided is between equal bots: a two-sided sign test,
+    draws set aside."""
     played = wins + losses
     if not played:
-        return False
-    tail = sum(comb(played, k) for k in range(min(wins, losses) + 1)) / 2**played
-    return min(1.0, 2 * tail) < SIGNIFICANCE
+        return 1.0
+    return min(1.0, 2 * sum(comb(played, k) for k in range(min(wins, losses) + 1)) / 2**played)
+
+
+def is_clear(wins: int, losses: int) -> bool:
+    """Whether a result is unlikely between equal bots."""
+    return chance(wins, losses) < SIGNIFICANCE
+
+
+def is_settled(outcomes: str) -> bool:
+    """Whether a match can stop: more sets could not plausibly change who is better.
+    ``outcomes`` is one letter per set, W, D or L."""
+    return len(outcomes) >= SETTLED_AFTER and chance(outcomes.count("W"), outcomes.count("L")) < SETTLED
 
 
 def table(matches: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:

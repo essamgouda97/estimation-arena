@@ -11,6 +11,8 @@ What we do, and which competition or paper it comes from. Researched on 7 Novemb
 | Fresh deals for each extra match | ACPC 2016 reused one card sequence to separate its top agents. The organizers said this left an effective sample size of two, and they reran the finals | Each pair and batch gets its own deals, derived from the secret seed |
 | Say when a result is too close | ACPC reports 95% intervals and flags placings it can't separate with confidence | A sign test marks each head-to-head as clear or too close to call |
 | Extra games at the top | ACPC reran the top four, then the top two. The bridge championship sends its top four to a knockout | A close pair among the top four plays more batches, up to 100 sets |
+| Stop a match once it is decided | Chess engine testing: Stockfish's Fishtest ends each test with a sequential probability ratio test instead of a fixed number of games | A match stops when its sign test falls below 1 in 1,000, checked after each set from the 10th. Between equal bots a 40-set match stops early less than 0.5% of the time. A shutout stops after 11 sets |
+| Toughest benchmark first | Our own choice, so a new bot's first rating comes from its strongest benchmark | `arena.run --due` lists benchmarks by rating, best first, and the round robin starts with the best pairs |
 | A ranking that ignores wins over weak bots | ACPC runs total bankroll and instant runoff side by side, and they can disagree | The rating and the runoff are both shown, and the page says when they disagree |
 
 ## Why not a rating alone

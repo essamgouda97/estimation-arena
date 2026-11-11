@@ -36,7 +36,7 @@ from estimation.engine.config import DEFAULT_CONFIG
 
 from .bots import ROOT, SUB_PREFIX, Manifest, load_manifest, maker
 from .live import Match
-from .positions import encode_scores, summarize
+from .positions import encode_scores, set_outcomes, summarize
 
 ANCHORS_FILE = ROOT / "anchors.json"
 RESULTS_DIR = ROOT / "results"
@@ -127,9 +127,13 @@ def run_sets(
     progress: bool = False,
     kind: str = "rating",
     rounds: int = GAME_ROUNDS,
+    stop_when_settled: bool = False,
 ) -> ArenaRun:
     """``estimation.arena.run_arena`` with submissions allowed in the lineup, playing ``rounds``
-    rounds a game (0: whole games)."""
+    rounds a game (0: whole games). ``stop_when_settled`` ends a two-bot match as soon as its result
+    is settled (``arena.direct.is_settled``), so a lopsided match doesn't play all ``sets``."""
+    from .direct import is_settled
+
     names = tuple(lineup)
     task = partial(_task, names, seed, config, budget, rounds)
     timings = {name: Timing(budget) for name in dict.fromkeys(names)}
@@ -147,13 +151,27 @@ def run_sets(
             elapsed = time.perf_counter() - start
             print(f"  set {len(results)}/{sets}, {elapsed:.0f} s", file=sys.stderr, flush=True)
 
+    def settled() -> bool:
+        two = list(dict.fromkeys(names))
+        if not stop_when_settled or len(two) != 2 or not is_settled(set_outcomes(results, names, two[0])):
+            return False
+        if progress:
+            print(f"  settled after {len(results)} sets", file=sys.stderr, flush=True)
+        return True
+
     if workers == 1:
         for index in range(sets):
             collect(task(index))
+            if settled():
+                break
     else:
         with ProcessPoolExecutor(max_workers=workers, initializer=_one_thread) as pool:
+            # Sets come back in order, so a match always stops at the same set for the same seed.
             for outcome in pool.map(task, range(sets)):
                 collect(outcome)
+                if settled():
+                    pool.shutdown(wait=True, cancel_futures=True)
+                    break
     match.update(results, finished=True)
     return ArenaRun(
         lineup=names,
@@ -210,6 +228,7 @@ def play_submission(
     workers: int,
     progress: bool,
     rounds: int = GAME_ROUNDS,
+    stop_when_settled: bool = False,
 ) -> dict[str, Any]:
     me = SUB_PREFIX + manifest.name
     versus: list[dict[str, Any]] = []
@@ -220,7 +239,7 @@ def play_submission(
         lineup = (me, anchor["spec"], me, anchor["spec"])
         if progress:
             print(f"[{manifest.name}] vs {anchor['name']} ({anchor['spec']})", file=sys.stderr)
-        run = run_sets(lineup, sets, seed, workers, progress=progress, rounds=rounds)
+        run = run_sets(lineup, sets, seed, workers, progress=progress, rounds=rounds, stop_when_settled=stop_when_settled)
         report = build_report(run)
         mine = next(b for b in report.bots if b.name == me)
         places, by_position = summarize(run.results, lineup)
@@ -315,6 +334,15 @@ def anchors_to_play(
     return [a for a in anchors if a["spec"] not in played]
 
 
+def strongest_first(anchors: list[dict[str, str]]) -> list[dict[str, str]]:
+    """The anchors by their current rating, best first, so a new bot meets its toughest benchmark
+    first. An anchor without a rating yet goes last."""
+    from .leaderboard import build
+
+    rating = {row["key"]: row["elo"] for row in build(ROOT)["rows"] if row["anchor"] and row["elo"] is not None}
+    return sorted(anchors, key=lambda a: -rating.get(a["spec"], float("-inf")))
+
+
 def _public(name: str) -> str:
     """Pair records name submissions ``sub:<name>`` and anchors by spec; keep both as is."""
     return name
@@ -334,6 +362,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--progress", action="store_true")
     parser.add_argument("--only-new", action="store_true", help="skip games already played by this exact bot")
     parser.add_argument("--hide-seed", action="store_true", help="leave the seed out of the result and the output")
+    parser.add_argument("--stop-when-settled", action="store_true", help="end a match once more sets could not change its result")
     parser.add_argument(
         "--due",
         action="store_true",
@@ -357,14 +386,14 @@ def main(argv: list[str] | None = None) -> int:
     if args.due:
         # The ladder plays one anchor at a time and saves after each, so a slow bot that runs out
         # of time keeps the anchors it finished and carries on from there the next night.
-        for anchor in anchors:
+        for anchor in strongest_first(anchors):
             print(anchor["spec"])
         return 0
     if args.only_new:
         if not anchors:
             print(f"{manifest.name}: unchanged, nothing new to play")
             return 0
-    result = play_submission(manifest, anchors, args.sets, args.seed, args.workers, args.progress)
+    result = play_submission(manifest, anchors, args.sets, args.seed, args.workers, args.progress, stop_when_settled=args.stop_when_settled)
     result["bot_hash"] = bot_hash(manifest)
     if args.hide_seed:
         result["seed"] = None
