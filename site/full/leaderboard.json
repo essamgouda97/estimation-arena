@@ -1,5 +1,5 @@
 {
- "built_at": "2026-11-11T00:15:55+00:00",
+ "built_at": "2026-11-11T00:16:00+00:00",
  "contenders": [
   "sub:hybrid-v4",
   "sub:kooz-bot",
@@ -15,9 +15,20 @@
    "anchor": false,
    "contender": true,
    "sets": 20,
-   "elo": 1737.0556927915868,
-   "king_elo": 1647.5111322787773,
-   "score_elo": 1737.0556927915868
+   "elo": 1738.6711069923213,
+   "king_elo": 1625.6095812423787,
+   "score_elo": 1677.791769593694
+  },
+  {
+   "key": "sub:kooz-bot",
+   "code_name": "kooz-bot",
+   "name": "kooz-bot",
+   "anchor": false,
+   "contender": true,
+   "sets": 20,
+   "elo": 1495.1537573977378,
+   "king_elo": 1565.704653109176,
+   "score_elo": 1677.791769593694
   },
   {
    "key": "sub:bitter-search",
@@ -26,9 +37,9 @@
    "anchor": false,
    "contender": true,
    "sets": 20,
-   "elo": 1471.4659553394335,
-   "king_elo": 1516.2382355958384,
-   "score_elo": 1471.4659553394335
+   "elo": 1473.0813695401907,
+   "king_elo": 1494.3366845594392,
+   "score_elo": 1412.202032141545
   },
   {
    "key": "sub:bitter-net",
@@ -36,10 +47,10 @@
    "name": "Self-taught",
    "anchor": false,
    "contender": true,
-   "sets": 40,
-   "elo": 1291.4783518689796,
-   "king_elo": 1336.2506321253843,
-   "score_elo": 1291.4783518689796
+   "sets": 60,
+   "elo": 1293.09376606975,
+   "king_elo": 1314.3490810890064,
+   "score_elo": 1232.214428671067
   }
  ],
  "direct": [
@@ -60,10 +71,20 @@
    "b_wins": 18,
    "sets": 20,
    "clear": true
+  },
+  {
+   "a": "sub:bitter-net",
+   "b": "sub:kooz-bot",
+   "a_wins": 3,
+   "draws": 3,
+   "b_wins": 14,
+   "sets": 20,
+   "clear": true
   }
  ],
  "runoff": [
   "sub:hybrid-v4",
+  "sub:kooz-bot",
   "sub:bitter-search",
   "sub:bitter-net"
  ],
