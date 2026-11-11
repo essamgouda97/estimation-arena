@@ -66,5 +66,6 @@ def test_the_page_rates_the_pair_around_the_scale(tmp_path):
     assert board["direct"][0]["sets"] == 20 and set(board["runoff"]) == {f"sub:{b}" for b in BOTS}
     page = full.render(board)
     assert "Whole games" in page and "Head to head" in page
+    assert {r["author"] for r in board["rows"]} == {"Essam Gouda"} and '<td class="author">Essam Gouda</td>' in page
     full.write(board, tmp_path / "site")
     assert (tmp_path / "site" / "full" / "index.html").is_file()
