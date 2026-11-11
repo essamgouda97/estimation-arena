@@ -28,7 +28,7 @@ from .guide import GUIDE, STYLE as GUIDE_STYLE
 from .anchor_positions import OUT as POSITIONS_FILE
 from .import_ladder import LADDER_FILE
 from .positions import NAMES as POSITION_NAMES, decode_scores, set_outcomes
-from .plain import about_bot, benchmark_name, plain_name
+from .plain import about_bot, author_name, base_key, benchmark_name, plain_name
 from .run import ANCHORS_FILE, RESULTS_DIR
 
 SITE_DIR = ROOT / "site"
@@ -42,14 +42,17 @@ document.querySelectorAll('[data-rank]').forEach(function (button) {
     var m = button.dataset.rank, body = document.querySelector('tbody');
     document.body.dataset.metric = m;
     document.querySelectorAll('[data-rank]').forEach(function (b) { b.setAttribute('aria-pressed', b === button); });
-    var rows = Array.from(body.querySelectorAll('tr.bot')).sort(function (a, b) { return b.dataset[m] - a.dataset[m]; });
+    var early = function (row) { return row.classList.contains('early') ? 1 : 0; };
+    var rows = Array.from(body.querySelectorAll('tr.bot')).sort(function (a, b) { return early(a) - early(b) || b.dataset[m] - a.dataset[m]; });
     var place = 0;
     rows.forEach(function (row) {
       var how = row.nextElementSibling && row.nextElementSibling.classList.contains('howrow') ? row.nextElementSibling : null;
-      row.querySelector('.rank').textContent = row.dataset[m] > -1e8 && !row.classList.contains('early') ? ++place : '';
+      row.querySelector('.rank').textContent = row.dataset[m] > -1e8 && !early(row) ? ++place : '';
       body.appendChild(row);
       if (how) body.appendChild(how);
     });
+    var divider = body.querySelector('tr.unranked'), firstEarly = body.querySelector('tr.early');
+    if (divider && firstEarly) body.insertBefore(divider, firstEarly);
   });
 });
 """
@@ -70,6 +73,16 @@ def _add_new(pairs: list[PairRecord], extra: list[PairRecord]) -> None:
     """Add a live match's sets, unless finished results already rate that pairing."""
     rated = {frozenset((p.a, p.b)) for p in pairs}
     pairs += [p for p in extra if frozenset((p.a, p.b)) not in rated]
+
+
+def _author(row: dict[str, Any]) -> str:
+    """Who made a bot. A test version has no result of its own, so it takes its bot's author."""
+    if row["author"] or not row["key"].startswith(SUB_PREFIX):
+        return author_name(row["author"])
+    try:
+        return author_name(load_manifest(base_key(row["key"])[len(SUB_PREFIX) :]).author)
+    except (ValueError, OSError):
+        return ""
 
 
 def _overlay_row(key: str, played: list[dict[str, Any]], ratings: tuple[dict, dict, dict]) -> dict[str, Any]:
@@ -100,8 +113,9 @@ def build(
     """Standings from the finished results under ``root``, plus any ``live`` matches
     (arena.live.read_matches), which count for pairings no finished result covers, plus results
     under ``experiments`` for bots ``root`` has not rated, plus ``results/early``, committed results
-    of bots the ladder can't play. Those three are marked provisional and can't move an official
-    rating. ``official_only`` leaves the early results out."""
+    of bots the ladder can't play. Those three are marked provisional, can't move an official rating
+    and are listed after the ranked bots. A test version of a bot already on the board gets no row:
+    the board shows one row per bot. ``official_only`` leaves the early results out."""
     anchors: list[dict[str, str]] = json.loads((root / ANCHORS_FILE.relative_to(ROOT)).read_text())
     ladder_file, positions_file = root / LADDER_FILE.relative_to(ROOT), root / POSITIONS_FILE.relative_to(ROOT)
     ladder = json.loads(ladder_file.read_text()) if ladder_file.is_file() else {"pairs": []}
@@ -206,13 +220,14 @@ def build(
     known = {row["key"] for row in rows}
     fresh: dict[str, list[dict[str, Any]]] = {}
     for m in counted:
-        if m["key"] not in known:
+        if m["key"] not in known and base_key(m["key"]) not in known:
             fresh.setdefault(m["key"], []).append(m)
     for key, played in fresh.items():
         rows.append(_overlay_row(key, played, (ratings, king_ratings, score_ratings)))
     for row in rows:
         row["code_name"] = row["name"]
         row["name"] = plain_name(row["key"], row["name"])
+        row["author"] = _author(row)
         about = about_bot(row["key"])
         row["description"] = about.get("about", row["description"])
         row["method"] = about.get("method", row["method"])
@@ -223,7 +238,7 @@ def build(
             if row["key"] in official_rows:
                 for field in ("elo", "king_elo", "score_elo"):
                     row[field] = official_rows[row["key"]][field]
-    rows.sort(key=lambda row: (row["elo"] is None, -(row["elo"] or 0)))
+    rows.sort(key=lambda row: (bool(row.get("provisional")), row["elo"] is None, -(row["elo"] or 0)))
     rated = [row["key"] for row in rows if row["elo"] is not None and not row.get("provisional")]
     return {
         "matchups": matchups(results, direct, rows),
@@ -247,8 +262,8 @@ th{font-weight:600;color:var(--muted);font-size:13px}td.num,th.num{text-align:ri
 tr.anchor td{color:var(--muted);background:var(--tint)}tr:has(+ tr.howrow) td{border-bottom:none}tr.howrow td{white-space:normal;padding-top:0}.places{display:flex;gap:2px;width:210px;height:12px;vertical-align:middle}.places span{display:block;height:100%}.places span:first-child{border-radius:3px 0 0 3px}.places span:last-child{border-radius:0 3px 3px 0}.p0{background:#f2c14e}.p1{background:#f8e3a8}.p2{background:#f3a6a8}.p3{background:#e5484d}.key{display:inline-block;width:10px;height:10px;border-radius:2px;margin:0 4px 0 12px;vertical-align:-1px}.king{font-variant-numeric:tabular-nums;font-size:13px;color:var(--muted)}.metrics{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}.metrics button{font:inherit;font-size:14px;padding:6px 12px;border:1px solid var(--muted);border-radius:6px;background:transparent;color:inherit;cursor:pointer}.metrics button[aria-pressed=true]{background:#f2c14e;border-color:#f2c14e;color:#1c2147;font-weight:600}.banner{display:block;width:100%;height:auto;margin:0 0 16px}.unrated{color:var(--muted);font-size:13px}td.m-weighted,td.m-king,td.m-delta{color:var(--muted)}body[data-metric=weighted] td.m-weighted,body[data-metric=king] td.m-king,body[data-metric=delta] td.m-delta{color:inherit;font-weight:700}span.m-king,span.m-delta{display:none}body[data-metric=king] span.m-weighted,body[data-metric=delta] span.m-weighted{display:none}body[data-metric=king] span.m-king,body[data-metric=delta] span.m-delta{display:inline}
 .brand-title{margin:0}.tag{font-size:12px;padding:1px 6px;border:1px solid var(--line);border-radius:10px;color:var(--muted)}.desc{color:var(--muted);font-size:13px;white-space:normal}
 .direct{margin-top:32px}table.cross td,table.cross th{white-space:nowrap}table.cross .who-cell{white-space:normal;min-width:130px;max-width:190px;position:sticky;left:0;background:var(--bg);z-index:1}table.cross .rank{color:var(--muted)}table.cross .self{background:var(--tint)}table.cross .close,table.cross .unrated{color:var(--muted)}.pos{color:var(--good)}.neg{color:var(--bad)}details{margin-top:24px}summary{cursor:pointer;color:var(--muted)}
-.who-cell{white-space:normal;min-width:230px}td.opt{white-space:normal}.places{flex-shrink:0}
-@media(max-width:700px){th.opt,td.opt,.who{display:none}.who-cell{min-width:0}body:not([data-metric=weighted]) .num.m-weighted,body:not([data-metric=king]) .num.m-king,body:not([data-metric=delta]) .num.m-delta{display:none}}
+.who-cell{white-space:normal;min-width:230px}td.author{white-space:normal;color:var(--muted)}tr.unranked td{white-space:normal;color:var(--muted);padding-top:28px;font-size:13px}tr.unranked strong{color:var(--fg);font-size:15px;margin-right:6px}td.opt{white-space:normal}.places{flex-shrink:0}
+@media(max-width:700px){th.opt,td.opt,.who,th.author,td.author{display:none}.who-cell{min-width:0}body:not([data-metric=weighted]) .num.m-weighted,body:not([data-metric=king]) .num.m-king,body:not([data-metric=delta]) .num.m-delta{display:none}}
 details.how{margin:6px 0 2px}details.how summary{font-size:13px}.scroll{overflow-x:auto;margin:10px 0}
 svg text{fill:var(--fg);font:12px system-ui,sans-serif}
 .flow .step{fill:var(--tint);stroke:var(--line)}.i-n{fill:var(--muted)!important;font-size:11px!important}
@@ -480,11 +495,17 @@ def head_to_head(board: dict[str, Any], top: int = 8) -> str:
 </tbody></table></div></section>"""
 
 
+COLUMNS = 8  # rank, bot, author, three ratings, finishing places, benchmarks
+UNRANKED_NOTE = "These bots have a rating from a few games but no place: they are being tested, or can't play on the nightly ladder."
+
+
 def render(board: dict[str, Any]) -> str:
     rows = board["rows"]
     anchors = [r["name"] for r in rows if r["anchor"]]
     lines = []
     rank = 0
+    divided = False
+    ranked = sum(r["elo"] is not None and not r.get("provisional") for r in rows)
     for r in rows:
         e = html.escape
         early = r.get("provisional")
@@ -503,13 +524,13 @@ def render(board: dict[str, Any]) -> str:
             place_bar = f'<div class="places" title="{title}" role="img" aria-label="{title}">{parts}</div><span class="king">King {places[0]:.0%}</span>'
         if r["anchor"]:
             name = f'<a href="games/#bot={quote(r["key"])}">{e(r["name"])}</a> <span class="tag">benchmark</span>'
-            meta = f'<span class="desc who">{e(r["description"])} By {e(r["author"])}. Code name: {e(r["code_name"])}.</span>'
+            meta = f'<span class="desc who">{e(r["description"])} Code name: {e(r["code_name"])}.</span>'
             detail = ""
         else:
             name = f'<strong><a href="games/#bot={quote(r["key"])}">{e(r["name"])}</a></strong>'
             if early:
-                name += f' <span class="tag">early result, {r["games"]:,} games</span>'
-            meta = f'<span class="desc who">{e(r["description"])} By {e(r["author"])}. Code name: {e(r["code_name"])}.</span>'
+                name += f' <span class="tag">{r["games"]:,} games so far</span>'
+            meta = f'<span class="desc who">{e(r["description"])} Code name: {e(r["code_name"])}.</span>'
             vs = " · ".join(
                 f'{e(benchmark_name(v["anchor"]))} <span class="m-weighted {"pos" if (v["position_reward"] or 0) >= 0 else "neg"}">{(v["position_reward"] or 0):+.2f}</span>'
                 f'<span class="m-king {"pos" if v["first_place"] >= 0.25 else "neg"}">{v["first_place"]:.0%}</span>'
@@ -520,16 +541,19 @@ def render(board: dict[str, Any]) -> str:
                 f'<span class="desc">{vs}</span><br><span class="desc">{r["games"]:,} games, '
                 f'last played {e(r["played_at"][:10])}</span>'
             )
+        if early and not divided:
+            divided = True
+            lines.append(f'<tr class="unranked"><td></td><td colspan="{COLUMNS - 1}"><strong>Not ranked yet.</strong> {UNRANKED_NOTE}</td></tr>')
         lines.append(
             f'<tr class="{"anchor" if r["anchor"] else "sub"} bot{" early" if early else ""}" {sort_keys}>'
             f'<td class="num rank">{rank if elo is not None and not early else ""}</td>'
-            f'<td class="who-cell">{name}<br>{meta}</td>'
+            f'<td class="who-cell">{name}<br>{meta}</td><td class="author">{e(r["author"])}</td>'
             f'{cells}<td class="opt">{place_bar}</td><td class="opt">{detail}</td></tr>'
         )
         how = how_it_plays(r)
         if how:
             cls = "anchor" if r["anchor"] else "sub"
-            lines.append(f'<tr class="{cls} howrow"><td></td><td colspan="6">{how}</td></tr>')
+            lines.append(f'<tr class="{cls} howrow"><td></td><td colspan="{COLUMNS - 1}">{how}</td></tr>')
     ladder = board["ladder"]
     built = board["built_at"].replace("T", " ")[:16] + " UTC"
     return f"""<!doctype html>
@@ -537,13 +561,13 @@ def render(board: dict[str, Any]) -> str:
 <title>Estimation Arena</title><link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,{_favicon()}"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700&family=Instrument+Sans:wght@400;600&display=swap" rel="stylesheet"><style>{STYLE}{GUIDE_STYLE}:root{{--guide-line:var(--line)}}</style></head>
 <body data-metric="weighted"><main>
 <h1 class="brand-title">{_banner()}</h1>
-<p class="sub">{len(rows)} bots ranked three ways from the same games, including {len(anchors)} fixed benchmarks. Updated {built}.</p>
+<p class="sub">{ranked} bots ranked three ways from the same games, including {len(anchors)} fixed benchmarks. Updated {built}.</p>
 <div class="metrics" role="group" aria-label="Rank by">{"".join(f'<button type="button" data-rank="{m}"{" aria-pressed=true" if m == "weighted" else " aria-pressed=false"}>{label}</button>' for m, _, label in METRICS)}</div>
 <p class="desc"><span class="key p0"></span>King +1<span class="key p1"></span>Sub-King +0.2<span class="key p2"></span>Sub-Kooz −0.2<span class="key p3"></span>Kooz −1</p>
 <p class="desc"><a href="games/">Games</a> · <a href="full/">Whole games</a> · <a href="#guide">What the numbers mean</a> · <a href="diagrams/how-it-works.html">How it works</a> · <a href="https://github.com/essamgouda97/estimation-arena">Code on GitHub</a></p>
 <p class="desc">Open “how it plays” under any bot to see how it decides.</p>
 <table>
-<thead><tr><th class="num">#</th><th>Bot</th>{"".join(f'<th class="num m-{m}">{label}</th>' for m, _, label in METRICS)}<th class="opt">Finishing places</th><th class="opt">Against each benchmark</th></tr></thead>
+<thead><tr><th class="num">#</th><th>Bot</th><th class="author">Author</th>{"".join(f'<th class="num m-{m}">{label}</th>' for m, _, label in METRICS)}<th class="opt">Finishing places</th><th class="opt">Against each benchmark</th></tr></thead>
 <tbody>
 {chr(10).join(lines)}
 </tbody></table>

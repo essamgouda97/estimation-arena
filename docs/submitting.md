@@ -105,4 +105,4 @@ gh workflow run ladder-full.yml
 
 ## Early results
 
-`results/early/*.json` holds finished results for bots the ladder can't play, such as LLM players that need a paid key and live in `experiments/bots`. They show on both boards marked as early results, with no rank number. They can't move an official rating, and the ladder never replays them or gives them direct games. Play them with `arena.run` on a practice seed, never the ladder's, and commit the result by hand.
+`results/early/*.json` holds finished results for bots the ladder can't play, such as LLM players that need a paid key and live in `experiments/bots`. They show on both boards under “Not ranked yet”, below the ranked bots, with no rank number. They can't move an official rating, and the ladder never replays them or gives them direct games. Play them with `arena.run` on a practice seed, never the ladder's, and commit the result by hand.

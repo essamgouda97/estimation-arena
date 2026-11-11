@@ -1,4 +1,6 @@
 const POLL_MS = 5000;
+const COLUMNS = 7; // rank, bot, author, three ratings, finishing places
+const UNRANKED_NOTE = "These bots have a rating from a few games but no place: they are being tested, or can't play on the nightly ladder.";
 const $ = (id) => document.getElementById(id);
 const metric = () => document.body.dataset.metric;
 let state = null, firstElo = {}, lastOk = null, failed = false, seenSets = {}, openKey = null, details = {}, drawn = "";
@@ -104,7 +106,7 @@ async function loadDetail(key) {
 function detailRow(key) {
   const tr = el("tr", "detail");
   const td = el("td");
-  td.colSpan = 6;
+  td.colSpan = COLUMNS;
   tr.appendChild(td);
   const shell = el("div", "detail-shell");
   td.appendChild(shell);
@@ -157,6 +159,14 @@ function toggle(key) {
   renderRows(true, false);
 }
 
+function unrankedDivider() {
+  const tr = el("tr", "unranked"), td = el("td");
+  td.colSpan = COLUMNS;
+  td.append(el("strong", "", "Not ranked yet"), el("span", "", UNRANKED_NOTE));
+  tr.appendChild(td);
+  return tr;
+}
+
 function renderRows(force = false, animate = true) {
   const body = $("rows"), field = metric();
   const signature = JSON.stringify([field, openKey, state.standings, state.playing.map((m) => m.key)]);
@@ -168,7 +178,9 @@ function renderRows(force = false, animate = true) {
   const before = new Map(shown.map((tr) => [tr.dataset.key, tr.getBoundingClientRect().top]));
   const previous = new Map(shown.map((tr) => [tr.dataset.key, tr.dataset.value]));
   const playing = new Set(state.playing.map((m) => m.key).concat(state.playing.map((m) => m.opponentKey)));
-  const rows = [...state.standings].sort((a, b) => (b[field] ?? -1e9) - (a[field] ?? -1e9));
+  const unranked = (row) => (row.provisional ? 1 : 0);
+  const rows = [...state.standings].sort((a, b) => unranked(a) - unranked(b) || (b[field] ?? -1e9) - (a[field] ?? -1e9));
+  const firstUnranked = rows.find(unranked);
   let place = 0;
   body.replaceChildren(...rows.flatMap((row) => {
     const tr = el("tr");
@@ -184,15 +196,18 @@ function renderRows(force = false, animate = true) {
     games.href = "/games/#bot=" + encodeURIComponent(row.key);
     name.appendChild(games);
     if (row.anchor) name.appendChild(el("span", "tag", "Benchmark"));
-    if (row.provisional) name.appendChild(el("span", "tag", `Early result, ${row.games} games`));
+    if (row.provisional) name.appendChild(el("span", "tag", `${row.games} games so far`));
     if (playing.has(row.key)) name.appendChild(el("span", "tag on", "Playing"));
+    name.appendChild(el("span", "by", row.author));
     tr.appendChild(name);
+    tr.appendChild(el("td", "author", row.author));
     for (const f of ["elo", "king_elo", "score_elo"]) tr.appendChild(eloCell(row, f));
     const cell = el("td", "places-cell");
     cell.appendChild(places(row.positions));
     tr.appendChild(cell);
     if (previous.has(row.key) && previous.get(row.key) !== tr.dataset.value) tr.classList.add("flash");
-    return openKey === row.key ? [tr, detailRow(row.key)] : [tr];
+    const own = openKey === row.key ? [tr, detailRow(row.key)] : [tr];
+    return row === firstUnranked ? [unrankedDivider(), ...own] : own;
   }));
   if (focused) body.querySelector(`tr[data-key="${CSS.escape(focused)}"] .bot-name`)?.focus({ preventScroll: true });
   body.querySelectorAll(".steps").forEach((box, k) => { box.scrollLeft = scrolled[k] ?? 0; });

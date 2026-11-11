@@ -24,7 +24,7 @@ RESULTS_ROOT = Path(os.environ.get("ESTIMATION_RESULTS_ROOT", Path.home() / "wor
 RECENT = 8
 GAME_NAME = re.compile(r"[a-z0-9-]+\.vs\.[a-z0-9-]+\.json")
 _cache: dict[str, Any] = {"signature": None, "standings": [], "direct": [], "runoff": []}
-ROW_FIELDS = ("name", "code_name", "key", "kind", "anchor", "provisional", "elo", "king_elo", "score_elo", "positions", "games", "played_at")
+ROW_FIELDS = ("name", "author", "code_name", "key", "kind", "anchor", "provisional", "elo", "king_elo", "score_elo", "positions", "games", "played_at")
 MATCH_FIELDS = ("id", "kind", "key", "name", "opponent", "sets", "done", "state", "strip", "shares", "reward", "king", "delta", "started_at", "updated_at")
 
 

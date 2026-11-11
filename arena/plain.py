@@ -36,13 +36,13 @@ BOTS: dict[str, dict[str, Any]] = {
         "method": [_BASIC_BID, ["imagine the hidden hands", "deal"], ["try each card: a tuned rule plays out the round", "rollout"], _BEST],
     },
     _RL: {
-        "name": "Yosif's trained bot",
+        "name": "Trained bot",
         "about": "Two trained models, one for bidding and one for cards. It started by copying Look-ahead, then improved by playing itself.",
         "method": [["learned from thousands of practice games", "data"], ["bidding model rates every bid", "bid"], ["card model rates every legal card", "net"], ["play its top card", "pick"]],
     },
     "hybrid": {
-        "name": "Yosif's trained bot + look-ahead",
-        "about": "Yosif's trained models choose which cards are worth considering. It then tries each one on imagined hands.",
+        "name": "Trained bot + look-ahead",
+        "about": "Trained bot's models choose which cards are worth considering. It then tries each one on imagined hands.",
         "method": [["bidding model picks the bid", "bid"], ["card model keeps its top 3 cards", "net"], ["imagine hands that fit everyone's bids x16", "deal"], ["try each card: the models play out the round", "rollout"], _BEST],
     },
     "lowcard-wire": {
@@ -91,14 +91,14 @@ BOTS: dict[str, dict[str, Any]] = {
         "method": [["put the rules and this seat's view into words", "data"], ["Claude thinks it over and picks a move", "net"], ["play that move", "pick"]],
     },
     "hybrid-v4": {
-        "name": "Yosif's Hybrid v4",
-        "about": "Yosif's strongest bot. One model bids, one chooses cards, and one guesses who holds the hidden cards. It tries its top 2 cards on 32 imagined deals built from those guesses.",
+        "name": "Hybrid v4",
+        "about": "One model bids, one chooses cards, and one guesses who holds the hidden cards. It tries its top 2 cards on 32 imagined deals built from those guesses.",
         "method": [["the bid model picks the bid", "bid"], ["the card model keeps its top 2 cards", "net"], ["imagine 32 deals from where the guess model thinks the cards are", "deal"], ["play each kept card to the end", "rollout"], ["play the best average score", "pick"]],
     },
     "rl-hybrid": {
-        "name": "Yosif's bidding, our cards + look-ahead",
-        "about": "Yosif's look-ahead bot with its card model swapped for Copycat with practice. It keeps Yosif's bidding.",
-        "method": [["Yosif's bidding model picks the bid", "bid"], ["our card model keeps its top 3 cards", "net"], ["imagine hands that fit everyone's bids x16", "deal"], ["try each card: our model plays out the round", "rollout"], _BEST],
+        "name": "Hybrid with Copycat cards",
+        "about": "Trained bot + look-ahead with its card model swapped for Copycat with practice. It keeps the original bidding model.",
+        "method": [["Trained bot's bidding model picks the bid", "bid"], ["Copycat with practice keeps its top 3 cards", "net"], ["imagine hands that fit everyone's bids x16", "deal"], ["try each card: the card model plays out the round", "rollout"], _BEST],
     },
     "bitter-net": {
         "name": "Self-taught",
@@ -110,12 +110,29 @@ BOTS: dict[str, dict[str, Any]] = {
         "about": "The Self-taught model bids alone and picks its best cards, then tries each one on imagined hands.",
         "method": [["the model picks the bid", "bid"], ["the model keeps its top 3 cards", "net"], ["imagine the hidden hands x16", "deal"], ["try each card: the model plays out the round", "rollout"], _BEST],
     },
+    "kooz-bot": {
+        "name": "Kooz bot",
+        "about": "Look-ahead on models trained from scratch. It imagines 64 deals from its own guess model, tries every legal card, and only makes a Dash Call when its bid model rates it clearly worth it.",
+    },
     "guess-search": {
         "name": "Self-taught + guesses",
         "about": "Self-taught + look-ahead with a second model of its own that guesses who holds each hidden card. It learned those guesses only from its own games, and imagines many more hands from them.",
         "method": [["the model picks the bid", "bid"], ["the model keeps its top 2 cards", "net"], ["imagine 256 hands from where its guess model thinks the cards are", "deal"], ["try each card: the model plays out the round", "rollout"], _BEST],
     },
 }
+
+# Who made each bot, spelled one way. A manifest is part of a bot's hash, so names are tidied here.
+_AUTHORS = {"Essam": "Essam Gouda"}
+
+
+def author_name(author: str) -> str:
+    return _AUTHORS.get(author, author)
+
+
+def base_key(key: str) -> str:
+    """The merged bot a test version belongs to: ``sub:bot:variant`` gives ``sub:bot``."""
+    return SUB_PREFIX + _bot_id(key) if key.startswith(SUB_PREFIX) else key
+
 
 # Test versions of a bot, as they appear in its key after the bot's own name.
 _VARIANTS = {
