@@ -1,0 +1,50 @@
+{
+ "built_at": "2026-11-11T00:15:49+00:00",
+ "contenders": [
+  "sub:hybrid-v4",
+  "sub:kooz-bot",
+  "sub:bitter-search",
+  "sub:rl-hybrid",
+  "sub:bitter-net"
+ ],
+ "rows": [
+  {
+   "key": "sub:bitter-search",
+   "code_name": "bitter-search",
+   "name": "Self-taught + look-ahead",
+   "anchor": false,
+   "contender": true,
+   "sets": 20,
+   "elo": 1589.9938017352094,
+   "king_elo": 1589.9938017352094,
+   "score_elo": 1589.9938017352094
+  },
+  {
+   "key": "sub:bitter-net",
+   "code_name": "bitter-net",
+   "name": "Self-taught",
+   "anchor": false,
+   "contender": true,
+   "sets": 20,
+   "elo": 1410.0061982647906,
+   "king_elo": 1410.0061982647906,
+   "score_elo": 1410.0061982647906
+  }
+ ],
+ "direct": [
+  {
+   "a": "sub:bitter-net",
+   "b": "sub:bitter-search",
+   "a_wins": 4,
+   "draws": 2,
+   "b_wins": 14,
+   "sets": 20,
+   "clear": true
+  }
+ ],
+ "runoff": [
+  "sub:bitter-search",
+  "sub:bitter-net"
+ ],
+ "scale": 1500
+}
