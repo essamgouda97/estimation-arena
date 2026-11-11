@@ -59,6 +59,23 @@ def test_entry_gets_a_provisional_row_and_rating():
     assert row["provisional"] and row["elo"] > base["elo"] and row["games"] == 240
 
 
+def test_a_test_version_of_a_ranked_bot_gets_no_row():
+    rows = leaderboard.build(ROOT, [_entry("sub:lowcard-wire:tweak", "heuristic", 50, 10)])["rows"]
+    assert [r["key"] for r in rows if "lowcard-wire" in r["key"]] == ["sub:lowcard-wire"]
+
+
+def test_unranked_bots_come_after_every_ranked_one():
+    rows = leaderboard.build(ROOT, [_entry("sub:n:fresh", "heuristic", 50, 10)])["rows"]
+    flags = [bool(r.get("provisional")) for r in rows]
+    assert flags == sorted(flags) and flags[-1]
+
+
+def test_every_row_names_its_author_one_way():
+    rows = leaderboard.build(ROOT)["rows"]
+    assert all(r["author"] for r in rows)
+    assert "Essam" not in {r["author"] for r in rows} and not any("Yosif" in r["name"] for r in rows)
+
+
 def test_stopped_match_is_not_rated():
     rows = leaderboard.build(ROOT, [_entry("sub:n:fresh", "heuristic", 50, 10, state="stopped", alive=False)])["rows"]
     assert all(r["key"] != "sub:n:fresh" for r in rows)
@@ -131,7 +148,7 @@ def test_tensorboard_forwarding_drops_identity(monkeypatch):
 def test_the_guide_defines_every_metric_on_both_pages():
     from arena.guide import GUIDE
 
-    for word in ("Weighted rank", "King only", "Score delta", "Elo", "early result", "Benchmark"):
+    for word in ("Weighted rank", "King only", "Score delta", "Elo", "Not ranked yet", "Benchmark"):
         assert word in GUIDE
     assert GUIDE in leaderboard.render(leaderboard.build(ROOT))
 

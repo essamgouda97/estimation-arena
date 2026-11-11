@@ -178,7 +178,9 @@ def test_an_early_result_shows_without_moving_official_ratings(tmp_path):
 def test_an_early_bot_is_on_the_page_without_a_rank_and_has_a_browser_page(tmp_path):
     board = _early_board(tmp_path)
     page = leaderboard.render(board)
-    assert "early result, 4 games" in page and 'bot early"' in page
+    assert "4 games so far" in page and 'bot early"' in page
+    assert page.index("Not ranked yet") < page.index("4 games so far")
+    assert all(page.index(f'data-weighted="{r["elo"]}"') < page.index("Not ranked yet") for r in board["rows"] if not r.get("provisional") and r["elo"])
     assert any(m["a"] == "sub:llm-claude-api" and m["b"] == "heuristic" for m in board["matchups"])
     assert next(r for r in board["rows"] if r["key"] == "sub:llm-claude-api")["name"] == "Claude Opus 5.5"
 

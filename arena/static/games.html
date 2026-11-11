@@ -77,7 +77,7 @@ function home() {
     a.href = "#bot=" + encodeURIComponent(b.key);
     const name = el("span", "", b.name);
     if (b.anchor) name.append(el("span", "tag", "benchmark"));
-    if (b.provisional) name.append(el("span", "tag", "early result"));
+    if (b.provisional) name.append(el("span", "tag", "not ranked yet"));
     if (!b.provisional) place += 1;
     a.append(el("span", "rank", b.provisional ? "" : place), name, el("span", "elo", Math.round(b.elo)));
     li.append(a); list.append(li);

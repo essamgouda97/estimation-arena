@@ -37,8 +37,8 @@ The code and results use different names for some bots than the page does:
 | Heuristic | Basic rules | Follows rules a person wrote |
 | PIMC | Look-ahead | Imagines the hidden hands and plays each card out |
 | Search bot | Look-ahead, tuned rules | Look-ahead that plays cards out with tuned rules |
-| RL v2 | Yosif's trained bot | Two trained models, one for bidding and one for cards |
-| Hybrid (B-Tig) | Yosif's trained bot + look-ahead | Those models, plus look-ahead |
+| RL v2 | Trained bot | Two trained models, one for bidding and one for cards |
+| Hybrid (B-Tig) | Trained bot + look-ahead | Those models, plus look-ahead |
 
 Every bot's code name is shown on the page too.
 

@@ -19,7 +19,7 @@ const ATTEMPTS = {
   run3: ["Rewarded only for coming first", "Rewarded only for finishing King. It became reckless: it won 48 of 60 sets against Basic rules but lost to Look-ahead, and it finished last more often."],
 };
 const attemptName = (run) => ATTEMPTS[run]?.[0] ?? run;
-const OPPONENTS = { heuristic: "Basic rules", pimc: "Look-ahead", search: "Look-ahead, tuned rules", random: "Random", rl: "Yosif's trained bot", hybrid: "Yosif's trained bot + look-ahead" };
+const OPPONENTS = { heuristic: "Basic rules", pimc: "Look-ahead", search: "Look-ahead, tuned rules", random: "Random", rl: "Trained bot", hybrid: "Trained bot + look-ahead" };
 
 const S = { speed: 1, progress: 0, run: null, data: null, at: -1, snap: null, cache: new Map(), round: 0, step: 0, playing: false, auto: false };
 

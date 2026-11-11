@@ -6,7 +6,7 @@ tags:
   - estimation
 ---
 
-# RL v2 (Yosif's trained bot)
+# RL v2 (Trained bot)
 
 By Yosif Elessawi, published with his permission under the MIT licence. Bid and card networks, copied from a look-ahead bot at the start and then trained by self-play, with 816,000 games in the final stage. No human games were used. It is the benchmark the other bots are measured against. `final.pt` is a PyTorch checkpoint holding only weights and numbers. `rlv2.npz` holds the same weights as NumPy arrays, for the GPU self-play code in `jaxenv/rlv2.py`.
 

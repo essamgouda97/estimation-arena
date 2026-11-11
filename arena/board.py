@@ -14,7 +14,7 @@ from starlette.responses import FileResponse, JSONResponse, Response
 from .guide import GUIDE, STYLE as GUIDE_STYLE
 from .leaderboard import browser_data, build, method_svg
 from .live import LIVE, public, read_matches
-from .plain import about_bot, plain_name
+from .plain import about_bot, base_key, plain_name
 from .training import training_of
 from .bots import ROOT, SUB_PREFIX
 
@@ -24,7 +24,7 @@ RESULTS_ROOT = Path(os.environ.get("ESTIMATION_RESULTS_ROOT", Path.home() / "wor
 RECENT = 8
 GAME_NAME = re.compile(r"[a-z0-9-]+\.vs\.[a-z0-9-]+\.json")
 _cache: dict[str, Any] = {"signature": None, "standings": [], "direct": [], "runoff": []}
-ROW_FIELDS = ("name", "code_name", "key", "kind", "anchor", "provisional", "elo", "king_elo", "score_elo", "positions", "games", "played_at")
+ROW_FIELDS = ("name", "author", "code_name", "key", "kind", "anchor", "provisional", "elo", "king_elo", "score_elo", "positions", "games", "played_at")
 MATCH_FIELDS = ("id", "kind", "key", "name", "opponent", "sets", "done", "state", "strip", "shares", "reward", "king", "delta", "started_at", "updated_at")
 
 
@@ -71,7 +71,9 @@ def _manifest(key: str) -> dict[str, Any]:
 
 def explain(key: str) -> dict[str, Any] | None:
     """How one bot on the board plays: its steps and training, as HTML we generate."""
-    if not any(row["key"] == key for row in _cache["standings"]):
+    code_names = {row["key"]: row["code_name"] for row in _cache["standings"]}
+    listed = key if key in code_names else base_key(key)  # a test version is explained by its bot's row
+    if listed not in code_names:
         return None
     if key.startswith(SUB_PREFIX):
         about = _manifest(key)
@@ -82,7 +84,7 @@ def explain(key: str) -> dict[str, Any] | None:
     trained = training_of(key) or {}
     return {
         "description": plain.get("about", about.get("description", "")),
-        "code_name": next(row["code_name"] for row in _cache["standings"] if row["key"] == key),
+        "code_name": code_names[listed],
         "method": method_svg(plain.get("method", about.get("method", []))),
         "training": {
             "summary": trained.get("summary", ""),
