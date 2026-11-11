@@ -1,5 +1,5 @@
 {
- "built_at": "2026-11-11T00:16:25+00:00",
+ "built_at": "2026-11-11T00:16:30+00:00",
  "contenders": [
   "sub:hybrid-v4",
   "sub:kooz-bot",
@@ -14,10 +14,10 @@
    "name": "Yosif's Hybrid v4",
    "anchor": false,
    "contender": true,
-   "sets": 60,
-   "elo": 1754.5005982596244,
-   "king_elo": 1675.7734113082315,
-   "score_elo": 1776.0447344465215
+   "sets": 80,
+   "elo": 1749.495895912424,
+   "king_elo": 1683.2247433560092,
+   "score_elo": 1774.0779649798153
   },
   {
    "key": "sub:kooz-bot",
@@ -26,9 +26,9 @@
    "anchor": false,
    "contender": true,
    "sets": 60,
-   "elo": 1621.3201510755189,
-   "king_elo": 1619.4253680754791,
-   "score_elo": 1737.835385108351
+   "elo": 1619.8397086017553,
+   "king_elo": 1621.9847293637285,
+   "score_elo": 1736.8798971195515
   },
   {
    "key": "sub:bitter-search",
@@ -37,9 +37,9 @@
    "anchor": false,
    "contender": true,
    "sets": 80,
-   "elo": 1434.4402540148403,
-   "king_elo": 1438.1220536944954,
-   "score_elo": 1381.0035599599646
+   "elo": 1435.0531625395172,
+   "king_elo": 1437.3961821532425,
+   "score_elo": 1381.4879038259571
   },
   {
    "key": "sub:bitter-net",
@@ -48,9 +48,9 @@
    "anchor": false,
    "contender": true,
    "sets": 80,
-   "elo": 1360.1824269607218,
-   "king_elo": 1359.491949662556,
-   "score_elo": 1287.6480189309714
+   "elo": 1361.1631428141352,
+   "king_elo": 1358.288271202094,
+   "score_elo": 1288.2960461428486
   },
   {
    "key": "sub:rl-hybrid",
@@ -58,10 +58,10 @@
    "name": "Yosif's bidding, our cards + look-ahead",
    "anchor": false,
    "contender": true,
-   "sets": 40,
-   "elo": 1329.5565696892945,
-   "king_elo": 1407.187217259238,
-   "score_elo": 1317.4683015541916
+   "sets": 60,
+   "elo": 1334.448090132168,
+   "king_elo": 1399.1060739249258,
+   "score_elo": 1319.2581879318275
   }
  ],
  "direct": [
@@ -136,14 +136,23 @@
    "b_wins": 6,
    "sets": 20,
    "clear": false
+  },
+  {
+   "a": "sub:hybrid-v4",
+   "b": "sub:rl-hybrid",
+   "a_wins": 18,
+   "draws": 1,
+   "b_wins": 1,
+   "sets": 20,
+   "clear": true
   }
  ],
  "runoff": [
   "sub:hybrid-v4",
   "sub:kooz-bot",
-  "sub:rl-hybrid",
   "sub:bitter-search",
-  "sub:bitter-net"
+  "sub:bitter-net",
+  "sub:rl-hybrid"
  ],
  "scale": 1500
 }
