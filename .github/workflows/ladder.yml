@@ -13,8 +13,8 @@ on:
   workflow_dispatch:
     inputs:
       sets:
-        description: duplicate sets per anchor
-        default: "20"
+        description: duplicate sets per anchor (micro games are short and noisy, so 40)
+        default: "40"
       bots:
         description: space-separated bot names (empty = all)
         default: ""
@@ -57,7 +57,7 @@ jobs:
         run: |
           git config user.name "estimation-arena bot"
           git config user.email "actions@users.noreply.github.com"
-          sets="${{ github.event.inputs.sets || '20' }}"
+          sets="${{ github.event.inputs.sets || '40' }}"
           bots="${{ github.event.inputs.bots }}"
           [ -n "$bots" ] || bots=$(ls bots)
           only_new="--only-new"
