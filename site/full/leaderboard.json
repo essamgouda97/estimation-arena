@@ -1,5 +1,5 @@
 {
- "built_at": "2026-11-11T00:16:00+00:00",
+ "built_at": "2026-11-11T00:16:05+00:00",
  "contenders": [
   "sub:hybrid-v4",
   "sub:kooz-bot",
@@ -15,9 +15,9 @@
    "anchor": false,
    "contender": true,
    "sets": 20,
-   "elo": 1738.6711069923213,
-   "king_elo": 1625.6095812423787,
-   "score_elo": 1677.791769593694
+   "elo": 1800.4741541866283,
+   "king_elo": 1669.377703829758,
+   "score_elo": 1737.9868226646493
   },
   {
    "key": "sub:kooz-bot",
@@ -26,9 +26,9 @@
    "anchor": false,
    "contender": true,
    "sets": 20,
-   "elo": 1495.1537573977378,
-   "king_elo": 1565.704653109176,
-   "score_elo": 1677.791769593694
+   "elo": 1556.9568045920496,
+   "king_elo": 1609.4727756965508,
+   "score_elo": 1737.9868226646493
   },
   {
    "key": "sub:bitter-search",
@@ -37,9 +37,9 @@
    "anchor": false,
    "contender": true,
    "sets": 20,
-   "elo": 1473.0813695401907,
-   "king_elo": 1494.3366845594392,
-   "score_elo": 1412.202032141545
+   "elo": 1534.8844167345037,
+   "king_elo": 1538.1048071468188,
+   "score_elo": 1472.3970852125046
   },
   {
    "key": "sub:bitter-net",
@@ -47,10 +47,21 @@
    "name": "Self-taught",
    "anchor": false,
    "contender": true,
-   "sets": 60,
-   "elo": 1293.09376606975,
-   "king_elo": 1314.3490810890064,
-   "score_elo": 1232.214428671067
+   "sets": 80,
+   "elo": 1354.8968132640678,
+   "king_elo": 1358.1172036763874,
+   "score_elo": 1292.4094817420441
+  },
+  {
+   "key": "sub:rl-hybrid",
+   "code_name": "rl-hybrid",
+   "name": "Yosif's bidding, our cards + look-ahead",
+   "anchor": false,
+   "contender": true,
+   "sets": 20,
+   "elo": 1252.7878112227506,
+   "king_elo": 1324.927509650485,
+   "score_elo": 1259.2197877161525
   }
  ],
  "direct": [
@@ -80,12 +91,22 @@
    "b_wins": 14,
    "sets": 20,
    "clear": true
+  },
+  {
+   "a": "sub:bitter-net",
+   "b": "sub:rl-hybrid",
+   "a_wins": 13,
+   "draws": 0,
+   "b_wins": 7,
+   "sets": 20,
+   "clear": false
   }
  ],
  "runoff": [
   "sub:hybrid-v4",
   "sub:kooz-bot",
   "sub:bitter-search",
+  "sub:rl-hybrid",
   "sub:bitter-net"
  ],
  "scale": 1500
