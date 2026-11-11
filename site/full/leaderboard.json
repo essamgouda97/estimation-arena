@@ -1,11 +1,11 @@
 {
- "built_at": "2026-11-11T00:16:35+00:00",
+ "built_at": "2026-11-11T10:33:03+00:00",
  "contenders": [
   "sub:hybrid-v4",
   "sub:kooz-bot",
   "sub:bitter-search",
   "sub:rl-hybrid",
-  "sub:bitter-net"
+  "sub:rl-pimc"
  ],
  "rows": [
   {
@@ -46,7 +46,7 @@
    "code_name": "bitter-net",
    "name": "Self-taught",
    "anchor": false,
-   "contender": true,
+   "contender": false,
    "sets": 80,
    "elo": 1361.2984962817986,
    "king_elo": 1359.2416912493404,
