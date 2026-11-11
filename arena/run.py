@@ -334,12 +334,18 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--progress", action="store_true")
     parser.add_argument("--only-new", action="store_true", help="skip games already played by this exact bot")
     parser.add_argument("--hide-seed", action="store_true", help="leave the seed out of the result and the output")
+    parser.add_argument(
+        "--due",
+        action="store_true",
+        help="print the specs of the anchors still to play, one per line, and play nothing",
+    )
     args = parser.parse_args(argv)
     if args.sets < 1 or args.workers < 1:
         parser.error("--sets and --workers must be at least 1")
     manifest = load_manifest(args.bot)
     if manifest.needs and not (ROOT / manifest.needs).exists():
-        print(f"{manifest.name}: skipped, needs {manifest.needs} (its last result is kept)")
+        if not args.due:
+            print(f"{manifest.name}: skipped, needs {manifest.needs} (its last result is kept)")
         return 0
     anchors = load_anchors(args.anchors.split(",") if args.anchors else None)
     if not anchors:
@@ -348,6 +354,13 @@ def main(argv: list[str] | None = None) -> int:
     old = json.loads(out.read_text()) if out.is_file() else None
     if args.only_new:
         anchors = anchors_to_play(anchors, old, bot_hash(manifest), engine_version())
+    if args.due:
+        # The ladder plays one anchor at a time and saves after each, so a slow bot that runs out
+        # of time keeps the anchors it finished and carries on from there the next night.
+        for anchor in anchors:
+            print(anchor["spec"])
+        return 0
+    if args.only_new:
         if not anchors:
             print(f"{manifest.name}: unchanged, nothing new to play")
             return 0
