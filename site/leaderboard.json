@@ -4277,7 +4277,7 @@
     }
    ],
    "a_name": "Self-taught",
-   "b_name": "Yosif's trained bot",
+   "b_name": "Trained bot",
    "file": "bitter-net.vs.rl-v2.json"
   },
   {
@@ -5133,7 +5133,7 @@
     }
    ],
    "a_name": "Self-taught",
-   "b_name": "Yosif's trained bot + look-ahead",
+   "b_name": "Trained bot + look-ahead",
    "file": "bitter-net.vs.hybrid-b-tig.json"
   },
   {
@@ -9413,7 +9413,7 @@
     }
    ],
    "a_name": "Self-taught + look-ahead",
-   "b_name": "Yosif's trained bot",
+   "b_name": "Trained bot",
    "file": "bitter-search.vs.rl-v2.json"
   },
   {
@@ -10269,7 +10269,7 @@
     }
    ],
    "a_name": "Self-taught + look-ahead",
-   "b_name": "Yosif's trained bot + look-ahead",
+   "b_name": "Trained bot + look-ahead",
    "file": "bitter-search.vs.hybrid-b-tig.json"
   },
   {
@@ -14549,7 +14549,7 @@
     }
    ],
    "a_name": "Cautious rules",
-   "b_name": "Yosif's trained bot",
+   "b_name": "Trained bot",
    "file": "cautious-heuristic.vs.rl-v2.json"
   },
   {
@@ -15405,7 +15405,7 @@
     }
    ],
    "a_name": "Cautious rules",
-   "b_name": "Yosif's trained bot + look-ahead",
+   "b_name": "Trained bot + look-ahead",
    "file": "cautious-heuristic.vs.hybrid-b-tig.json"
   },
   {
@@ -17585,7 +17585,7 @@
     }
    ],
    "a_name": "Always highest card",
-   "b_name": "Yosif's trained bot",
+   "b_name": "Trained bot",
    "file": "highcard-wire.vs.rl-v2.json"
   },
   {
@@ -18021,7 +18021,7 @@
     }
    ],
    "a_name": "Always highest card",
-   "b_name": "Yosif's trained bot + look-ahead",
+   "b_name": "Trained bot + look-ahead",
    "file": "highcard-wire.vs.hybrid-b-tig.json"
   },
   {
@@ -18456,7 +18456,7 @@
      ]
     }
    ],
-   "a_name": "Yosif's Hybrid v4",
+   "a_name": "Hybrid v4",
    "b_name": "Random",
    "file": "hybrid-v4.vs.random.json"
   },
@@ -18892,7 +18892,7 @@
      ]
     }
    ],
-   "a_name": "Yosif's Hybrid v4",
+   "a_name": "Hybrid v4",
    "b_name": "Basic rules",
    "file": "heuristic.vs.hybrid-v4.json"
   },
@@ -19328,7 +19328,7 @@
      ]
     }
    ],
-   "a_name": "Yosif's Hybrid v4",
+   "a_name": "Hybrid v4",
    "b_name": "Look-ahead",
    "file": "hybrid-v4.vs.pimc.json"
   },
@@ -19764,7 +19764,7 @@
      ]
     }
    ],
-   "a_name": "Yosif's Hybrid v4",
+   "a_name": "Hybrid v4",
    "b_name": "Look-ahead, tuned rules",
    "file": "hybrid-v4.vs.search-bot.json"
   },
@@ -20200,8 +20200,8 @@
      ]
     }
    ],
-   "a_name": "Yosif's Hybrid v4",
-   "b_name": "Yosif's trained bot",
+   "a_name": "Hybrid v4",
+   "b_name": "Trained bot",
    "file": "hybrid-v4.vs.rl-v2.json"
   },
   {
@@ -20636,8 +20636,8 @@
      ]
     }
    ],
-   "a_name": "Yosif's Hybrid v4",
-   "b_name": "Yosif's trained bot + look-ahead",
+   "a_name": "Hybrid v4",
+   "b_name": "Trained bot + look-ahead",
    "file": "hybrid-b-tig.vs.hybrid-v4.json"
   },
   {
@@ -21072,7 +21072,7 @@
      ]
     }
    ],
-   "a_name": "kooz-bot",
+   "a_name": "Kooz bot",
    "b_name": "Random",
    "file": "kooz-bot.vs.random.json"
   },
@@ -21508,7 +21508,7 @@
      ]
     }
    ],
-   "a_name": "kooz-bot",
+   "a_name": "Kooz bot",
    "b_name": "Basic rules",
    "file": "heuristic.vs.kooz-bot.json"
   },
@@ -21944,7 +21944,7 @@
      ]
     }
    ],
-   "a_name": "kooz-bot",
+   "a_name": "Kooz bot",
    "b_name": "Look-ahead",
    "file": "kooz-bot.vs.pimc.json"
   },
@@ -22380,7 +22380,7 @@
      ]
     }
    ],
-   "a_name": "kooz-bot",
+   "a_name": "Kooz bot",
    "b_name": "Look-ahead, tuned rules",
    "file": "kooz-bot.vs.search-bot.json"
   },
@@ -22816,8 +22816,8 @@
      ]
     }
    ],
-   "a_name": "kooz-bot",
-   "b_name": "Yosif's trained bot",
+   "a_name": "Kooz bot",
+   "b_name": "Trained bot",
    "file": "kooz-bot.vs.rl-v2.json"
   },
   {
@@ -23252,8 +23252,8 @@
      ]
     }
    ],
-   "a_name": "kooz-bot",
-   "b_name": "Yosif's trained bot + look-ahead",
+   "a_name": "Kooz bot",
+   "b_name": "Trained bot + look-ahead",
    "file": "hybrid-b-tig.vs.kooz-bot.json"
   },
   {
@@ -25433,7 +25433,7 @@
     }
    ],
    "a_name": "Always lowest card",
-   "b_name": "Yosif's trained bot",
+   "b_name": "Trained bot",
    "file": "lowcard-wire.vs.rl-v2.json"
   },
   {
@@ -25869,7 +25869,7 @@
     }
    ],
    "a_name": "Always lowest card",
-   "b_name": "Yosif's trained bot + look-ahead",
+   "b_name": "Trained bot + look-ahead",
    "file": "hybrid-b-tig.vs.lowcard-wire.json"
   },
   {
@@ -28049,7 +28049,7 @@
     }
    ],
    "a_name": "Copycat + look-ahead",
-   "b_name": "Yosif's trained bot",
+   "b_name": "Trained bot",
    "file": "net-pimc.vs.rl-v2.json"
   },
   {
@@ -28485,7 +28485,7 @@
     }
    ],
    "a_name": "Copycat + look-ahead",
-   "b_name": "Yosif's trained bot + look-ahead",
+   "b_name": "Trained bot + look-ahead",
    "file": "hybrid-b-tig.vs.net-pimc.json"
   },
   {
@@ -30665,7 +30665,7 @@
     }
    ],
    "a_name": "Copycat",
-   "b_name": "Yosif's trained bot",
+   "b_name": "Trained bot",
    "file": "pimc-clone.vs.rl-v2.json"
   },
   {
@@ -31101,7 +31101,7 @@
     }
    ],
    "a_name": "Copycat",
-   "b_name": "Yosif's trained bot + look-ahead",
+   "b_name": "Trained bot + look-ahead",
    "file": "hybrid-b-tig.vs.pimc-clone.json"
   },
   {
@@ -33281,7 +33281,7 @@
     }
    ],
    "a_name": "Copycat with practice",
-   "b_name": "Yosif's trained bot",
+   "b_name": "Trained bot",
    "file": "rl-cards.vs.rl-v2.json"
   },
   {
@@ -33717,7 +33717,7 @@
     }
    ],
    "a_name": "Copycat with practice",
-   "b_name": "Yosif's trained bot + look-ahead",
+   "b_name": "Trained bot + look-ahead",
    "file": "hybrid-b-tig.vs.rl-cards.json"
   },
   {
@@ -34152,7 +34152,7 @@
      ]
     }
    ],
-   "a_name": "Yosif's bidding, our cards + look-ahead",
+   "a_name": "Hybrid with Copycat cards",
    "b_name": "Random",
    "file": "random.vs.rl-hybrid.json"
   },
@@ -34588,7 +34588,7 @@
      ]
     }
    ],
-   "a_name": "Yosif's bidding, our cards + look-ahead",
+   "a_name": "Hybrid with Copycat cards",
    "b_name": "Basic rules",
    "file": "heuristic.vs.rl-hybrid.json"
   },
@@ -35024,7 +35024,7 @@
      ]
     }
    ],
-   "a_name": "Yosif's bidding, our cards + look-ahead",
+   "a_name": "Hybrid with Copycat cards",
    "b_name": "Look-ahead",
    "file": "pimc.vs.rl-hybrid.json"
   },
@@ -35460,7 +35460,7 @@
      ]
     }
    ],
-   "a_name": "Yosif's bidding, our cards + look-ahead",
+   "a_name": "Hybrid with Copycat cards",
    "b_name": "Look-ahead, tuned rules",
    "file": "rl-hybrid.vs.search-bot.json"
   },
@@ -35896,8 +35896,8 @@
      ]
     }
    ],
-   "a_name": "Yosif's bidding, our cards + look-ahead",
-   "b_name": "Yosif's trained bot",
+   "a_name": "Hybrid with Copycat cards",
+   "b_name": "Trained bot",
    "file": "rl-hybrid.vs.rl-v2.json"
   },
   {
@@ -36332,8 +36332,8 @@
      ]
     }
    ],
-   "a_name": "Yosif's bidding, our cards + look-ahead",
-   "b_name": "Yosif's trained bot + look-ahead",
+   "a_name": "Hybrid with Copycat cards",
+   "b_name": "Trained bot + look-ahead",
    "file": "hybrid-b-tig.vs.rl-hybrid.json"
   },
   {
@@ -38513,7 +38513,7 @@
     }
    ],
    "a_name": "Copycat with practice + look-ahead",
-   "b_name": "Yosif's trained bot",
+   "b_name": "Trained bot",
    "file": "rl-pimc.vs.rl-v2.json"
   },
   {
@@ -38949,7 +38949,7 @@
     }
    ],
    "a_name": "Copycat with practice + look-ahead",
-   "b_name": "Yosif's trained bot + look-ahead",
+   "b_name": "Trained bot + look-ahead",
    "file": "hybrid-b-tig.vs.rl-pimc.json"
   },
   {
@@ -41129,7 +41129,7 @@
     }
    ],
    "a_name": "Rules + trump count",
-   "b_name": "Yosif's trained bot",
+   "b_name": "Trained bot",
    "file": "rl-v2.vs.table-pressure.json"
   },
   {
@@ -41565,7 +41565,7 @@
     }
    ],
    "a_name": "Rules + trump count",
-   "b_name": "Yosif's trained bot + look-ahead",
+   "b_name": "Trained bot + look-ahead",
    "file": "hybrid-b-tig.vs.table-pressure.json"
   },
   {
@@ -41617,7 +41617,7 @@
    "played_at": "2026-11-07",
    "detail": [],
    "a_name": "Always highest card",
-   "b_name": "Yosif's Hybrid v4",
+   "b_name": "Hybrid v4",
    "file": "highcard-wire.vs.hybrid-v4.json"
   },
   {
@@ -41692,7 +41692,7 @@
    "played_at": "2026-11-07",
    "detail": [],
    "a_name": "Always highest card",
-   "b_name": "Yosif's bidding, our cards + look-ahead",
+   "b_name": "Hybrid with Copycat cards",
    "file": "highcard-wire.vs.rl-hybrid.json"
   },
   {
@@ -41736,7 +41736,7 @@
    "clear": true,
    "played_at": "2026-11-07",
    "detail": [],
-   "a_name": "Yosif's Hybrid v4",
+   "a_name": "Hybrid v4",
    "b_name": "Always lowest card",
    "file": "hybrid-v4.vs.lowcard-wire.json"
   },
@@ -41751,7 +41751,7 @@
    "clear": true,
    "played_at": "2026-11-07",
    "detail": [],
-   "a_name": "Yosif's Hybrid v4",
+   "a_name": "Hybrid v4",
    "b_name": "Copycat + look-ahead",
    "file": "hybrid-v4.vs.net-pimc.json"
   },
@@ -41766,7 +41766,7 @@
    "clear": true,
    "played_at": "2026-11-07",
    "detail": [],
-   "a_name": "Yosif's Hybrid v4",
+   "a_name": "Hybrid v4",
    "b_name": "Copycat",
    "file": "hybrid-v4.vs.pimc-clone.json"
   },
@@ -41781,7 +41781,7 @@
    "clear": true,
    "played_at": "2026-11-07",
    "detail": [],
-   "a_name": "Yosif's Hybrid v4",
+   "a_name": "Hybrid v4",
    "b_name": "Copycat with practice",
    "file": "hybrid-v4.vs.rl-cards.json"
   },
@@ -41796,8 +41796,8 @@
    "clear": true,
    "played_at": "2026-11-07",
    "detail": [],
-   "a_name": "Yosif's Hybrid v4",
-   "b_name": "Yosif's bidding, our cards + look-ahead",
+   "a_name": "Hybrid v4",
+   "b_name": "Hybrid with Copycat cards",
    "file": "hybrid-v4.vs.rl-hybrid.json"
   },
   {
@@ -41811,7 +41811,7 @@
    "clear": true,
    "played_at": "2026-11-07",
    "detail": [],
-   "a_name": "Yosif's Hybrid v4",
+   "a_name": "Hybrid v4",
    "b_name": "Copycat with practice + look-ahead",
    "file": "hybrid-v4.vs.rl-pimc.json"
   },
@@ -41826,7 +41826,7 @@
    "clear": true,
    "played_at": "2026-11-07",
    "detail": [],
-   "a_name": "Yosif's Hybrid v4",
+   "a_name": "Hybrid v4",
    "b_name": "Rules + trump count",
    "file": "hybrid-v4.vs.table-pressure.json"
   },
@@ -41887,7 +41887,7 @@
    "played_at": "2026-11-07",
    "detail": [],
    "a_name": "Always lowest card",
-   "b_name": "Yosif's bidding, our cards + look-ahead",
+   "b_name": "Hybrid with Copycat cards",
    "file": "lowcard-wire.vs.rl-hybrid.json"
   },
   {
@@ -41962,7 +41962,7 @@
    "played_at": "2026-11-07",
    "detail": [],
    "a_name": "Copycat + look-ahead",
-   "b_name": "Yosif's bidding, our cards + look-ahead",
+   "b_name": "Hybrid with Copycat cards",
    "file": "net-pimc.vs.rl-hybrid.json"
   },
   {
@@ -42022,7 +42022,7 @@
    "played_at": "2026-11-07",
    "detail": [],
    "a_name": "Copycat",
-   "b_name": "Yosif's bidding, our cards + look-ahead",
+   "b_name": "Hybrid with Copycat cards",
    "file": "pimc-clone.vs.rl-hybrid.json"
   },
   {
@@ -42067,7 +42067,7 @@
    "played_at": "2026-11-07",
    "detail": [],
    "a_name": "Copycat with practice",
-   "b_name": "Yosif's bidding, our cards + look-ahead",
+   "b_name": "Hybrid with Copycat cards",
    "file": "rl-cards.vs.rl-hybrid.json"
   },
   {
@@ -42111,7 +42111,7 @@
    "clear": false,
    "played_at": "2026-11-07",
    "detail": [],
-   "a_name": "Yosif's bidding, our cards + look-ahead",
+   "a_name": "Hybrid with Copycat cards",
    "b_name": "Copycat with practice + look-ahead",
    "file": "rl-hybrid.vs.rl-pimc.json"
   },
@@ -42126,7 +42126,7 @@
    "clear": true,
    "played_at": "2026-11-07",
    "detail": [],
-   "a_name": "Yosif's bidding, our cards + look-ahead",
+   "a_name": "Hybrid with Copycat cards",
    "b_name": "Rules + trump count",
    "file": "rl-hybrid.vs.table-pressure.json"
   },
@@ -42493,7 +42493,7 @@
   "sub:highcard-wire",
   "random"
  ],
- "built_at": "2026-11-11T11:23:16+00:00",
+ "built_at": "2026-11-11T21:38:59+00:00",
  "anchor": "random",
  "anchor_rating": 400.0,
  "ladder": {
@@ -42504,10 +42504,10 @@
  "submissions": 13,
  "rows": [
   {
-   "name": "Yosif's Hybrid v4",
+   "name": "Hybrid v4",
    "author": "Yosif Elessawi",
    "kind": "python",
-   "description": "Yosif's strongest bot. One model bids, one chooses cards, and one guesses who holds the hidden cards. It tries its top 2 cards on 32 imagined deals built from those guesses.",
+   "description": "One model bids, one chooses cards, and one guesses who holds the hidden cards. It tries its top 2 cards on 32 imagined deals built from those guesses.",
    "key": "sub:hybrid-v4",
    "provisional": false,
    "method": [
@@ -42643,10 +42643,10 @@
    "code_name": "hybrid-v4"
   },
   {
-   "name": "kooz-bot",
+   "name": "Kooz bot",
    "author": "Abdulrahman Boudi",
    "kind": "python",
-   "description": "A deep-search Hybrid on nets trained from scratch: it imagines 64 hidden deals from its guess net, searches every legal card, and only Dash Calls when the bid net rates the Dash Call +10 or better.",
+   "description": "Look-ahead on models trained from scratch. It imagines 64 deals from its own guess model, tries every legal card, and only makes a Dash Call when its bid model rates it clearly worth it.",
    "key": "sub:kooz-bot",
    "provisional": false,
    "method": [
@@ -42782,19 +42782,19 @@
    "code_name": "kooz-bot"
   },
   {
-   "name": "Yosif's bidding, our cards + look-ahead",
-   "author": "Essam",
+   "name": "Hybrid with Copycat cards",
+   "author": "Essam Gouda",
    "kind": "python",
-   "description": "Yosif's look-ahead bot with its card model swapped for Copycat with practice. It keeps Yosif's bidding.",
+   "description": "Trained bot + look-ahead with its card model swapped for Copycat with practice. It keeps the original bidding model.",
    "key": "sub:rl-hybrid",
    "provisional": false,
    "method": [
     [
-     "Yosif's bidding model picks the bid",
+     "Trained bot's bidding model picks the bid",
      "bid"
     ],
     [
-     "our card model keeps its top 3 cards",
+     "Copycat with practice keeps its top 3 cards",
      "net"
     ],
     [
@@ -42802,7 +42802,7 @@
      "deal"
     ],
     [
-     "try each card: our model plays out the round",
+     "try each card: the card model plays out the round",
      "rollout"
     ],
     [
@@ -42922,7 +42922,7 @@
   },
   {
    "name": "Copycat with practice + look-ahead",
-   "author": "Essam",
+   "author": "Essam Gouda",
    "kind": "python",
    "description": "The practised model picks its 2 best cards, then Look-ahead tries them on imagined hands.",
    "key": "sub:rl-pimc",
@@ -43060,10 +43060,10 @@
    "code_name": "rl-pimc"
   },
   {
-   "name": "Yosif's trained bot + look-ahead",
+   "name": "Trained bot + look-ahead",
    "author": "Yosif Elessawi",
    "kind": "anchor",
-   "description": "Yosif's trained models choose which cards are worth considering. It then tries each one on imagined hands.",
+   "description": "Trained bot's models choose which cards are worth considering. It then tries each one on imagined hands.",
    "key": "hybrid",
    "method": [
     [
@@ -43103,7 +43103,7 @@
   },
   {
    "name": "Self-taught + look-ahead",
-   "author": "Essam",
+   "author": "Essam Gouda",
    "kind": "python",
    "description": "The Self-taught model bids alone and picks its best cards, then tries each one on imagined hands.",
    "key": "sub:bitter-search",
@@ -43242,7 +43242,7 @@
   },
   {
    "name": "Self-taught",
-   "author": "Essam",
+   "author": "Essam Gouda",
    "kind": "python",
    "description": "One trained model makes every decision. It began by playing randomly and learned only by playing itself, with no strategy written in and nothing copied.",
    "key": "sub:bitter-net",
@@ -43373,7 +43373,7 @@
   },
   {
    "name": "Copycat with practice",
-   "author": "Essam",
+   "author": "Essam Gouda",
    "kind": "python",
    "description": "Copycat's model, improved further by playing itself. It bids with Basic rules.",
    "key": "sub:rl-cards",
@@ -43503,7 +43503,7 @@
    "code_name": "rl-cards"
   },
   {
-   "name": "Yosif's trained bot",
+   "name": "Trained bot",
    "author": "Yosif Elessawi",
    "kind": "anchor",
    "description": "Two trained models, one for bidding and one for cards. It started by copying Look-ahead, then improved by playing itself.",
@@ -43542,7 +43542,7 @@
   },
   {
    "name": "Copycat + look-ahead",
-   "author": "Essam",
+   "author": "Essam Gouda",
    "kind": "python",
    "description": "Copycat's model picks the most promising cards, so Look-ahead can spend its effort trying only those.",
    "key": "sub:net-pimc",
@@ -43757,7 +43757,7 @@
   },
   {
    "name": "Copycat",
-   "author": "Essam",
+   "author": "Essam Gouda",
    "kind": "python",
    "description": "A trained model that learned its card play by copying Look-ahead. It bids with Basic rules and does no look-ahead itself.",
    "key": "sub:pimc-clone",
@@ -43887,64 +43887,8 @@
    "code_name": "pimc-clone"
   },
   {
-   "name": "Claude Opus 5.5",
-   "author": "Essam",
-   "kind": "wire",
-   "description": "Anthropic's general AI model, not built for this game. For each move it reads the rules and its own view of the table in words, then picks one. It has no tools and remembers nothing between moves.",
-   "key": "sub:llm-claude-api",
-   "provisional": true,
-   "method": [
-    [
-     "put the rules and this seat's view into words",
-     "data"
-    ],
-    [
-     "Claude thinks it over and picks a move",
-     "net"
-    ],
-    [
-     "play that move",
-     "pick"
-    ]
-   ],
-   "elo": 1181.6394824061313,
-   "king_elo": 1172.8682955502811,
-   "score_elo": 3252.326972874366,
-   "positions": [
-    0.375,
-    0.375,
-    0.125,
-    0.125
-   ],
-   "games": 8,
-   "sets": 1,
-   "played_at": "2026-11-08T00:33:42+00:00",
-   "engine": "0.1.0+2dbf68df",
-   "p95_ms": 17431.89589251501,
-   "over_budget": 0.7825854700854701,
-   "versus": [
-    {
-     "anchor": "Heuristic",
-     "rsa": 37.33333333333333,
-     "rsa_low": null,
-     "rsa_high": null,
-     "first_place": 0.375,
-     "positions": [
-      0.375,
-      0.375,
-      0.125,
-      0.125
-     ],
-     "position_reward": 0.3,
-     "delta": 56.0
-    }
-   ],
-   "anchor": false,
-   "code_name": "llm-claude-api"
-  },
-  {
    "name": "Rules + trump count",
-   "author": "Essam",
+   "author": "Essam Gouda",
    "kind": "python",
    "description": "Basic rules, except it stops chasing tricks once its unbeatable trumps cover what it still needs.",
    "key": "sub:table-pressure",
@@ -44117,7 +44061,7 @@
   },
   {
    "name": "Cautious rules",
-   "author": "Essam",
+   "author": "Essam Gouda",
    "kind": "python",
    "description": "Basic rules, set to take fewer risks.",
    "key": "sub:cautious-heuristic",
@@ -44252,7 +44196,7 @@
   },
   {
    "name": "Always lowest card",
-   "author": "Essam",
+   "author": "Essam Gouda",
    "kind": "wire",
    "description": "A simple example bot. It never bids and always plays its lowest card.",
    "key": "sub:lowcard-wire",
@@ -44383,7 +44327,7 @@
   },
   {
    "name": "Always highest card",
-   "author": "Essam",
+   "author": "Essam Gouda",
    "kind": "wire",
    "description": "A simple example bot. It never bids and always plays its highest card.",
    "key": "sub:highcard-wire",
@@ -44545,6 +44489,62 @@
    "versus": [],
    "anchor": true,
    "code_name": "Random"
+  },
+  {
+   "name": "Claude Opus 5.5",
+   "author": "Essam Gouda",
+   "kind": "wire",
+   "description": "Anthropic's general AI model, not built for this game. For each move it reads the rules and its own view of the table in words, then picks one. It has no tools and remembers nothing between moves.",
+   "key": "sub:llm-claude-api",
+   "provisional": true,
+   "method": [
+    [
+     "put the rules and this seat's view into words",
+     "data"
+    ],
+    [
+     "Claude thinks it over and picks a move",
+     "net"
+    ],
+    [
+     "play that move",
+     "pick"
+    ]
+   ],
+   "elo": 1181.6394824061313,
+   "king_elo": 1172.8682955502811,
+   "score_elo": 3252.326972874366,
+   "positions": [
+    0.375,
+    0.375,
+    0.125,
+    0.125
+   ],
+   "games": 8,
+   "sets": 1,
+   "played_at": "2026-11-08T00:33:42+00:00",
+   "engine": "0.1.0+2dbf68df",
+   "p95_ms": 17431.89589251501,
+   "over_budget": 0.7825854700854701,
+   "versus": [
+    {
+     "anchor": "Heuristic",
+     "rsa": 37.33333333333333,
+     "rsa_low": null,
+     "rsa_high": null,
+     "first_place": 0.375,
+     "positions": [
+      0.375,
+      0.375,
+      0.125,
+      0.125
+     ],
+     "position_reward": 0.3,
+     "delta": 56.0
+    }
+   ],
+   "anchor": false,
+   "code_name": "llm-claude-api"
   }
  ]
 }
