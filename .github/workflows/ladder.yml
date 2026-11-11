@@ -5,7 +5,8 @@ name: ladder
 # site/ are committed after each anchor, so a run that times out carries on from there the next
 # night; pages.yml runs when this workflow completes and publishes site/ to GitHub Pages. Model
 # files come from Hugging Face (models.lock.json). An anchor whose files are not there yet is
-# left out.
+# left out. While it plays, it pushes its progress (no cards, no seed) to the ladder-live branch
+# every 30 seconds for the home server's live board (arena/ladder_live.py).
 
 on:
   schedule:
@@ -40,6 +41,9 @@ jobs:
     timeout-minutes: 350
     env:
       UV_NO_SYNC: "1"   # keep the environment installed below, even as saving moves to newer main
+      ESTIMATION_LIVE: ${{ runner.temp }}/live   # arena.live writes each match's progress here
+      LADDER_PLAN: ${{ runner.temp }}/plan.tsv
+      LADDER_SETS: ${{ github.event.inputs.sets || '40' }}
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
@@ -57,23 +61,33 @@ jobs:
         run: |
           git config user.name "estimation-arena bot"
           git config user.email "actions@users.noreply.github.com"
-          sets="${{ github.event.inputs.sets || '40' }}"
+          sets="$LADDER_SETS"
           bots="${{ github.event.inputs.bots }}"
           [ -n "$bots" ] || bots=$(ls bots)
           only_new="--only-new"
           [ "${{ github.event.inputs.replay }}" != "true" ] || only_new=""
           failed=""
-          # One anchor at a time, saved as it finishes: a slow bot (an hour per anchor) keeps what
-          # it played when the job times out, and the next night plays only the anchors left.
+          # The plan: every bot and anchor still to play, in order, for the live board too.
+          : > "$LADDER_PLAN"
           for bot in $bots; do
             for spec in $(uv run python -m arena.run --bot "$bot" --due $only_new); do
-              if uv run python -m arena.run --bot "$bot" --anchors "$spec" --sets "$sets" --seed "${LADDER_SEED:-0}" --workers 4 --progress --hide-seed; then
-                scripts/ladder-save.sh "results/$bot.json"
-              else
-                failed="$failed $bot:$spec"
-              fi
+              printf '%s\t%s\n' "$bot" "$spec" >> "$LADDER_PLAN"
             done
           done
+          mkdir -p "$ESTIMATION_LIVE"
+          export LADDER_STARTED_AT=$(date +%s)
+          echo "LADDER_STARTED_AT=$LADDER_STARTED_AT" >> "$GITHUB_ENV"
+          uv run python -m arena.ladder_live publish --live "$ESTIMATION_LIVE" --plan "$LADDER_PLAN" --every 30 &
+          trap "kill $! 2>/dev/null || true" EXIT
+          # One anchor at a time, saved as it finishes: a slow bot (an hour per anchor) keeps what
+          # it played when the job times out, and the next night plays only the anchors left.
+          while IFS=$'\t' read -r bot spec; do
+            if uv run python -m arena.run --bot "$bot" --anchors "$spec" --sets "$sets" --seed "${LADDER_SEED:-0}" --workers 4 --progress --hide-seed </dev/null; then
+              scripts/ladder-save.sh "results/$bot.json" </dev/null
+            else
+              failed="$failed $bot:$spec"
+            fi
+          done < "$LADDER_PLAN"
           if [ "${{ github.event.inputs.direct }}" != "false" ]; then
             # Start a match only if it should finish before the job ends at 350 minutes (340 here,
             # leaving time to save). A slow pair waits for the next night, which starts with it;
@@ -102,3 +116,8 @@ jobs:
             fi
           done < <(uv run python -m arena.replay due)
           [ -z "$failed" ] || { echo "failed:$failed"; exit 1; }
+      - name: Tell the live board the ladder has stopped
+        if: always()
+        run: |
+          [ -f "$LADDER_PLAN" ] || exit 0
+          uv run python -m arena.ladder_live publish --live "$ESTIMATION_LIVE" --plan "$LADDER_PLAN" --finished

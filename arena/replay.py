@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -40,9 +41,13 @@ def _cards(mask: int) -> list[int]:
     return [card for card in range(52) if mask >> card & 1]
 
 
-def record_game(seats: list[str], seed: int, rounds: int = 0, bots: list[Any] | None = None) -> dict[str, Any]:
+def record_game(
+    seats: list[str], seed: int, rounds: int = 0, bots: list[Any] | None = None,
+    on_move: Callable[[dict[str, Any]], None] | None = None,
+) -> dict[str, Any]:  # fmt: skip
     """Play one Bola with ``seats`` and return everything needed to watch it. ``bots`` replaces
-    the ones it would make, for rebuilding a game that was already played."""
+    the ones it would make, for rebuilding a game that was already played. ``on_move`` sees the
+    game so far after every move, for watching it live."""
     bots = bots or [maker(spec, seed + seat, DEFAULT_CONFIG) for seat, spec in enumerate(seats)]
     game = Bola(seed, DEFAULT_CONFIG)
     played: list[dict[str, Any]] = []
@@ -69,6 +74,8 @@ def record_game(seats: list[str], seed: int, rounds: int = 0, bots: list[Any] | 
         action = bots[seat].act(view, game.legal_actions())
         current["moves"].append([seat, action])
         game.step(action)
+        if on_move:
+            on_move({"seats": seats, "seed": seed, "rounds": played, "final": None, "finished": False})
     final = list(game.scores)  # what play_bola scores the game by; the last observation can lag it
     if current is not None:
         current["after"] = final

@@ -103,6 +103,8 @@ Reasoning and sources: [docs/fair-ranking.md](docs/fair-ranking.md).
 
 The page ranks every bot three ways, explained in [docs/metrics.md](docs/metrics.md). On the home server, `/board` follows matches set by set while they play.
 
+`/ladder` follows the nightly ladder while it runs on GitHub. The ladder pushes each set's result to the `ladder-live` branch every 30 seconds, with no cards and no seed, and the home server fetches it. The rated deals stay secret, so to show cards the home server plays the same pairing on public deals alongside. Those games never count. See `arena/ladder_live.py`.
+
 | Piece | Where | Cost |
 |---|---|---|
 | Smoke + nightly ladder, every anchor | GitHub Actions | free (public repo) |
