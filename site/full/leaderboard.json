@@ -1,5 +1,5 @@
 {
- "built_at": "2026-11-11T00:16:10+00:00",
+ "built_at": "2026-11-11T00:16:15+00:00",
  "contenders": [
   "sub:hybrid-v4",
   "sub:kooz-bot",
@@ -15,9 +15,9 @@
    "anchor": false,
    "contender": true,
    "sets": 40,
-   "elo": 1838.8663963306772,
-   "king_elo": 1753.7269199888003,
-   "score_elo": 1816.770446712342
+   "elo": 1810.953067127716,
+   "king_elo": 1753.2296783860893,
+   "score_elo": 1807.6307300347034
   },
   {
    "key": "sub:kooz-bot",
@@ -25,10 +25,10 @@
    "name": "kooz-bot",
    "anchor": false,
    "contender": true,
-   "sets": 20,
-   "elo": 1550.7280243514786,
-   "king_elo": 1599.9031194376696,
-   "score_elo": 1724.4195247603127
+   "sets": 40,
+   "elo": 1618.927397838973,
+   "king_elo": 1601.2000799941568,
+   "score_elo": 1752.455053328781
   },
   {
    "key": "sub:bitter-search",
@@ -36,10 +36,10 @@
    "name": "Self-taught + look-ahead",
    "anchor": false,
    "contender": true,
-   "sets": 40,
-   "elo": 1515.1785153122064,
-   "king_elo": 1482.4645597644758,
-   "score_elo": 1434.3153548785695
+   "sets": 60,
+   "elo": 1472.5185799409408,
+   "king_elo": 1481.6958555225547,
+   "score_elo": 1422.5498021405517
   },
   {
    "key": "sub:bitter-net",
@@ -48,9 +48,9 @@
    "anchor": false,
    "contender": true,
    "sets": 80,
-   "elo": 1348.6680330234753,
-   "king_elo": 1348.547547417475,
-   "score_elo": 1278.842183837339
+   "elo": 1349.8549785668429,
+   "king_elo": 1348.532040061548,
+   "score_elo": 1275.2770542609323
   },
   {
    "key": "sub:rl-hybrid",
@@ -59,9 +59,9 @@
    "anchor": false,
    "contender": true,
    "sets": 20,
-   "elo": 1246.5590309821625,
-   "king_elo": 1315.3578533915793,
-   "score_elo": 1245.652489811437
+   "elo": 1247.7459765255273,
+   "king_elo": 1315.342346035651,
+   "score_elo": 1242.0873602350312
   }
  ],
  "direct": [
@@ -109,12 +109,21 @@
    "b_wins": 17,
    "sets": 20,
    "clear": true
+  },
+  {
+   "a": "sub:bitter-search",
+   "b": "sub:kooz-bot",
+   "a_wins": 3,
+   "draws": 3,
+   "b_wins": 14,
+   "sets": 20,
+   "clear": true
   }
  ],
  "runoff": [
   "sub:hybrid-v4",
-  "sub:bitter-search",
   "sub:kooz-bot",
+  "sub:bitter-search",
   "sub:rl-hybrid",
   "sub:bitter-net"
  ],
