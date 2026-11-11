@@ -1,5 +1,5 @@
 {
- "built_at": "2026-11-11T00:16:20+00:00",
+ "built_at": "2026-11-11T00:16:25+00:00",
  "contenders": [
   "sub:hybrid-v4",
   "sub:kooz-bot",
@@ -14,10 +14,10 @@
    "name": "Yosif's Hybrid v4",
    "anchor": false,
    "contender": true,
-   "sets": 40,
-   "elo": 1788.17726056224,
-   "king_elo": 1727.5700418479407,
-   "score_elo": 1784.876349198839
+   "sets": 60,
+   "elo": 1754.5005982596244,
+   "king_elo": 1675.7734113082315,
+   "score_elo": 1776.0447344465215
   },
   {
    "key": "sub:kooz-bot",
@@ -25,10 +25,10 @@
    "name": "kooz-bot",
    "anchor": false,
    "contender": true,
-   "sets": 40,
-   "elo": 1598.0164029425528,
-   "king_elo": 1577.6161420216058,
-   "score_elo": 1730.0989704473259
+   "sets": 60,
+   "elo": 1621.3201510755189,
+   "king_elo": 1619.4253680754791,
+   "score_elo": 1737.835385108351
   },
   {
    "key": "sub:bitter-search",
@@ -37,9 +37,9 @@
    "anchor": false,
    "contender": true,
    "sets": 80,
-   "elo": 1431.1674132324854,
-   "king_elo": 1435.0677548429437,
-   "score_elo": 1380.64594034138
+   "elo": 1434.4402540148403,
+   "king_elo": 1438.1220536944954,
+   "score_elo": 1381.0035599599646
   },
   {
    "key": "sub:bitter-net",
@@ -48,9 +48,9 @@
    "anchor": false,
    "contender": true,
    "sets": 80,
-   "elo": 1356.5449853103078,
-   "king_elo": 1355.8869777591867,
-   "score_elo": 1287.275569170539
+   "elo": 1360.1824269607218,
+   "king_elo": 1359.491949662556,
+   "score_elo": 1287.6480189309714
   },
   {
    "key": "sub:rl-hybrid",
@@ -59,9 +59,9 @@
    "anchor": false,
    "contender": true,
    "sets": 40,
-   "elo": 1326.0939379524143,
-   "king_elo": 1403.8590835283228,
-   "score_elo": 1317.103170841916
+   "elo": 1329.5565696892945,
+   "king_elo": 1407.187217259238,
+   "score_elo": 1317.4683015541916
   }
  ],
  "direct": [
@@ -125,6 +125,15 @@
    "a_wins": 11,
    "draws": 0,
    "b_wins": 9,
+   "sets": 20,
+   "clear": false
+  },
+  {
+   "a": "sub:hybrid-v4",
+   "b": "sub:kooz-bot",
+   "a_wins": 12,
+   "draws": 2,
+   "b_wins": 6,
    "sets": 20,
    "clear": false
   }
