@@ -203,6 +203,7 @@ def app() -> Starlette:
         Route("/games/", games_page),
         Route("/games/data.json", board.games_data),
         Route("/games/kept.json", board.kept_games),
+        Route("/games/play", board.play_game, methods=["POST"]),
         Route("/games/{name}", board.game_file),
         Route("/api/board", board.api),
         Route("/api/ladder", board.ladder),

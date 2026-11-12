@@ -135,3 +135,23 @@ def test_finished_watch_games_are_kept_for_the_game_browser(tmp_path, monkeypatc
 def test_the_games_page_compares_two_bots():
     page = (ladder_live.Path(__file__).parent.parent / "arena" / "static" / "games.html").read_text()
     assert "async function versus(" in page and "kept.json?file=" in page
+
+
+def test_a_game_can_be_asked_for_and_is_played_first(tmp_path, monkeypatch):
+    monkeypatch.setattr(ladder_live, "DATA", tmp_path)
+    client = TestClient(app())
+    pair = {"a": "sub:guess-search", "b": "heuristic"}
+    assert client.post("/games/play", json=pair).json() == {"waiting": 1}
+    assert client.post("/games/play", json={"a": "heuristic", "b": "sub:guess-search"}).json() == {"waiting": 1}  # asked once
+    assert client.post("/games/play", json={"a": "random", "b": "heuristic"}).json() == {"waiting": 2}
+    for bad in ({"a": "heuristic", "b": "heuristic"}, {"a": "sub:../x", "b": "heuristic"}, {"a": "heuristic"}):
+        assert client.post("/games/play", json=bad).status_code == 400
+    state = client.get("/games/kept.json", params={"file": "guess-search.vs.heuristic.json", **pair}).json()
+    assert state["can_play"] and state["waiting"] == 1 and not state["playing"]
+    assert ladder_live.take_request(tmp_path) == ("sub:guess-search", "heuristic")
+    assert ladder_live.place_in_line("random", "heuristic") == 1
+    for _ in range(ladder_live.MAX_REQUESTS):
+        ladder_live.take_request(tmp_path)
+    for other in ("pimc", "search", "random", "hybrid", "sub:rl-pimc"):
+        assert client.post("/games/play", json={"a": "heuristic", "b": other}).status_code == 200
+    assert client.post("/games/play", json=pair).status_code == 429  # the line is short

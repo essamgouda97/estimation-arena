@@ -161,7 +161,21 @@ def kept_games(request: Request) -> Response:
     pairing = request.query_params.get("file", "")
     if not GAME_NAME.fullmatch(pairing):
         return JSONResponse({"error": "no such pairing"}, status_code=404)
-    return JSONResponse({"games": ladder_live.kept_games(pairing)})
+    a, b = request.query_params.get("a", ""), request.query_params.get("b", "")
+    return JSONResponse({"games": ladder_live.kept_games(pairing), "can_play": a != b and ladder_live.watchable(a) and ladder_live.watchable(b),
+                         "waiting": ladder_live.place_in_line(a, b), "playing": ladder_live.is_playing(a, b)})  # fmt: skip
+
+
+async def play_game(request: Request) -> Response:
+    """Ask the home server to play two bots on public deals, for the game browser."""
+    try:
+        body = await request.json()
+        place = ladder_live.ask_for_game(str(body["a"]), str(body["b"]))
+    except OverflowError:
+        return JSONResponse({"error": "Too many games are waiting. Try again in a few minutes."}, status_code=429)
+    except (ValueError, KeyError, TypeError):
+        return JSONResponse({"error": "The home server can't play that pairing."}, status_code=400)
+    return JSONResponse({"waiting": place})
 
 
 def guide(_: Request) -> Response:
