@@ -91,10 +91,21 @@ jobs:
               failed="$failed $1:$2"
             fi
           }
-          # 1. A bot with no result yet plays its strongest benchmark, which puts it on the board.
+          # 1. A bot with no result on this engine (new, changed, or last rated on an older engine)
+          # plays its strongest benchmark. Until it has that result, its matches against other
+          # bots would not count, however it did in them.
           later="$RUNNER_TEMP/later.tsv"; : > "$later"
+          declare -A ready
           while IFS=$'\t' read -r bot spec; do
-            if [ -f "results/$bot.json" ]; then printf '%s\t%s\n' "$bot" "$spec" >> "$later"; else benchmark "$bot" "$spec"; fi
+            if [ -z "${ready[$bot]:-}" ]; then
+              if uv run python -m arena.run --bot "$bot" --is-current </dev/null; then ready[$bot]=yes; else ready[$bot]=no; fi
+            fi
+            if [ "${ready[$bot]}" = yes ]; then
+              printf '%s\t%s\n' "$bot" "$spec" >> "$later"
+            else
+              benchmark "$bot" "$spec"
+              ready[$bot]=yes
+            fi
           done < "$LADDER_PLAN"
           # 2. The bots play each other, which is what the ladder is for. A bot this run was started
           # for is a challenger: it meets the top bot first, then the next, down the table. Other

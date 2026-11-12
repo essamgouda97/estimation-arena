@@ -364,6 +364,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--hide-seed", action="store_true", help="leave the seed out of the result and the output")
     parser.add_argument("--stop-when-settled", action="store_true", help="end a match once more sets could not change its result")
     parser.add_argument(
+        "--is-current",
+        action="store_true",
+        help="exit 0 if this exact bot has a result on this engine, 1 if not, and play nothing",
+    )
+    parser.add_argument(
         "--due",
         action="store_true",
         help="print the specs of the anchors still to play, one per line, and play nothing",
@@ -381,6 +386,9 @@ def main(argv: list[str] | None = None) -> int:
         parser.error("no anchors available: check anchors.json")
     out = args.out or RESULTS_DIR / f"{manifest.name}.json"
     old = json.loads(out.read_text()) if out.is_file() else None
+    if args.is_current:
+        # Matches between bots count only while both have a result on this engine (arena.direct.current).
+        return 0 if old and (old.get("bot_hash"), old.get("engine")) == (bot_hash(manifest), engine_version()) else 1
     if args.only_new:
         anchors = anchors_to_play(anchors, old, bot_hash(manifest), engine_version())
     if args.due:
