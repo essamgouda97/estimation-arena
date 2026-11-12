@@ -291,11 +291,10 @@ async function poll() {
   setTimeout(poll, POLL_MS);
 }
 
-document.querySelectorAll("[data-rank]").forEach((button) => button.addEventListener("click", () => {
-  document.body.dataset.metric = button.dataset.rank;
-  document.querySelectorAll("[data-rank]").forEach((b) => b.setAttribute("aria-pressed", b === button));
+document.querySelector(".rank-by").addEventListener("valuechange", (event) => {
+  document.body.dataset.metric = event.detail.value;
   if (state) renderRows(true);
-}));
+});
 document.addEventListener("visibilitychange", () => { if (!document.hidden) showStatus(); });
 setInterval(showStatus, 1000);
 fetch("/api/board/guide").then((r) => r.json()).then((guide) => {

@@ -242,3 +242,16 @@ def test_every_bot_panel_opens(monkeypatch):
     monkeypatch.setattr(board, "_cache", {"signature": None, "standings": []})
     for row in board.payload()["standings"]:
         assert board.explain(row["key"]), row["key"]
+
+
+def test_pages_open_with_the_home_bar_and_the_public_ladder_stays_plain():
+    from arena.serve import STATIC, home_page
+
+    for name, current in [("index.html", "/"), ("board.html", "/board"), ("lab.html", "/lab"), ("games.html", "/ladder")]:
+        page = home_page(name, current).body.decode()
+        assert "/_home-ui/v1/home-ui.js" in page and "<home-bar" in page, name
+        assert f'href="{current}" aria-current="page"' in page, name
+        assert "<!-- home bar -->" not in page and "<!-- home ui -->" not in page, name
+    # The public site copies games.html as it is, so it must not need Home UI.
+    public = (STATIC / "games.html").read_text()
+    assert "/_home-ui/" not in public and "<home-bar" not in public

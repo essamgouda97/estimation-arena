@@ -3,12 +3,14 @@
 <title>Estimation live board</title>
 <link rel="icon" type="image/svg+xml" href="/static/favicon.svg"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700&family=Instrument+Sans:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/static/board.css?v=2"></head>
+<!-- home ui -->
+<link rel="stylesheet" href="/static/board.css?v=3"></head>
 <body data-metric="elo">
+<!-- home bar -->
 <header class="top">
   <img class="brand-mark" src="/static/mark.svg" alt="" width="60" height="80"><h1>Live board</h1>
   <p id="status" class="status" role="status">Loading</p>
-  <nav><a href="/ladder">Ladder</a><a href="/games/">Games</a><a href="#guide">What the numbers mean</a><a href="/lab">Training lab</a><a href="/tb/">Training charts</a><a href="/">Play at the table</a></nav>
+  <nav><a href="#guide">What the numbers mean</a></nav>
 </header>
 
 <section aria-labelledby="playing-title">
@@ -19,11 +21,12 @@
 <section aria-labelledby="standings-title">
   <div class="standings-head">
     <h2 id="standings-title">Standings</h2>
-    <div class="rank-by" role="group" aria-label="Rank by">
-      <button data-rank="elo" aria-pressed="true">Weighted rank</button>
-      <button data-rank="king_elo" aria-pressed="false">King only</button>
-      <button data-rank="score_elo" aria-pressed="false">Score delta</button>
-    </div>
+    <ui-segmented-control class="rank-by" aria-label="Rank by" default-value="elo">
+      <ui-segmented-control-indicator></ui-segmented-control-indicator>
+      <ui-segmented-control-item value="elo">Weighted rank</ui-segmented-control-item>
+      <ui-segmented-control-item value="king_elo">King only</ui-segmented-control-item>
+      <ui-segmented-control-item value="score_elo">Score delta</ui-segmented-control-item>
+    </ui-segmented-control>
   </div>
   <div class="legend" aria-label="Finishing places">
     <span><i class="k"></i>King</span><span><i class="sk"></i>Sub-King</span><span><i class="sko"></i>Sub-Kooz</span><span><i class="ko"></i>Kooz</span>

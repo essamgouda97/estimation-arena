@@ -188,17 +188,18 @@ function nearestRow(it) {
 
 // ---- the film: every version plays the same round, full screen
 const sleep = (ms) => new Promise((r) => setTimeout(r, STILL ? Math.min(ms, 60) : ms));
-let filmId = 0;
+let filmId = 0, cinemaOpen = false;
 function setSpeed(x) {
   S.speed = x;
-  $("c-speed").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.speed === x)));
   try { localStorage.setItem("lab-speed", String(x)); } catch { /* speed just isn't remembered */ }
 }
-$("c-speed").onclick = (e) => { const b = e.target.closest("button"); if (b) setSpeed(+b.dataset.speed); };
+$("c-speed").addEventListener("valuechange", (e) => setSpeed(+e.detail.value));
 {
   let saved = 1;
   try { saved = +localStorage.getItem("lab-speed") || 1; } catch { /* use the default */ }
-  setSpeed([0.5, 1, 2, 4].includes(saved) ? saved : 1);
+  const speed = [0.5, 1, 2, 4].includes(saved) ? saved : 1;
+  setSpeed(speed);
+  $("c-speed").setAttribute("default-value", String(speed));
 }
 const reel = (ms) => sleep(ms / S.speed); // film time: follows the speed control, even mid-wait
 const moved = [];
@@ -206,18 +207,21 @@ function moveInto(node, target) { moved.push([node, node.parentNode, node.nextSi
 function openCinema() {
   moveInto($("grid"), $("c-left")); moveInto($("board"), $("c-left")); moveInto($("think"), $("c-left"));
   moveInto($("felt"), $("c-felt")); moveInto($("reel"), $("c-reel"));
-  $("cinema").hidden = false; document.body.style.overflow = "hidden";
-  $("c-pause").focus();
+  cinemaOpen = true;
+  $("cinema-dialog").open = true;
 }
+// The dialog closes itself on Close, Escape or an outside press; this puts the page back.
+$("cinema-dialog").addEventListener("openchange", (e) => { if (!e.detail.value && cinemaOpen) closeCinema(); });
 function closeCinema() {
+  cinemaOpen = false;
   filmId++; S.playing = false; S.paused = false; S.progress = 0;
   while (moved.length) { const [n, parent, next] = moved.pop(); parent.insertBefore(n, next); }
-  $("cinema").hidden = true; document.body.style.overflow = "";
+  $("cinema-dialog").open = false;
   $("c-pause").textContent = "Pause"; $("play").textContent = "Play timelapse";
   if (S.data?.versions.length) { placeRing(S.data.versions[S.at].probes); drawReel(); drawRoundChips(); }
   $("play").focus();
 }
-const stopPlay = () => { if (!$("cinema").hidden) closeCinema(); };
+const stopPlay = () => { if (cinemaOpen) closeCinema(); };
 function rollCounter(to) {
   const el = $("c-iter"), from = +el.dataset.v || 0;
   el.dataset.v = to;
@@ -278,11 +282,9 @@ async function film() {
 addEventListener("resize", () => { const v = S.data?.versions[S.at]; if (v) placeRing(v.probes); });
 function clearTrail() { const t = $("grid").querySelector(".trail"); if (t) t.innerHTML = ""; }
 $("play").onclick = () => { if (S.data?.versions.length > 1) film(); };
-$("c-close").onclick = closeCinema;
 $("c-pause").onclick = () => { S.paused = !S.paused; $("c-pause").textContent = S.paused ? "Resume" : "Pause"; };
 addEventListener("keydown", (e) => {
-  if ($("cinema").hidden) return;
-  if (e.key === "Escape") closeCinema();
+  if (!cinemaOpen) return;
   if (e.key === " " && e.target.tagName !== "BUTTON") { e.preventDefault(); $("c-pause").click(); }
 });
 function dealCards(ms) {

@@ -3,14 +3,15 @@
 <title>Estimation training lab</title>
 <link rel="icon" type="image/svg+xml" href="/static/favicon.svg"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700&family=Instrument+Sans:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/static/lab.css?v=2"></head>
+<!-- home ui -->
+<link rel="stylesheet" href="/static/lab.css?v=3"></head>
 <body>
+<!-- home bar -->
 <header class="top">
   <div class="intro">
     <img class="brand-mark" src="/static/mark.svg" alt="" width="60" height="80"><h1>Watch a bot teach itself Estimation</h1>
     <p>This bot began by playing randomly and got better only by playing against itself. Nobody gave it a strategy. Move along its training below to see what it knew at each point.</p>
   </div>
-  <nav class="top-side"><a class="back" href="/board">Live board</a><a class="back" href="/tb/">Training charts</a><a class="back" href="/">Play at the table</a></nav>
 </header>
 
 <section class="attempt" aria-label="Choose a training attempt">
@@ -89,17 +90,20 @@
   <div id="check-charts" class="multiples check-charts"></div>
   <div id="checks"></div>
 </section>
-<div id="cinema" class="cinema" role="dialog" aria-modal="true" aria-label="Timelapse: the bot plays the same round at each point in training" hidden>
+<ui-dialog id="cinema-dialog">
+<ui-dialog-backdrop hidden></ui-dialog-backdrop>
+<ui-dialog-content id="cinema" class="cinema" aria-label="Timelapse: the bot plays the same round at each point in training" hidden>
   <div class="c-top">
     <div><span id="c-iter" class="c-iter"></span><span id="c-sub" class="c-sub"></span><span class="c-hint">The same round replayed at each point in training.</span></div>
     <div class="c-places"><div id="c-bar" class="c-bar"></div><div id="c-names" class="c-names"></div></div>
-    <div class="c-buttons"><div id="c-speed" class="c-speed" role="group" aria-label="Playback speed"><button type="button" data-speed="0.5">0.5×</button><button type="button" data-speed="1">1×</button><button type="button" data-speed="2">2×</button><button type="button" data-speed="4">4×</button></div><button id="c-pause" type="button">Pause</button><button id="c-close" type="button">Close</button></div>
+    <div class="c-buttons"><ui-segmented-control id="c-speed" class="c-speed" aria-label="Playback speed"><ui-segmented-control-indicator></ui-segmented-control-indicator><ui-segmented-control-item value="0.5">0.5×</ui-segmented-control-item><ui-segmented-control-item value="1">1×</ui-segmented-control-item><ui-segmented-control-item value="2">2×</ui-segmented-control-item><ui-segmented-control-item value="4">4×</ui-segmented-control-item></ui-segmented-control><button id="c-pause" type="button">Pause</button><ui-dialog-close><button id="c-close" type="button">Close</button></ui-dialog-close></div>
   </div>
   <div class="c-stage">
     <div id="c-left" class="c-left"><h3 id="c-grid-title">Its opening bid on the same hand</h3></div>
     <div id="c-felt" class="c-felt"></div>
   </div>
   <div id="c-reel" class="c-reel"></div>
-</div>
+</ui-dialog-content>
+</ui-dialog>
 <script src="/static/lab.js?v=2"></script>
 </body></html>

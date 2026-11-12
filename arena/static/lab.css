@@ -1,12 +1,14 @@
 :root{--cloth:#17235e;--raised:#22307a;--line:#3a4a9a;--ivory:#fbf6e9;--text:#eef0ff;--muted:#aab4e6;--king:#f2c14e;--subking:#f8e3a8;--subkooz:#f3a6a8;--kooz:#e5484d;--inkred:#c4243a;--ink:#1c2147}
+/* Home UI tokens (bar, menus, dialogs, toasts) take this page's own colours and type. */
+:root{color-scheme:dark;--home-page:var(--cloth);--home-surface:var(--raised);--home-sunken:#1b2868;--home-ink:var(--text);--home-ink-muted:var(--muted);--home-line:var(--line);--home-line-strong:var(--muted);--home-accent:var(--king);--home-accent-fill:var(--king);--home-accent-ink:var(--ink);--home-good:var(--king);--home-warn:var(--subking);--home-bad:var(--subkooz);--home-font-text:"Instrument Sans",system-ui,sans-serif;--home-font-display:"Bricolage Grotesque",system-ui,sans-serif}
 *{box-sizing:border-box}
 body{margin:0;background:var(--cloth);color:var(--text);font:16px/1.5 "Instrument Sans",system-ui,sans-serif;font-variant-numeric:tabular-nums}
 h2,h3{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-weight:700;margin:0;letter-spacing:-.01em}
 h2{font-size:26px;line-height:1.15}h3{font-size:17px;margin-top:22px}
 .note{color:var(--muted);margin:6px 0 14px;font-size:15px;max-width:60ch}
 section,header{padding-inline:clamp(16px,4vw,56px)}
-button,select{font:inherit;color:var(--text);background:var(--raised);border:1px solid var(--line);border-radius:6px;padding:7px 14px;cursor:pointer}
-button:hover,select:hover{border-color:var(--muted)}button:disabled{opacity:.4;cursor:default}.felt-empty{grid-column:1/4;grid-row:1/4;align-self:center;text-align:center;color:var(--muted)}
+button:not(home-bar *),select{font:inherit;color:var(--text);background:var(--raised);border:1px solid var(--line);border-radius:6px;padding:7px 14px;cursor:pointer}
+button:not(home-bar *):hover,select:hover{border-color:var(--muted)}button:not(home-bar *):disabled{opacity:.4;cursor:default}.felt-empty{grid-column:1/4;grid-row:1/4;align-self:center;text-align:center;color:var(--muted)}
 :focus-visible{outline:3px solid var(--king);outline-offset:2px}
 .top{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;padding-top:28px}
 .intro{max-width:68ch}.intro h1{font:700 clamp(36px,6vw,68px)/1 "Bricolage Grotesque",system-ui,sans-serif;letter-spacing:-.03em;color:var(--ivory);margin:0 0 14px}.intro p{margin:0;font-size:18px}
@@ -127,7 +129,9 @@ button:hover,select:hover{border-color:var(--muted)}button:disabled{opacity:.4;c
 .c-places{flex:1 1 220px;max-width:460px}
 .c-bar{display:flex;gap:2px;height:16px}.c-bar i{display:block;height:100%;transition:width .6s cubic-bezier(.3,1.2,.5,1);border-radius:2px;min-width:0}
 .c-names{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-top:3px;gap:8px}
-.c-buttons{display:flex;gap:8px;flex-wrap:wrap}.c-speed{display:flex}.c-speed button{border-radius:0;margin-left:-1px;padding:7px 10px;min-width:44px}.c-speed button:first-child{border-radius:6px 0 0 6px;margin-left:0}.c-speed button:last-child{border-radius:0 6px 6px 0}.c-speed button[aria-pressed=true]{background:var(--king);border-color:var(--king);color:var(--ink);font-weight:600;position:relative}
+.c-buttons{display:flex;gap:8px;flex-wrap:wrap}.c-speed{display:flex}.c-speed [data-slot=segmented-control-item]{color:var(--text);background:var(--raised);border:1px solid var(--line);border-radius:0;margin-left:-1px;padding:7px 10px;min-width:44px;text-align:center;cursor:pointer}.c-speed [data-slot=segmented-control-item]:first-of-type{border-radius:6px 0 0 6px;margin-left:0}.c-speed [data-slot=segmented-control-item]:last-of-type{border-radius:0 6px 6px 0}.c-speed [data-slot=segmented-control-item][data-checked]{background:var(--king);border-color:var(--king);color:var(--ink);font-weight:600;position:relative}.c-speed [data-slot=segmented-control-indicator]{display:none}
+/* The timelapse is a Home UI dialog that fills the screen. */
+.cinema[data-slot=dialog-content]{width:auto;max-width:none;max-height:none;border-radius:0;border:0;box-shadow:none;color:var(--text)}
 .c-stage{display:grid;grid-template-columns:minmax(240px,1fr) minmax(0,2.1fr);gap:clamp(14px,2.4vw,32px);min-height:0}
 .c-left{min-height:0;display:flex;flex-direction:column;gap:8px;overflow:hidden}.c-left h3{margin:0;font-size:16px}
 .c-left .grid{width:100%;max-width:440px;grid-template-columns:22px repeat(10,1fr);gap:2px}.c-left .grid .hd{min-height:18px;font-size:12px}.c-left .cell{min-height:0;font-size:9px;border-radius:3px}
@@ -140,3 +144,6 @@ button:hover,select:hover{border-color:var(--muted)}button:disabled{opacity:.4;c
 .check-head{color:var(--muted);font-size:13px;line-height:1.25;align-items:end;border-top:0}.check>span:nth-child(n+3){text-align:right}
 .cell i{z-index:3}.cell span{z-index:4}.c-left .grid .hd.corner{font-size:0}
 .brand-mark{display:block;width:60px;height:80px;margin:0 0 10px;image-rendering:pixelated}
+
+/* Page links in the Home bar menu read as menu items. */
+.pages a{color:inherit;text-decoration:none}
