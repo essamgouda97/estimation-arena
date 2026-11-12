@@ -16,6 +16,8 @@ async function getJSON(path) {
 // Bots that talk to a paid AI service never sit at a table from a tool.
 const isPaidBot = (spec) => /llm|claude|openai|codex/i.test(spec);
 
+const rounded = (x) => (x == null ? null : Math.round(x));
+
 async function standings({ limit = 10 } = {}) {
   const board = await getJSON("/api/board");
   const ranked = board.standings.filter((row) => !row.provisional)
@@ -23,7 +25,7 @@ async function standings({ limit = 10 } = {}) {
   return {
     season: board.season?.number ?? null,
     standings: ranked.map((row, k) => ({ place: k + 1, bot: row.name, author: row.author,
-      weighted_rank: row.elo, king_only: row.king_elo, score_delta: row.score_elo })),
+      weighted_rank: rounded(row.elo), king_only: rounded(row.king_elo), score_delta: rounded(row.score_elo) })),
     playing_now: board.playing.map((m) => `${m.name} vs ${m.opponent}`),
   };
 }
