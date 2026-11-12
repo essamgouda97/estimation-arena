@@ -26,12 +26,12 @@ RECENT = 8
 GAME_NAME = re.compile(r"[a-z0-9-]+\.vs\.[a-z0-9-]+\.json")
 _cache: dict[str, Any] = {"signature": None, "standings": [], "direct": [], "runoff": []}
 _estimate: dict[str, Any] = {"at": None, "value": {}}
-ROW_FIELDS = ("name", "author", "code_name", "key", "kind", "anchor", "provisional", "elo", "king_elo", "score_elo", "positions", "games", "played_at")
+ROW_FIELDS = ("name", "author", "code_name", "key", "kind", "anchor", "provisional", "elo", "king_elo", "score_elo", "elo_margin", "king_elo_margin", "score_elo_margin", "close_to", "positions", "games", "played_at")
 MATCH_FIELDS = ("id", "kind", "key", "name", "opponent", "sets", "done", "state", "strip", "shares", "reward", "king", "delta", "started_at", "updated_at")
 
 
 def _signature(root: Path) -> tuple:
-    paths = [*root.glob("results/*.json"), *root.glob("results/direct/*.json"), *root.glob("results/early/*.json"), *root.glob("site/games/*.vs.*.json"), root / "ladder" / "positions.json", *LIVE.glob("*.json")]
+    paths = [*root.glob("results/*.json"), *root.glob("results/direct/*.json"), *root.glob("results/early/*.json"), *root.glob("site/games/*.vs.*.json"), root / "ladder" / "positions.json", root / "ladder" / "season.json", *LIVE.glob("*.json")]
     stamps = []
     for path in paths:
         try:
@@ -53,6 +53,7 @@ def payload() -> dict[str, Any]:
         board = build(ROOT, matches, RESULTS_ROOT)
         _cache["standings"] = [{k: row.get(k) for k in ROW_FIELDS} for row in board["rows"]]
         _cache["direct"], _cache["runoff"] = board["direct"], board["runoff"]
+        _cache["season"] = {k: board["season"][k] for k in ("number", "started")}
         _cache["browser"] = browser_data(board, ROOT / "site" / "games")
         _cache["signature"] = signature
     names = {row["key"]: row["name"] for row in _cache["standings"]}
@@ -61,6 +62,7 @@ def payload() -> dict[str, Any]:
         "standings": _cache["standings"],
         "direct": _cache["direct"],
         "runoff": _cache["runoff"],
+        "season": _cache.get("season"),
         "playing": [m for m in view if m["state"] == "playing"],
         "recent": [m for m in view if m["state"] != "playing"][:RECENT],
     }

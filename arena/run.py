@@ -34,6 +34,7 @@ from estimation.bots import Bot
 from estimation.engine import Bola, IllegalActionError, Phase, RulesConfig
 from estimation.engine.config import DEFAULT_CONFIG
 
+from . import season
 from .bots import ROOT, SUB_PREFIX, Manifest, load_manifest, maker
 from .live import Match
 from .positions import encode_scores, set_outcomes, summarize
@@ -200,9 +201,10 @@ def _timing(timing: Timing) -> dict[str, float | int]:
     }
 
 
-def engine_version(rounds: int = GAME_ROUNDS) -> str:
-    """The engine's version and commit, and how many rounds a game had (``/r5`` for micro games,
-    nothing for whole games). A result played on another commit or another game length must be
+def engine_version(rounds: int = GAME_ROUNDS, root: Path = ROOT) -> str:
+    """What a result was played under: the engine's version and commit, how many rounds a game had
+    (``/r5`` for micro games, nothing for whole games) and, from the second season on, the season
+    (``/s2``). A result played on another commit, another game length or in another season must be
     replayed, and every check that compares this string does that."""
     try:
         engine = distribution("estimation-engine")
@@ -212,7 +214,7 @@ def engine_version(rounds: int = GAME_ROUNDS) -> str:
         source = json.loads(engine.read_text("direct_url.json") or "{}")
         commit = source.get("vcs_info", {}).get("commit_id", "")
         version = f"{engine.version}+{commit[:8]}" if commit else engine.version
-    return f"{version}/r{rounds}" if rounds else version
+    return (f"{version}/r{rounds}" if rounds else version) + season.tag(season.current(root))
 
 
 def base_engine(engine: str) -> str:

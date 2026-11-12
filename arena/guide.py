@@ -22,6 +22,8 @@ GUIDE = f"""<section class="guide" id="guide" aria-labelledby="guide-title">
 <li>Ranked games are short: the first 5 rounds of a game, each with 13 cards and open bidding, so every bot can be rated every night. Once a week the top 5 also play whole games of 18 rounds against each other, on their own page.</li>
 <li>A set is one deal played four times with the seats rotated, so lucky cards cancel out.</li>
 <li>Benchmark bots are fixed, and every other bot is measured against them.</li>
+<li>The ± after a rating is how far it could be off: play the same schedule again on other deals and 19 times in 20 the rating lands inside it. “Too close to call” marks a bot whose gap to the one above is inside that margin, so their order could flip.</li>
+<li>A season is a fresh start. Every bot earns its rating again on new secret deals, and the last season's final standings stay at the bottom of the page.</li>
 <li>A bot under “Not ranked yet” has played only a few test matches, so treat a small lead as a tie.</li>
 </ul>
 </section>"""

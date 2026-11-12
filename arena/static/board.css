@@ -68,6 +68,7 @@ td.author{color:var(--muted);font-size:14px;white-space:nowrap}.by{display:none;
 tr.unranked td{padding-top:30px;color:var(--muted);font-size:14px}tr.unranked strong{display:block;color:var(--text);font:600 16px/1.3 "Bricolage Grotesque",system-ui,sans-serif}
 .tag.on{color:var(--ink);background:var(--king);padding:0 7px;border-radius:999px;font-weight:600}
 .elo{white-space:nowrap}
+.pm{color:var(--muted);font-weight:400;font-size:12px}
 .elo-move{display:block;font-size:12px;color:var(--muted);min-height:1.2em}
 body[data-metric=elo] .m-elo,body[data-metric=king_elo] .m-king_elo,body[data-metric=score_elo] .m-score_elo{color:var(--ivory);font-weight:600}
 td.m-elo .elo-move,td.m-king_elo .elo-move,td.m-score_elo .elo-move{font-weight:400}

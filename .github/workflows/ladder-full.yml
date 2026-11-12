@@ -66,7 +66,9 @@ jobs:
           LADDER_SEED: ${{ secrets.LADDER_SEED }}
           PAIR: ${{ matrix.pair }}
         run: |
-          file=$(uv run python -m arena.full play "${PAIR%%:*}" "${PAIR##*:}" --seed "${LADDER_SEED:-0}" --workers 4 | tail -1)
+          seed=$(uv run python -m arena.season seed)   # this season's deals, masked like the secret
+          echo "::add-mask::$seed"
+          file=$(uv run python -m arena.full play "${PAIR%%:*}" "${PAIR##*:}" --seed "$seed" --workers 4 | tail -1)
           echo "file=$file" >> "$GITHUB_OUTPUT"
           echo "name=$(basename "$file" .json)" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v4

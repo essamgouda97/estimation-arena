@@ -13,6 +13,8 @@ What we do, and which competition or paper it comes from. Researched on 7 Novemb
 | Extra games at the top | ACPC reran the top four, then the top two. The bridge championship sends its top four to a knockout | A close pair among the top four plays more batches, up to 100 sets |
 | Stop a match once it is decided | Chess engine testing: Stockfish's Fishtest ends each test with a sequential probability ratio test instead of a fixed number of games | A match stops when its sign test falls below 1 in 1,000, checked after each set from the 10th. Between equal bots a 40-set match stops early less than 0.5% of the time. A shutout stops after 11 sets |
 | Toughest benchmark first | Our own choice, so a new bot's first rating comes from its strongest benchmark | `arena.run --due` lists benchmarks by rating, best first, and the round robin starts with the best pairs |
+| Say how sure each rating is | ACPC reports 95% intervals. BayesElo and Ordo, the usual chess engine rating tools, print a margin beside every rating | Every rating shows a ± worked out from the fit (`arena/margins.py`), and a bot whose gap to the one above is inside that margin is marked too close to call |
+| Start again on fresh deals | ACPC and the World Computer-Bridge Championship are yearly events: each year's result stands, and the next year starts from nothing on new cards | A season (`arena/season.py`): the final standings are kept, then every bot replays on deals from a seed of its own. Started by hand, never on a timer |
 | A ranking that ignores wins over weak bots | ACPC runs total bankroll and instant runoff side by side, and they can disagree | The rating and the runoff are both shown, and the page says when they disagree |
 
 ## Why not a rating alone
@@ -34,7 +36,20 @@ shows any cycles instead of hiding them.
 
 A bot could memorize a deal it has seen. The rated deals therefore stay secret, and the games people can watch use public deals and don't count.
 
+## Why not reset every night
+
+The rating is already refitted from nothing each time, from every result still current, so a
+nightly reset would only throw away games and make the margins wider. What does age is the deals:
+within a season all benchmark games share one seed. A season swaps that seed, which is why it is
+the reset we use.
+
 ## Known limits
+
+- **Benchmarks keep their games across seasons:** the fixed benchmarks' games against each other
+  set the scale and are not replayed, so a season restarts the bots, not the scale.
+- **Stopping early tilts score margins:** a match that stops once it is decided stops on a run of
+  wins, so its average score margin reads a little high. Set wins, which the ratings use, are
+  not affected the same way.
 
 - **Two bots at a table:** a match seats two copies of each bot. ACPC's three-player events
   played every combination of three programs. Our equivalent, four different bots at one table,
