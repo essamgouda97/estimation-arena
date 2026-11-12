@@ -1,10 +1,11 @@
 {
- "built_at": "2026-11-12T18:54:32+00:00",
+ "built_at": "2026-11-12T18:56:24+00:00",
  "contenders": [
   "sub:guess-search",
   "sub:bitter-search",
   "sub:bitter-net",
-  "sub:cautious-heuristic"
+  "sub:cautious-heuristic",
+  "sub:highcard-wire"
  ],
  "rows": [],
  "direct": [],
