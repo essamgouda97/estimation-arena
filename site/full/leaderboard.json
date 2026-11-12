@@ -1,11 +1,11 @@
 {
- "built_at": "2026-11-12T07:30:32+00:00",
+ "built_at": "2026-11-12T07:40:57+00:00",
  "contenders": [
   "sub:guess-search",
   "sub:kooz-bot",
   "sub:hybrid-v4",
-  "sub:rl-hybrid",
-  "sub:rl-pimc"
+  "sub:rl-pimc",
+  "sub:bitter-search"
  ],
  "rows": [
   {
@@ -38,7 +38,7 @@
    "name": "Self-taught + look-ahead",
    "author": "Essam Gouda",
    "anchor": false,
-   "contender": false,
+   "contender": true,
    "sets": 80,
    "elo": 1435.1169244979442,
    "king_elo": 1437.902180768988,
@@ -62,7 +62,7 @@
    "name": "Hybrid with Copycat cards",
    "author": "Essam Gouda",
    "anchor": false,
-   "contender": true,
+   "contender": false,
    "sets": 80,
    "elo": 1335.4518333528724,
    "king_elo": 1407.1943472536286,
