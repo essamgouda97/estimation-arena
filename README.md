@@ -113,6 +113,8 @@ The page ranks every bot three ways, explained in [docs/metrics.md](docs/metrics
 | Page | GitHub Pages | free |
 | Live table and board | home server, invite only | free |
 
+Every rating carries a ± (`arena/margins.py`), and a bot too close to the one above is marked. A season (`arena/season.py`) is a fresh start: run the ladder with `new_season` and the standings are kept as final, then every bot replays on new secret deals.
+
 Secrets: `ENGINE_TOKEN` (read access to the engine repo), `LADDER_SEED`.
 Training design: [docs/training-design.md](docs/training-design.md).
 GPU rules for self-play at scale: [docs/jax-rules.md](docs/jax-rules.md).

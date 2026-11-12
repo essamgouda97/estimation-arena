@@ -8,7 +8,9 @@ name: ladder
 # night; pages.yml runs when this workflow completes and publishes site/ to GitHub Pages. Model
 # files come from Hugging Face (models.lock.json). An anchor whose files are not there yet is
 # left out. While it plays, it pushes its progress (no cards, no seed) to the ladder-live branch
-# every 30 seconds for the home server's live board (arena/ladder_live.py).
+# every 30 seconds for the home server's live board (arena/ladder_live.py). Started with
+# new_season, it first keeps the standings as the season's final ones and begins the next season,
+# whose deals come from a seed of their own (arena/season.py).
 
 on:
   schedule:
@@ -29,6 +31,10 @@ on:
         description: play direct games between bots
         type: boolean
         default: true
+      new_season:
+        description: end this season and start the next (every bot replays on fresh secret deals)
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -53,6 +59,21 @@ jobs:
         run: git config --global url."https://x-access-token:${{ secrets.ENGINE_TOKEN }}@github.com/".insteadOf "https://github.com/"
       - run: uv sync --frozen
       - run: uv run python -m arena.models fetch
+      - name: Sign the ladder's commits
+        run: |
+          git config user.name "estimation-arena bot"
+          git config user.email "actions@users.noreply.github.com"
+      - name: Start a new season
+        if: github.event.inputs.new_season == 'true'
+        run: |
+          # The standings as they are now become the old season's final ones. From here every
+          # result of that season is stale, so this run and the next ones replay every bot.
+          number=$(uv run python -m arena.season start)
+          uv run python -m arena.leaderboard >/dev/null
+          uv run python -m arena.full build >/dev/null
+          git add ladder site
+          git commit -qm "ladder: season $number"
+          git push -q origin HEAD:main
       - name: Play every bot against the anchors, then against each other
         env:
           # The leaderboard seed is a secret so nobody can tune to the exact deals it uses.
@@ -61,8 +82,9 @@ jobs:
         run: |
           # arena.live writes each match's progress here; the plan lists the pairings to play.
           export ESTIMATION_LIVE="$RUNNER_TEMP/live" LADDER_PLAN="$RUNNER_TEMP/plan.tsv"
-          git config user.name "estimation-arena bot"
-          git config user.email "actions@users.noreply.github.com"
+          # This season's deals. The seed comes from the secret, so it is masked like the secret.
+          seed=$(uv run python -m arena.season seed)
+          echo "::add-mask::$seed"
           sets="$LADDER_SETS"
           challengers="${{ github.event.inputs.bots }}"   # the bots this run was started for
           bots="$challengers"
@@ -85,7 +107,7 @@ jobs:
           # One benchmark for one bot, saved as it finishes: a slow bot (an hour per benchmark)
           # keeps what it played when the job times out, and the next night plays only what is left.
           benchmark() {
-            if uv run python -m arena.run --bot "$1" --anchors "$2" --sets "$sets" --seed "${LADDER_SEED:-0}" --workers 4 --progress --hide-seed --stop-when-settled </dev/null; then
+            if uv run python -m arena.run --bot "$1" --anchors "$2" --sets "$sets" --seed "$seed" --workers 4 --progress --hide-seed --stop-when-settled </dev/null; then
               scripts/ladder-save.sh "results/$1.json" </dev/null
             else
               failed="$failed $1:$2"
@@ -120,7 +142,7 @@ jobs:
                 echo "skipping $pair: needs about $((need / 60)) min, $(((20400 - SECONDS) / 60)) min left"
                 continue
               fi
-              if output=$(uv run python -m arena.duels play "${pair%%:*}" "${pair##*:}" --seed "${LADDER_SEED:-0}" --workers 4 --stop-when-settled); then
+              if output=$(uv run python -m arena.duels play "${pair%%:*}" "${pair##*:}" --seed "$seed" --workers 4 --stop-when-settled); then
                 echo "$output" | head -1
                 scripts/ladder-save.sh "$(echo "$output" | tail -1)"
               else

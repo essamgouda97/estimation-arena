@@ -27,6 +27,8 @@ from .direct import current as current_matches, game_file, is_clear, load_matche
 from .guide import GUIDE, STYLE as GUIDE_STYLE
 from .anchor_positions import OUT as POSITIONS_FILE
 from .import_ladder import LADDER_FILE
+from .margins import Margins
+from . import season
 from .positions import NAMES as POSITION_NAMES, decode_scores, set_outcomes
 from .plain import about_bot, author_name, base_key, benchmark_name, plain_name
 from .run import ANCHORS_FILE, RESULTS_DIR
@@ -114,7 +116,8 @@ def build(
     """Standings from the finished results under ``root``, plus any ``live`` matches
     (arena.live.read_matches), which count for pairings no finished result covers, plus results
     under ``experiments`` for bots ``root`` has not rated, plus ``results/early``, committed results
-    of bots the ladder can't play. Those three are marked provisional, can't move an official rating
+    of bots the ladder can't play. Only results of the season being played count (arena.season).
+    Those three are marked provisional, can't move an official rating
     and are listed after the ranked bots. A test version of a bot already on the board gets no row:
     the board shows one row per bot. ``official_only`` leaves the early results out.
     ``keep_official=False`` lets live matches move a rated bot's numbers too: an estimate of where
@@ -123,6 +126,8 @@ def build(
     ladder_file, positions_file = root / LADDER_FILE.relative_to(ROOT), root / POSITIONS_FILE.relative_to(ROOT)
     ladder = json.loads(ladder_file.read_text()) if ladder_file.is_file() else {"pairs": []}
     results = [json.loads(p.read_text()) for p in sorted((root / RESULTS_DIR.relative_to(ROOT)).glob("*.json"))]
+    now = season.current(root)
+    results = [r for r in results if season.of(r.get("engine", "")) == now]
     official = {r["bot"] for r in results}
     early_dir = root / RESULTS_DIR.relative_to(ROOT) / EARLY_DIR
     early = [] if official_only else [json.loads(p.read_text()) for p in sorted(early_dir.glob("*.json"))]
@@ -153,6 +158,7 @@ def build(
         by_king += _pairs(r.get("king_pairs", []))
     _add_new(by_king, _pairs([q for m in counted for q in m["pairs"]["king"]]))
     king_ratings = bradley_terry(by_king, ANCHOR, ANCHOR_RATING, DEFAULT_PRIOR) if by_king else {}
+    doubt = {"elo": Margins(by_position, ratings), "king_elo": Margins(by_king, king_ratings), "score_elo": Margins(pairs, score_ratings)}
     anchor_places: dict[str, list[dict[str, Any]]] = {}
     for m in matches:
         for spec, place in m["summary"].items():
@@ -234,15 +240,27 @@ def build(
         about = about_bot(row["key"])
         row["description"] = about.get("about", row["description"])
         row["method"] = about.get("method", row["method"])
+    field = [row["key"] for row in rows if row["elo"] is not None and not row.get("provisional")]
+    for row in rows:
+        for rating, margins in doubt.items():
+            # Random is pinned at 400 by definition, so it shows no margin.
+            row[f"{rating}_margin"] = margins.of(row["key"], field) if row["key"] != ANCHOR else None
+    official_rows: dict[str, dict[str, Any]] = {}
     if keep_official and (live or experiments or early):
         # Provisional bots must not move official ratings, so every board keeps the ladder's numbers.
         official_rows = {row["key"]: row for row in build(root, official_only=True)["rows"]}
         for row in rows:
             if row["key"] in official_rows:
-                for field in ("elo", "king_elo", "score_elo"):
-                    row[field] = official_rows[row["key"]][field]
+                for rating in doubt:
+                    row[rating] = official_rows[row["key"]][rating]
+                    row[f"{rating}_margin"] = official_rows[row["key"]][f"{rating}_margin"]
     rows.sort(key=lambda row: (bool(row.get("provisional")), row["elo"] is None, -(row["elo"] or 0)))
-    rated = [row["key"] for row in rows if row["elo"] is not None and not row.get("provisional")]
+    ranked = [row for row in rows if row["elo"] is not None and not row.get("provisional")]
+    for above, row in zip([None, *ranked], ranked):
+        # A place is only as sure as the gap above it: name the bot this one can't be told from.
+        close = above is not None and not doubt["elo"].separates(above["key"], row["key"])
+        row["close_to"] = official_rows[row["key"]]["close_to"] if row["key"] in official_rows else (above["name"] if close else None)
+    rated = [row["key"] for row in ranked]
     return {
         "matchups": matchups(results, direct, rows),
         "direct": table(direct),
@@ -251,6 +269,7 @@ def build(
         "anchor": ANCHOR,
         "anchor_rating": ANCHOR_RATING,
         "ladder": {k: ladder.get(k) for k in ("source", "sets", "imported_at")},
+        "season": {"number": now, "started": season.started(root), "ended": season.ended(root)},
         "submissions": sum(not r.get("provisional") for r in results),
         "rows": rows,
     }
@@ -263,6 +282,7 @@ main{max-width:1180px;margin:0 auto}h1{font-size:24px;margin:0 0 4px}p.sub{color
 table{width:100%;border-collapse:collapse}th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;white-space:nowrap}
 th{font-weight:600;color:var(--muted);font-size:13px}td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 tr.anchor td{color:var(--muted);background:var(--tint)}tr:has(+ tr.howrow) td{border-bottom:none}tr.howrow td{white-space:normal;padding-top:0}.places{display:flex;gap:2px;width:210px;height:12px;vertical-align:middle}.places span{display:block;height:100%}.places span:first-child{border-radius:3px 0 0 3px}.places span:last-child{border-radius:0 3px 3px 0}.p0{background:#f2c14e}.p1{background:#f8e3a8}.p2{background:#f3a6a8}.p3{background:#e5484d}.key{display:inline-block;width:10px;height:10px;border-radius:2px;margin:0 4px 0 12px;vertical-align:-1px}.king{font-variant-numeric:tabular-nums;font-size:13px;color:var(--muted)}.metrics{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}.metrics button{font:inherit;font-size:14px;padding:6px 12px;border:1px solid var(--muted);border-radius:6px;background:transparent;color:inherit;cursor:pointer}.metrics button[aria-pressed=true]{background:#f2c14e;border-color:#f2c14e;color:#1c2147;font-weight:600}.banner{display:block;width:100%;height:auto;margin:0 0 16px}.unrated{color:var(--muted);font-size:13px}td.m-weighted,td.m-king,td.m-delta{color:var(--muted)}body[data-metric=weighted] td.m-weighted,body[data-metric=king] td.m-king,body[data-metric=delta] td.m-delta{color:inherit;font-weight:700}span.m-king,span.m-delta{display:none}body[data-metric=king] span.m-weighted,body[data-metric=delta] span.m-weighted{display:none}body[data-metric=king] span.m-king,body[data-metric=delta] span.m-delta{display:inline}
+.pm{color:var(--muted);font-weight:400;font-size:12px}details.season table{max-width:640px}
 .brand-title{margin:0}.tag{font-size:12px;padding:1px 6px;border:1px solid var(--line);border-radius:10px;color:var(--muted)}.desc{color:var(--muted);font-size:13px;white-space:normal}
 .direct{margin-top:32px}table.cross td,table.cross th{white-space:nowrap}table.cross .who-cell{white-space:normal;min-width:130px;max-width:190px;position:sticky;left:0;background:var(--bg);z-index:1}table.cross .rank{color:var(--muted)}table.cross .self{background:var(--tint)}table.cross .close,table.cross .unrated{color:var(--muted)}.pos{color:var(--good)}.neg{color:var(--bad)}details{margin-top:24px}summary{cursor:pointer;color:var(--muted)}
 .who-cell{white-space:normal;min-width:230px}td.author{white-space:nowrap;color:var(--muted)}tr.unranked td{white-space:normal;color:var(--muted);padding-top:28px;font-size:13px}tr.unranked strong{color:var(--fg);font-size:15px;margin-right:6px}td.opt{white-space:normal}.places{flex-shrink:0}
@@ -498,6 +518,32 @@ def head_to_head(board: dict[str, Any], top: int = 8) -> str:
 </tbody></table></div></section>"""
 
 
+def _plus_minus(margin: float | None) -> str:
+    return f' <span class="pm">±{margin:,.0f}</span>' if margin is not None else ""
+
+
+def _season_line(now: dict[str, Any]) -> str:
+    since = f", since {html.escape(now['started'])}" if now["started"] else ""
+    return f"Season {now['number']}{since}. "
+
+
+def earlier_seasons(ended: list[dict[str, Any]]) -> str:
+    """How each finished season ended. Those ratings came from that season's deals and are final."""
+    e = html.escape
+    out = []
+    for final in ended:
+        lines = "".join(
+            f'<tr class="{"anchor" if r["anchor"] else "sub"}"><td class="num rank">{k + 1}</td><td>{e(r["name"])}'
+            f'{" <span class=tag>benchmark</span>" if r["anchor"] else ""}</td><td class="author">{e(r["author"] or "")}</td>'
+            f'<td class="num">{r["elo"]:,.0f}{_plus_minus(r.get("elo_margin"))}</td></tr>'
+            for k, r in enumerate(final["rows"])
+        )
+        out.append(f'<details class="season"><summary>Season {final["season"]} final standings, ended {e(final["ended"])}</summary>'
+                   f'<div class="scroll"><table><thead><tr><th class="num">#</th><th>Bot</th><th class="author">Author</th>'
+                   f'<th class="num">Weighted rank</th></tr></thead><tbody>{lines}</tbody></table></div></details>')
+    return "".join(out)
+
+
 COLUMNS = 8  # rank, bot, author, three ratings, finishing places, benchmarks
 UNRANKED_NOTE = "These bots have a rating from a few games but no place: they are being tested, or can't play on the nightly ladder."
 
@@ -515,9 +561,10 @@ def render(board: dict[str, Any]) -> str:
         rank += 0 if early else 1  # one global ranking of anchors and submissions; early results sit outside it
         elo = r["elo"]
         cells = "".join(
-            f'<td class="num m-{m}">{r[k]:,.0f}</td>' if r.get(k) is not None else f'<td class="num m-{m} unrated">unrated</td>'
+            f'<td class="num m-{m}">{r[k]:,.0f}{_plus_minus(r.get(f"{k}_margin"))}</td>' if r.get(k) is not None else f'<td class="num m-{m} unrated">unrated</td>'
             for m, k, _ in METRICS
         )
+        close = f' <span class="tag m-weighted">too close to call with {e(r["close_to"])}</span>' if r.get("close_to") else ""
         sort_keys = " ".join(f'data-{m}="{r[k] if r.get(k) is not None else -1e9}"' for m, k, _ in METRICS)
         places = r.get("positions")
         place_bar = ""
@@ -526,11 +573,11 @@ def render(board: dict[str, Any]) -> str:
             parts = "".join(f'<span class="p{k}" style="width:{x * 100:.1f}%"></span>' for k, x in enumerate(places))
             place_bar = f'<div class="places" title="{title}" role="img" aria-label="{title}">{parts}</div><span class="king">King {places[0]:.0%}</span>'
         if r["anchor"]:
-            name = f'<a href="games/#bot={quote(r["key"])}">{e(r["name"])}</a> <span class="tag">benchmark</span>'
+            name = f'<a href="games/#bot={quote(r["key"])}">{e(r["name"])}</a> <span class="tag">benchmark</span>{close}'
             meta = f'<span class="desc who">{e(r["description"])} Code name: {e(r["code_name"])}.</span>'
             detail = ""
         else:
-            name = f'<strong><a href="games/#bot={quote(r["key"])}">{e(r["name"])}</a></strong>'
+            name = f'<strong><a href="games/#bot={quote(r["key"])}">{e(r["name"])}</a></strong>{close}'
             if early:
                 name += f' <span class="tag">{r["games"]:,} games so far</span>'
             meta = f'<span class="desc who">{e(r["description"])} Code name: {e(r["code_name"])}.</span>'
@@ -564,7 +611,7 @@ def render(board: dict[str, Any]) -> str:
 <title>Estimation Arena</title><link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,{_favicon()}"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700&family=Instrument+Sans:wght@400;600&display=swap" rel="stylesheet"><style>{STYLE}{GUIDE_STYLE}:root{{--guide-line:var(--line)}}</style></head>
 <body data-metric="weighted"><main>
 <h1 class="brand-title">{_banner()}</h1>
-<p class="sub">{ranked} bots ranked three ways from the same games, including {len(anchors)} fixed benchmarks. Updated {built}.</p>
+<p class="sub">{_season_line(board["season"])}{ranked} bots ranked three ways from the same games, including {len(anchors)} fixed benchmarks. Updated {built}.</p>
 <div class="metrics" role="group" aria-label="Rank by">{"".join(f'<button type="button" data-rank="{m}"{" aria-pressed=true" if m == "weighted" else " aria-pressed=false"}>{label}</button>' for m, _, label in METRICS)}</div>
 <p class="desc"><span class="key p0"></span>King<span class="key p1"></span>Sub-King<span class="key p2"></span>Sub-Kooz<span class="key p3"></span>Kooz</p>
 <p class="desc"><a href="games/">Games</a> · <a href="full/">Whole games</a> · <a href="#guide">What the numbers mean</a> · <a href="diagrams/how-it-works.html">How it works</a> · <a href="https://github.com/essamgouda97/estimation-arena">Code on GitHub</a></p>
@@ -575,6 +622,7 @@ def render(board: dict[str, Any]) -> str:
 {chr(10).join(lines)}
 </tbody></table>
 {head_to_head(board)}
+{earlier_seasons(board["season"]["ended"])}
 {GUIDE}
 </main><script>{RANK_SCRIPT}</script></body></html>
 """

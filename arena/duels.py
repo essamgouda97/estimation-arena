@@ -19,6 +19,7 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
+from . import season
 from .bots import ROOT, SUB_PREFIX, load_manifest
 from .direct import DIRECT_DIR, current, is_clear, load_matches, match_file, record
 from .leaderboard import build
@@ -43,6 +44,7 @@ def due(root: Path = ROOT, first: Sequence[str] = ()) -> list[tuple[str, str]]:
     The bots named in ``first`` are challengers: their matches come before every other, and each
     challenger meets the best-ranked bot first, then the next, down the table."""
     results = [json.loads(p.read_text()) for p in sorted((root / RESULTS_DIR.relative_to(ROOT)).glob("*.json"))]
+    results = [r for r in results if season.of(r.get("engine", "")) == season.current(root)]
     order = [r["key"][len(SUB_PREFIX) :] for r in build(root)["rows"] if not r["anchor"] and not r.get("provisional")]
     rank = {name: k for k, name in enumerate(order)}
     done = {tuple(sorted((m["a"], m["b"]))): m for m in current(load_matches(root), results)}
@@ -92,7 +94,7 @@ def play(
     first, second = sorted((a, b))
     path = match_file(root, first, second, folder)
     hashes = (bot_hash(load_manifest(first)), bot_hash(load_manifest(second)))
-    engine = engine_version(rounds)
+    engine = engine_version(rounds, root)
     match = json.loads(path.read_text()) if path.is_file() else None
     if not match or (match["hash_a"], match["hash_b"]) != hashes or match["engine"] != engine:
         match = {"a": first, "b": second, "hash_a": hashes[0], "hash_b": hashes[1], "engine": engine, "rounds": rounds,

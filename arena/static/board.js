@@ -85,6 +85,8 @@ function eloCell(row, field) {
   const td = el("td", `num elo m-${field}`);
   const value = row[field];
   td.appendChild(document.createTextNode(value == null ? "–" : Math.round(value)));
+  const margin = row[field + "_margin"];
+  if (value != null && margin != null) td.appendChild(el("span", "pm", ` ±${Math.round(margin)}`));
   const start = firstElo[row.key]?.[field];
   const moved = value != null && start != null ? Math.round(value - start) : 0;
   td.appendChild(el("span", "elo-move", moved ? `${signed(moved)} since opened` : ""));
@@ -198,6 +200,7 @@ function renderRows(force = false, animate = true) {
     if (row.anchor) name.appendChild(el("span", "tag", "Benchmark"));
     if (row.provisional) name.appendChild(el("span", "tag", `${row.games} games so far`));
     if (playing.has(row.key)) name.appendChild(el("span", "tag on", "Playing"));
+    if (row.close_to && field === "elo") name.appendChild(el("span", "tag", `Too close to call with ${row.close_to}`));
     name.appendChild(el("span", "by", row.author));
     tr.appendChild(name);
     tr.appendChild(el("td", "author", row.author));
@@ -261,6 +264,7 @@ function render() {
   const list = (id, matches, live, empty) => $(id).replaceChildren(...(matches.length ? matches.map((m) => matchRow(m, live)) : [el("p", "empty", empty)]));
   list("playing", state.playing, true, "No matches are playing right now.");
   list("recent", state.recent, false, "Finished matches appear here.");
+  $("standings-title").textContent = state.season ? `Standings, season ${state.season.number}` : "Standings";
   renderRows();
   renderDirect();
 }

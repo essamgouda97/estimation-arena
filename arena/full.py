@@ -46,7 +46,7 @@ def _results(root: Path) -> list[dict[str, Any]]:
 
 def matches(root: Path = ROOT) -> list[dict[str, Any]]:
     """Whole-game matches whose bots are unchanged since they played."""
-    return current(load_matches(root, FULL_DIR), _results(root), engine=engine_version(FULL_GAME))
+    return current(load_matches(root, FULL_DIR), _results(root), engine=engine_version(FULL_GAME, root))
 
 
 def due(root: Path = ROOT) -> list[tuple[str, str]]:
