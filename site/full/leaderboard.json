@@ -1,11 +1,11 @@
 {
- "built_at": "2026-11-12T15:22:09+00:00",
+ "built_at": "2026-11-12T15:26:02+00:00",
  "contenders": [
   "sub:guess-search",
   "sub:hybrid-v4",
   "sub:kooz-bot",
   "sub:bitter-search",
-  "sub:rl-pimc"
+  "sub:bitter-net"
  ],
  "rows": [
   {
@@ -50,7 +50,7 @@
    "name": "Self-taught",
    "author": "Essam Gouda",
    "anchor": false,
-   "contender": false,
+   "contender": true,
    "sets": 80,
    "elo": 1361.2984962817986,
    "king_elo": 1359.2416912493404,
