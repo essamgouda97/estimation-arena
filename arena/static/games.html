@@ -317,20 +317,20 @@ function showLadder() {
   const parts = [crumbs(["Standings", "/board"], ["Games", "/games/"], ...(run?.url ? [["The run on GitHub", run.url]] : [])), el("h1", "", "Ladder"), statusLine(run)];
   if (run) {
     const sets = run.sets || 40, plan = el("div", "plan"), bots = [...new Set(run.plan.map((p) => p.bot))];
+    const extra = run.matches.filter((m) => !run.plan.some((p) => m.key === "sub:" + p.bot && m.opponent === p.anchor));
+    if (extra.length) {
+      plan.append(el("h3", "", "Against the ranked bots"));
+      extra.forEach((m) => plan.append(pairRow(`${nameOf(m.key)} against ${nameOf(m.opponent)}`, m, m.sets, m.state === "playing")));
+    }
     for (const bot of bots) {
-      plan.append(el("h3", "", nameOf("sub:" + bot)));
+      plan.append(el("h3", "", `${nameOf("sub:" + bot)} against the benchmarks`));
       for (const p of run.plan.filter((x) => x.bot === bot)) {
         const m = run.matches.find((x) => x.key === "sub:" + bot && x.opponent === p.anchor);
         plan.append(pairRow(`against ${nameOf(p.anchor)}`, m, m?.sets || sets, m?.state === "playing"));
       }
     }
-    const extra = run.matches.filter((m) => !run.plan.some((p) => m.key === "sub:" + p.bot && m.opponent === p.anchor));
-    if (extra.length) {
-      plan.append(el("h3", "", "Bot against bot"));
-      extra.forEach((m) => plan.append(pairRow(`${nameOf(m.key)} against ${nameOf(m.opponent)}`, m, m.sets, m.state === "playing")));
-    }
     if (!run.plan.length && !extra.length) plan.append(el("p", "note", "Every bot had already played every benchmark, so this run had nothing to rate."));
-    parts.push(el("h2", "", "Rated sets"), el("p", "note", "One square per set, from the rated bot's side: gold won, grey drawn, pink lost. The deals are secret, so these show results only. Benchmarks go strongest first, and a match stops once more sets could not change its result."), plan);
+    parts.push(el("h2", "", "Rated sets"), el("p", "note", "One square per set, from the rated bot's side: gold won, grey drawn, pink lost. The deals are secret, so these show results only. Bots meet the ranked bots first, from the top down, then the benchmarks. A match stops once more sets could not change its result."), plan);
     parts.push(el("h2", "", "Where it would place"), places(run));
   }
   parts.push(el("h2", "", "Watch"), watchNote(), gameRoot);

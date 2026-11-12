@@ -5,6 +5,7 @@
     uv run python -m arena.duels estimate a b              # seconds one batch should take
 
 Every pair plays. A close pair at the top keeps playing fresh deals, a batch at a time.
+A bot the ladder was started for is a challenger: it meets the top bots before anything else.
 """
 
 from __future__ import annotations
@@ -14,6 +15,7 @@ import hashlib
 import json
 from datetime import UTC, datetime
 from itertools import combinations
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
@@ -36,8 +38,10 @@ def pair_seed(seed: int, a: str, b: str, batch: int) -> int:
     return int.from_bytes(hashlib.sha256(f"{seed}|{first}|{second}|{batch}".encode()).digest()[:4], "big")
 
 
-def due(root: Path = ROOT) -> list[tuple[str, str]]:
-    """Pairs with no current match, then close pairs among the top bots; best bots first."""
+def due(root: Path = ROOT, first: Sequence[str] = ()) -> list[tuple[str, str]]:
+    """Pairs with no current match, then close pairs among the top bots; best bots first.
+    The bots named in ``first`` are challengers: their matches come before every other, and each
+    challenger meets the best-ranked bot first, then the next, down the table."""
     results = [json.loads(p.read_text()) for p in sorted((root / RESULTS_DIR.relative_to(ROOT)).glob("*.json"))]
     order = [r["key"][len(SUB_PREFIX) :] for r in build(root)["rows"] if not r["anchor"] and not r.get("provisional")]
     rank = {name: k for k, name in enumerate(order)}
@@ -51,7 +55,14 @@ def due(root: Path = ROOT) -> list[tuple[str, str]]:
         wins, draws, losses = record(match)
         if rank[a] < TOP and rank[b] < TOP and not is_clear(wins, losses) and wins + draws + losses < MAX_SETS:
             close.append((a, b))
-    return sorted(unplayed, key=lambda p: (rank[p[0]] + rank[p[1]], rank[p[0]])) + close
+    def order_of(pair: tuple[str, str]) -> tuple[int, int, int]:
+        challengers = [name for name in pair if name in first]
+        if not challengers:
+            return (1, rank[pair[0]] + rank[pair[1]], rank[pair[0]])
+        opponent = min((rank[name] for name in pair if name not in first), default=rank[pair[0]])
+        return (0, opponent, rank[challengers[0]])
+
+    return sorted(unplayed, key=order_of) + close
 
 
 def estimate(a: str, b: str, sets: int = BATCH_SETS, root: Path = ROOT) -> float:
@@ -104,7 +115,8 @@ def play(
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="python -m arena.duels", description=__doc__.split("\n")[0])
     commands = parser.add_subparsers(dest="command", required=True)
-    commands.add_parser("due", help="print the pairs to play, one a:b per line")
+    todo = commands.add_parser("due", help="print the pairs to play, one a:b per line")
+    todo.add_argument("--first", nargs="*", default=[], help="challengers: their matches go first, against the top bots")
     one = commands.add_parser("play", help="play one batch for a pair and print its file")
     one.add_argument("a")
     one.add_argument("b")
@@ -116,7 +128,7 @@ def main(argv: list[str] | None = None) -> int:
     cost.add_argument("b")
     args = parser.parse_args(argv)
     if args.command == "due":
-        for a, b in due():
+        for a, b in due(first=args.first):
             print(f"{a}:{b}")
         return 0
     if args.command == "estimate":
