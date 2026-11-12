@@ -1,0 +1,207 @@
+{
+ "season": 1,
+ "started": null,
+ "ended": "2026-11-12",
+ "rows": [
+  {
+   "name": "Self-taught + guesses",
+   "author": "Essam Gouda",
+   "anchor": false,
+   "elo": 1666.9308732167278,
+   "elo_margin": 59.55009137662616,
+   "king_elo": 1493.8973348184504,
+   "score_elo": 4920.187900309349,
+   "games": 1064
+  },
+  {
+   "name": "Hybrid v4",
+   "author": "Yosif Elessawi",
+   "anchor": false,
+   "elo": 1607.1318767421205,
+   "elo_margin": 58.416312860355674,
+   "king_elo": 1483.5968487365712,
+   "score_elo": 4929.846039848291,
+   "games": 232
+  },
+  {
+   "name": "Kooz bot",
+   "author": "Abdulrahman Boudi",
+   "anchor": false,
+   "elo": 1599.0101876513825,
+   "elo_margin": 60.467102691585715,
+   "king_elo": 1461.7757359749976,
+   "score_elo": 4860.790738298928,
+   "games": 96
+  },
+  {
+   "name": "Self-taught + look-ahead",
+   "author": "Essam Gouda",
+   "anchor": false,
+   "elo": 1479.4553178108185,
+   "elo_margin": 45.34464884006284,
+   "king_elo": 1378.0119911269426,
+   "score_elo": 4699.185183339983,
+   "games": 1920
+  },
+  {
+   "name": "Self-taught",
+   "author": "Essam Gouda",
+   "anchor": false,
+   "elo": 1432.3711538955129,
+   "elo_margin": 43.445941292479404,
+   "king_elo": 1299.0568939087332,
+   "score_elo": 4642.023704481843,
+   "games": 1920
+  },
+  {
+   "name": "Copycat with practice + look-ahead",
+   "author": "Essam Gouda",
+   "anchor": false,
+   "elo": 1428.2016066873884,
+   "elo_margin": 54.04151421767279,
+   "king_elo": 1305.1588160414176,
+   "score_elo": 4665.058003895074,
+   "games": 320
+  },
+  {
+   "name": "Trained bot + look-ahead",
+   "author": "Yosif Elessawi",
+   "anchor": true,
+   "elo": 1418.551225239854,
+   "elo_margin": 41.792668811393135,
+   "king_elo": 1363.9680092744225,
+   "score_elo": 4720.125988666952,
+   "games": null
+  },
+  {
+   "name": "Hybrid with Copycat cards",
+   "author": "Essam Gouda",
+   "anchor": false,
+   "elo": 1386.9854131217044,
+   "elo_margin": 60.704746248271185,
+   "king_elo": 1326.420111915495,
+   "score_elo": 4649.406221787448,
+   "games": 320
+  },
+  {
+   "name": "Trained bot",
+   "author": "Yosif Elessawi",
+   "anchor": true,
+   "elo": 1347.108212349088,
+   "elo_margin": 57.63967178709615,
+   "king_elo": 1278.9772401036143,
+   "score_elo": 4516.940995867942,
+   "games": null
+  },
+  {
+   "name": "Copycat with practice",
+   "author": "Essam Gouda",
+   "anchor": false,
+   "elo": 1329.5432899198927,
+   "elo_margin": 59.35787761753214,
+   "king_elo": 1250.0798394519416,
+   "score_elo": 4579.445025183924,
+   "games": 320
+  },
+  {
+   "name": "Look-ahead",
+   "author": "Yosif Elessawi",
+   "anchor": true,
+   "elo": 1210.91029541762,
+   "elo_margin": 59.789790133947484,
+   "king_elo": 1192.4256161742833,
+   "score_elo": 4314.935615777807,
+   "games": null
+  },
+  {
+   "name": "Copycat + look-ahead",
+   "author": "Essam Gouda",
+   "anchor": false,
+   "elo": 1193.1856358174825,
+   "elo_margin": 95.62272517292365,
+   "king_elo": 1192.4371161382437,
+   "score_elo": 4473.002082126972,
+   "games": 152
+  },
+  {
+   "name": "Look-ahead, tuned rules",
+   "author": "Yosif Elessawi",
+   "anchor": true,
+   "elo": 1170.0684481060325,
+   "elo_margin": 60.75212572244646,
+   "king_elo": 1149.6671934687224,
+   "score_elo": 4293.367219165819,
+   "games": null
+  },
+  {
+   "name": "Copycat",
+   "author": "Essam Gouda",
+   "anchor": false,
+   "elo": 1166.941283356293,
+   "elo_margin": 82.23968747647442,
+   "king_elo": 1131.7014220011752,
+   "score_elo": 4365.554220119142,
+   "games": 128
+  },
+  {
+   "name": "Rules + trump count",
+   "author": "Essam Gouda",
+   "anchor": false,
+   "elo": 1024.9467580541743,
+   "elo_margin": 114.05337048079929,
+   "king_elo": 972.5041560304162,
+   "score_elo": 4051.2733137715045,
+   "games": 152
+  },
+  {
+   "name": "Cautious rules",
+   "author": "Essam Gouda",
+   "anchor": false,
+   "elo": 896.2897922869108,
+   "elo_margin": 53.62070361486113,
+   "king_elo": 912.1852749855422,
+   "score_elo": 3807.4500918559265,
+   "games": 1920
+  },
+  {
+   "name": "Basic rules",
+   "author": "Yosif Elessawi",
+   "anchor": true,
+   "elo": 850.0694706239942,
+   "elo_margin": 78.09836637340918,
+   "king_elo": 872.5894439369022,
+   "score_elo": 3403.6864537967735,
+   "games": null
+  },
+  {
+   "name": "Always highest card",
+   "author": "Essam Gouda",
+   "anchor": false,
+   "elo": 706.4560557254656,
+   "elo_margin": 188.50663415917674,
+   "king_elo": 824.0869251573761,
+   "score_elo": 3699.140118800983,
+   "games": 88
+  },
+  {
+   "name": "Always lowest card",
+   "author": "Essam Gouda",
+   "anchor": false,
+   "elo": 623.2623147548939,
+   "elo_margin": 226.9727431996481,
+   "king_elo": 655.5826263069439,
+   "score_elo": 3594.2889297810666,
+   "games": 88
+  },
+  {
+   "name": "Random",
+   "author": "Yosif Elessawi",
+   "anchor": true,
+   "elo": 400.0,
+   "elo_margin": null,
+   "king_elo": 400.0,
+   "score_elo": 400.0,
+   "games": null
+  }
+ ]
+}
