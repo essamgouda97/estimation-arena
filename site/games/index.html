@@ -23,15 +23,30 @@ button:hover{background:var(--raised)}button[aria-pressed=true]{background:var(-
 .actions{display:flex;gap:6px;justify-content:flex-end;align-items:center}.actions a{display:inline-block;padding:6px 12px;border-radius:6px;background:var(--ivory);color:var(--ink);text-decoration:none;font-weight:600;min-height:36px}
 .sets .note{grid-column:1/-1;margin:0}.sets{margin:10px 0 2px;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:4px 18px}.set{display:flex;gap:10px;padding:3px 0;font-size:14px;align-items:baseline}.set b{width:1.5em}.set span{color:var(--muted)}.set .up{color:var(--gold)}.set .down{color:var(--bad)}
 
-.table{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) minmax(0,1fr);grid-template-areas:". top ." "left mid right" ". bottom .";gap:12px;margin:18px 0}
-.seat{background:var(--raised);border-radius:8px;padding:10px;min-width:0;border-left:4px solid var(--seat)}.seat.turn{outline:2px solid var(--ivory)}
-.s0{grid-area:bottom}.s1{grid-area:right}.s2{grid-area:top}.s3{grid-area:left}.mid{grid-area:mid;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:200px;text-align:center;gap:8px}
+.table{display:grid;grid-template-columns:minmax(0,1fr) minmax(270px,1.3fr) minmax(0,1fr);grid-template-areas:". top ." "left mid right" ". bottom .";gap:14px 18px;margin:18px 0;align-items:center}
+.seat{min-width:0;display:flex;flex-direction:column;gap:8px;align-items:center}.s0{grid-area:bottom;flex-direction:column-reverse}.s1{grid-area:right}.s2{grid-area:top}.s3{grid-area:left}
 .a{--seat:var(--gold)}.b{--seat:var(--sea)}
-.who{font-weight:600;line-height:1.25}.count{color:var(--muted);font-size:14px}.hand{display:flex;flex-wrap:wrap;gap:3px;margin-top:8px}
+.plate{background:var(--raised);border-radius:10px;padding:8px 12px 9px;border-top:3px solid var(--seat);width:100%;max-width:330px;min-width:0;transition:box-shadow .2s}
+.seat.turn .plate{box-shadow:0 0 0 2px var(--ivory),0 0 18px rgba(251,246,233,.25)}
+.who{font-weight:600;line-height:1.25;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}.count{color:var(--muted);font-size:14px}
+.role{font-size:12px;font-weight:600;color:var(--ink);background:var(--seat,var(--ivory));border-radius:9px;padding:0 7px;line-height:18px}
+.bid{display:flex;gap:8px;align-items:center;margin-top:4px;min-height:24px}.bid b{font:700 20px/1 "Bricolage Grotesque",system-ui,sans-serif;color:var(--ivory);min-width:.7em}
+.pips{display:flex;gap:4px;flex-wrap:wrap;flex:1}.pips i{width:11px;height:11px;border-radius:50%;border:2px solid var(--muted)}.pips .got{background:var(--gold);border-color:var(--gold)}.pips .over{background:var(--bad);border-color:var(--bad)}
+.bubble{display:inline-block;margin-top:5px;background:var(--ivory);color:var(--ink);font-weight:600;border-radius:12px 12px 12px 3px;padding:1px 10px}.bubble.new{animation:land .22s ease-out}
+.hand{display:flex;justify-content:center;flex-wrap:wrap;row-gap:4px;padding-left:16px;min-height:50px}
 .card{display:inline-flex;align-items:center;justify-content:center;width:31px;height:43px;border-radius:4px;background:var(--ivory);color:var(--ink);font-weight:600;font-size:14px;line-height:1;flex-direction:column;gap:1px}.card.r{color:var(--red)}.card.t{box-shadow:inset 0 -3px 0 var(--gold)}
-.trick{display:grid;grid-template-columns:repeat(3,44px);grid-template-rows:repeat(3,58px);gap:2px;justify-items:center;align-items:center}.trick .card{width:40px;height:54px;font-size:17px}.trick .card.best{outline:3px solid var(--gold)}
-.trick .p0{grid-area:3/2}.trick .p1{grid-area:2/3}.trick .p2{grid-area:1/2}.trick .p3{grid-area:2/1}.trick .new{animation:land .22s ease-out}@keyframes land{from{transform:scale(.8);opacity:0}}
-.say{min-height:3em;font-size:15px}.trumpline{font-weight:600;color:var(--ivory)}
+.hand .card{width:36px;height:50px;margin-left:-16px;font-size:13px;letter-spacing:-.06em;align-items:flex-start;justify-content:flex-start;padding:5px 0 0 3px;border-left:1px solid rgba(23,35,94,.3);box-shadow:-2px 0 3px rgba(23,35,94,.25)}.hand .card.t{box-shadow:-2px 0 3px rgba(23,35,94,.25),inset 0 -3px 0 var(--gold)}.hand .card.gap{margin-left:-9px}
+.mid{grid-area:mid;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;min-width:0}
+.trump{display:flex;gap:8px;align-items:center;min-height:32px}.trump b{font-size:26px;line-height:1;color:var(--ink);background:var(--ivory);border-radius:6px;padding:2px 9px}.trump b.r{color:var(--red)}
+.felt{width:100%;aspect-ratio:1.3;border-radius:50%/46%;background:radial-gradient(ellipse at 50% 45%,#2d3d96 0%,#22307a 62%,#1c2869 100%);border:2px solid var(--line);box-shadow:inset 0 0 0 7px rgba(23,35,94,.55);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;overflow:hidden}
+.topbid{font:700 clamp(34px,5vw,52px)/1 "Bricolage Grotesque",system-ui,sans-serif;color:var(--ivory)}
+.trick{display:grid;grid-template-columns:repeat(3,62px);grid-template-rows:repeat(3,56px);justify-items:center;align-items:center}.trick .card{width:46px;height:64px;font-size:19px;box-shadow:0 3px 8px rgba(13,20,60,.45)}.trick .card.t{box-shadow:0 3px 8px rgba(13,20,60,.45),inset 0 -4px 0 var(--gold)}.trick .card.best{outline:3px solid var(--gold)}
+.trick .p0{grid-area:3/2}.trick .p1{grid-area:2/3}.trick .p2{grid-area:1/2}.trick .p3{grid-area:2/1}
+.trick .new.p0{animation:from0 .3s ease-out}.trick .new.p1{animation:from1 .3s ease-out}.trick .new.p2{animation:from2 .3s ease-out}.trick .new.p3{animation:from3 .3s ease-out}
+@keyframes from0{from{transform:translateY(90px);opacity:0}}@keyframes from1{from{transform:translateX(110px);opacity:0}}@keyframes from2{from{transform:translateY(-90px);opacity:0}}@keyframes from3{from{transform:translateX(-110px);opacity:0}}
+.trick .swept{pointer-events:none;animation:sweep .55s ease-in forwards}.swept.to0{--dx:0;--dy:150px}.swept.to1{--dx:190px;--dy:0}.swept.to2{--dx:0;--dy:-150px}.swept.to3{--dx:-190px;--dy:0}
+@keyframes sweep{to{transform:translate(var(--dx),var(--dy)) scale(.5);opacity:0}}@keyframes land{from{transform:scale(.8);opacity:0}}
+.say{min-height:1.5em;font-size:14px;color:var(--muted)}
 .controls{position:sticky;bottom:0;background:var(--cloth);padding:10px 0;border-top:1px solid var(--line);display:grid;gap:8px}.controls .row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}input[type=range]{flex:1;min-width:120px;accent-color:var(--gold)}
 .rounds{display:flex;flex-wrap:wrap;gap:3px;margin:10px 0}.rounds button{min-width:36px;padding:3px 0;font-size:14px}
 .score{width:100%;border-collapse:collapse;margin-top:6px}.score td,.score th{padding:5px 8px;border-bottom:1px solid var(--line);text-align:right;font-weight:400}.score td:first-child,.score th:first-child{text-align:left}.score th{color:var(--muted);font-size:14px}
@@ -50,8 +65,8 @@ button:hover{background:var(--raised)}button[aria-pressed=true]{background:var(-
 .sheet td{vertical-align:baseline}.sheet .said{color:var(--muted);font-size:14px;margin-right:8px}.sheet b{font-weight:600}.sheet .up{color:var(--gold)}.sheet .down{color:var(--bad)}
 .sheet tr.now td{background:var(--raised)}.sheet tfoot td{font-weight:600;font-size:18px;color:var(--ivory);border-bottom:0;border-top:2px solid var(--line)}.sheet tfoot .lead{color:var(--gold)}
 @media(max-width:760px){.pair{grid-template-columns:minmax(0,1fr) auto auto}.pair .slots{grid-column:1/-1;grid-row:2}}
-@media(max-width:760px){.table{grid-template-columns:minmax(0,1fr);grid-template-areas:"mid" "bottom" "right" "top" "left"}.card{width:27px;height:38px;font-size:13px}.match-main{grid-template-columns:minmax(0,1fr) auto}.bar{grid-column:1/-1;grid-row:2}.actions{grid-column:1/-1;justify-content:flex-start}.calls{columns:1}}
-@media(prefers-reduced-motion:reduce){.trick .new{animation:none}}
+@media(max-width:760px){.table{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"top top" "mid mid" "left right" "bottom bottom";gap:12px}.felt{max-width:340px}.hand{padding-left:13px}.hand .card{width:31px;height:44px;margin-left:-13px;font-size:13px}.match-main{grid-template-columns:minmax(0,1fr) auto}.bar{grid-column:1/-1;grid-row:2}.actions{grid-column:1/-1;justify-content:flex-start}.calls{columns:1}}
+@media(prefers-reduced-motion:reduce){.trick .new,.bubble.new{animation:none}.trick .swept{display:none}}
 </style></head>
 <body><main id="app"><p class="muted" role="status">Loading games</p></main>
 <script>
@@ -65,6 +80,7 @@ const rank = (c) => RANKS[c % 13].replace("T", "10");
 const cardText = (c) => rank(c) + SUITS[Math.floor(c / 13)];
 const bidText = (a) => { const t = (a - 2) % 5; return `${Math.floor((a - 2) / 5) + 4} ${SUITS[t]}`; };
 const moveText = (a) => a === 0 ? "No Dash" : a === 1 ? "Dash Call" : a <= 51 ? "bids " + bidText(a) : a === 52 ? "With" : a === 53 ? "Pass" : a <= 67 ? "estimates " + (a - 54) : "plays " + cardText(a - 68);
+const callText = (a) => a === 0 ? "No dash" : a === 1 ? "Dash" : a <= 51 ? bidText(a) : a === 52 ? "With" : a === 53 ? "Pass" : "Says " + (a - 54);
 const nameOf = (key) => data?.bots.find((b) => b.key === key)?.name ?? ladder?.names[key] ?? key;
 const LADDER = location.pathname === "/ladder";  // the nightly ladder as it plays, on the home server
 let ladder = null, board = null, follow = true, gameRoot = app;
@@ -163,14 +179,19 @@ function strategy(key) {
 function beats(c, best, trump) { const s = Math.floor(c / 13), b = Math.floor(best / 13); return s === b ? c > best : s === trump; }
 
 function stateAt(r, upto) {
-  const hands = r.hands.map((h) => [...h]), calls = [], won = [0, 0, 0, 0], tricks = [];
-  let trick = [], last = null, say = "Cards dealt";
+  const hands = r.hands.map((h) => [...h]), calls = [], won = [0, 0, 0, 0], tricks = [], said = [null, null, null, null];
+  let trick = [], last = null, say = "Cards dealt", topBid = null, swept = null;
   r.moves.slice(0, upto).forEach(([seat, a]) => {
     say = `${nameOf(game.seats[seat])} ${moveText(a)}`; last = seat;
-    if (a < 68) { calls.push([seat, moveText(a)]); return; }
+    if (a < 68) {
+      calls.push([seat, moveText(a)]); said[seat] = callText(a);
+      if (a >= 2 && a <= 51) topBid = { seat, text: bidText(a) };
+      return;
+    }
     const c = a - 68;
     hands[seat].splice(hands[seat].indexOf(c), 1);
-    if (trick.length === 4) trick = [];
+    swept = null;
+    if (trick.length === 4) { swept = { cards: trick, winner: tricks[tricks.length - 1] }; trick = []; }
     trick.push([seat, c]);
     if (trick.length === 4) {
       let best = trick[0];
@@ -180,7 +201,57 @@ function stateAt(r, upto) {
   });
   let best = trick[0];
   for (const p of trick.slice(1)) if (beats(p[1], best[1], r.trump)) best = p;
-  return { hands, calls, won, trick, best: best?.[1], say, last, next: r.moves[upto]?.[0] };
+  // ``said``: each seat's latest call. ``swept``: the trick the newest card just cleared away.
+  return { hands, calls, won, trick, tricks, said, topBid, swept, best: best?.[1], say, last, next: r.moves[upto]?.[0] };
+}
+
+// The card table: four seats round the felt, each with its hand fanned out, its bid as a row of
+// pips that fill as it wins tricks, and its latest call in a bubble while the bidding runs. Cards
+// slide in from the seat that played them, and a finished trick is swept to the seat that won it.
+function cardTable(r, s) {
+  const table = el("div", "table"), bidding = !s.trick.length && !s.tricks.length;
+  for (let seat = 0; seat < 4; seat++) {
+    const box = el("section", `seat s${seat} ${seat % 2 ? "b" : "a"}${s.next === seat ? " turn" : ""}`);
+    box.setAttribute("aria-label", `Seat ${seat + 1}`);
+    const plate = el("div", "plate"), top = el("div", "who", nameOf(game.seats[seat]));
+    const role = seat === r.caller ? "Caller" : r.with.includes(seat) ? "With" : "";
+    if (role && !bidding) top.append(el("span", "role", role));
+    plate.append(top);
+    const est = bidding ? null : r.estimates[seat];
+    if (est !== null) {
+      const line = el("div", "bid"), pips = el("span", "pips"), wonHere = s.won[seat];
+      for (let k = 0; k < Math.max(est, wonHere); k++) pips.append(el("i", k >= est ? "over" : k < wonHere ? "got" : ""));
+      line.append(el("b", "", est), pips, el("span", "count", est === 0 && !wonHere ? "wants none" : `won ${wonHere}`));
+      line.setAttribute("aria-label", `Said ${est}, won ${wonHere}`);
+      plate.append(line);
+    } else if (s.said[seat]) {
+      plate.append(el("div", `bubble${s.last === seat ? " new" : ""}`, s.said[seat]));  // only the newest call pops in
+    } else plate.append(el("div", "count", "waiting to call"));
+    const hand = el("div", "hand");
+    let suit = null;
+    [...s.hands[seat]].sort((p, q) => Math.floor(q / 13) - Math.floor(p / 13) || q - p).forEach((c) => {
+      const n = card(c, r.trump, suit !== null && suit !== Math.floor(c / 13) ? "gap" : "");
+      suit = Math.floor(c / 13); hand.append(n);
+    });
+    box.append(plate, hand); table.append(box);
+  }
+  const mid = el("div", "mid"), trumpAt = r.trump ?? r.fixed, trump = el("div", "trump");
+  if (trumpAt === null) trump.append(el("span", "count", "No trump yet"));
+  else trump.append(el("span", "count", r.trump === null ? "Fixed trump" : "Trump"), el("b", trumpAt === 1 || trumpAt === 2 ? "r" : "", SUITS[trumpAt]));
+  if (r.carry > 1) trump.append(el("span", "role", `x${r.carry}`));
+  const felt = el("div", "felt");
+  if (bidding) {
+    felt.append(el("div", "count", s.topBid ? "Top bid" : "Bidding"));
+    if (s.topBid) felt.append(el("div", "topbid", s.topBid.text), el("div", "count", nameOf(game.seats[s.topBid.seat])));
+  } else {
+    const trick = el("div", "trick");
+    if (s.swept && s.trick.length === 1) s.swept.cards.forEach(([seat, c]) => trick.append(card(c, r.trump, `p${seat} swept to${s.swept.winner}`)));
+    s.trick.forEach(([seat, c], k) => trick.append(card(c, r.trump, `p${seat}${k === s.trick.length - 1 ? " new" : ""}${c === s.best && s.trick.length === 4 ? " best" : ""}`)));
+    felt.append(trick);
+  }
+  const say = el("div", "say", s.say); say.setAttribute("aria-live", "polite");
+  mid.append(trump, felt, say); table.append(mid);
+  return table;
 }
 
 // The score sheet, as on paper: a row per round with what each seat said, won and scored, and the
@@ -218,24 +289,7 @@ function scoreSheet() {
 
 function renderGame() {
   const r = game.rounds[view.round], s = stateAt(r, view.step);
-  const sideOf = (seat) => seat % 2 ? "b" : "a";
-  const table = el("div", "table");
-  for (let seat = 0; seat < 4; seat++) {
-    const box = el("section", `seat s${seat} ${sideOf(seat)}${s.next === seat ? " turn" : ""}`);
-    box.setAttribute("aria-label", `Seat ${seat + 1}`);
-    box.append(el("div", "who", nameOf(game.seats[seat])));
-    const role = seat === r.caller ? "Caller" : r.with.includes(seat) ? "With" : "";
-    const est = r.estimates[seat];
-    box.append(el("div", "count", [role, est !== null ? `said ${est}` : "", `won ${s.won[seat]}`].filter(Boolean).join(", ")));
-    const hand = el("div", "hand");
-    [...s.hands[seat]].sort((p, q) => Math.floor(q / 13) - Math.floor(p / 13) || q - p).forEach((c) => hand.append(card(c, r.trump)));
-    box.append(hand); table.append(box);
-  }
-  const mid = el("div", "mid");
-  mid.append(el("div", "trumpline", r.trump === null ? (r.fixed !== null ? "Fixed trump " + SUITS[r.fixed] : "No trump chosen yet") : "Trump " + SUITS[r.trump]));
-  const trick = el("div", "trick");
-  s.trick.forEach(([seat, c], k) => trick.append(card(c, r.trump, `p${seat}${k === s.trick.length - 1 ? " new" : ""}${c === s.best && s.trick.length === 4 ? " best" : ""}`)));
-  mid.append(trick, el("div", "say", s.say)); table.append(mid);
+  const table = cardTable(r, s);
 
   const rounds = el("div", "rounds"); rounds.setAttribute("aria-label", "Rounds");
   game.rounds.forEach((x, k) => { const b = el("button", "", x.round); b.setAttribute("aria-pressed", k === view.round); b.onclick = () => go(k, 0); rounds.append(b); });

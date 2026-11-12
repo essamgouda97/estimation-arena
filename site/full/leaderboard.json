@@ -1,9 +1,9 @@
 {
- "built_at": "2026-11-12T06:40:21+00:00",
+ "built_at": "2026-11-12T06:54:57+00:00",
  "contenders": [
-  "sub:hybrid-v4",
   "sub:kooz-bot",
   "sub:guess-search",
+  "sub:hybrid-v4",
   "sub:rl-hybrid",
   "sub:rl-pimc"
  ],
