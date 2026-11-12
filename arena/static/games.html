@@ -46,6 +46,9 @@ button:hover{background:var(--raised)}button[aria-pressed=true]{background:var(-
 .places{list-style:none;margin:8px 0;padding:0;max-width:640px}.places li{display:grid;grid-template-columns:2.5em 1fr 4.5em;gap:10px;padding:6px 4px;border-bottom:1px solid var(--line)}
 .places li.me{background:var(--raised);font-weight:600;color:var(--ivory)}.places .at,.places .elo{color:var(--muted);text-align:right}.places .at{text-align:left}
 .places li.gap{color:var(--muted);border-bottom-style:dashed}
+.sheet-scroll{overflow-x:auto}.sheet th.a{border-top:3px solid var(--gold)}.sheet th.b{border-top:3px solid var(--sea)}.sheet th{vertical-align:bottom;min-width:7.5em}
+.sheet td{vertical-align:baseline}.sheet .said{color:var(--muted);font-size:14px;margin-right:8px}.sheet b{font-weight:600}.sheet .up{color:var(--gold)}.sheet .down{color:var(--bad)}
+.sheet tr.now td{background:var(--raised)}.sheet tfoot td{font-weight:600;font-size:18px;color:var(--ivory);border-bottom:0;border-top:2px solid var(--line)}.sheet tfoot .lead{color:var(--gold)}
 @media(max-width:760px){.pair{grid-template-columns:minmax(0,1fr) auto auto}.pair .slots{grid-column:1/-1;grid-row:2}}
 @media(max-width:760px){.table{grid-template-columns:minmax(0,1fr);grid-template-areas:"mid" "bottom" "right" "top" "left"}.card{width:27px;height:38px;font-size:13px}.match-main{grid-template-columns:minmax(0,1fr) auto}.bar{grid-column:1/-1;grid-row:2}.actions{grid-column:1/-1;justify-content:flex-start}.calls{columns:1}}
 @media(prefers-reduced-motion:reduce){.trick .new{animation:none}}
@@ -180,6 +183,39 @@ function stateAt(r, upto) {
   return { hands, calls, won, trick, best: best?.[1], say, last, next: r.moves[upto]?.[0] };
 }
 
+// The score sheet, as on paper: a row per round with what each seat said, won and scored, and the
+// running totals underneath. It follows the move being shown, so the round in play fills in live.
+function scoreSheet() {
+  const sheet = el("table", "score sheet"), head = el("tr"), body = el("tbody");
+  head.append(el("th", "", "Round"));
+  game.seats.forEach((key, seat) => head.append(el("th", seat % 2 ? "b" : "a", `${seat + 1}. ${nameOf(key)}`)));
+  const top = el("thead"); top.append(head);
+  let totals = game.rounds[0].before;
+  game.rounds.slice(0, view.round + 1).forEach((r, k) => {
+    const live = k === view.round, upto = live ? view.step : r.moves.length;
+    const s = stateAt(r, upto), over = upto >= r.moves.length && r.after;
+    const row = el("tr", live ? "now" : ""), label = el("td");
+    label.append(el("b", "", r.round), el("span", "said", r.trump === null ? "" : ` ${SUITS[r.trump]}${r.carry > 1 ? ` x${r.carry}` : ""}`));
+    row.append(label);
+    for (let seat = 0; seat < 4; seat++) {
+      const cell = el("td"), est = upto ? r.estimates[seat] : null;
+      const role = seat === r.caller ? "called " : "";
+      cell.append(el("span", "said", est === null ? "" : `${role || "said "}${est}, won ${s.won[seat]}${over ? "" : " so far"}`));
+      if (over) { const d = r.after[seat] - r.before[seat]; cell.append(el("b", d > 0 ? "up" : d < 0 ? "down" : "", signed(d))); }
+      row.append(cell);
+    }
+    body.append(row);
+    totals = over ? r.after : r.before;
+  });
+  const sum = el("tr", "total"); sum.append(el("td", "", "Total"));
+  const best = Math.max(...totals);
+  totals.forEach((t) => sum.append(el("td", t === best && totals.some((x) => x !== best) ? "lead" : "", t)));
+  const foot = el("tfoot"); foot.append(sum);
+  sheet.append(top, body, foot);
+  const wrap = el("div", "sheet-scroll"); wrap.append(sheet);
+  return wrap;
+}
+
 function renderGame() {
   const r = game.rounds[view.round], s = stateAt(r, view.step);
   const sideOf = (seat) => seat % 2 ? "b" : "a";
@@ -205,15 +241,7 @@ function renderGame() {
   game.rounds.forEach((x, k) => { const b = el("button", "", x.round); b.setAttribute("aria-pressed", k === view.round); b.onclick = () => go(k, 0); rounds.append(b); });
 
   const a = game.seats[0], b = game.seats[1];
-  const score = el("table", "score");
-  score.innerHTML = "<thead><tr><th>Seat</th><th>Before</th><th>This round</th><th>Total</th></tr></thead>";
-  const body = el("tbody");
-  [0, 1, 2, 3].forEach((seat) => {
-    const row = el("tr"), done = view.step >= r.moves.length && r.after;
-    row.append(el("td", "", `${seat + 1}. ${nameOf(game.seats[seat])}`), el("td", "", r.before[seat]), el("td", "", done ? signed(r.after[seat] - r.before[seat]) : ""), el("td", "", done ? r.after[seat] : ""));
-    body.append(row);
-  });
-  score.append(body);
+  const score = scoreSheet();
   const calls = el("ol", "calls");
   s.calls.forEach(([seat, text]) => calls.append(el("li", "", `${seat + 1}: ${text}`)));
 
@@ -225,7 +253,8 @@ function renderGame() {
   controls.append(line);
 
   const parts = [rounds, table, controls, el("h2", "", "Scores"), score, el("h2", "", "Calls this round"), calls];
-  if (LADDER) { gameRoot.replaceChildren(...parts); return; }
+  // On the ladder the score sheet sits above the cards, in view while the game plays.
+  if (LADDER) { gameRoot.replaceChildren(score, rounds, table, controls, el("h2", "", "Calls this round"), calls); return; }
   const back = view.bot ? ["Back to " + nameOf(view.bot), "#bot=" + encodeURIComponent(view.bot)] : ["All bots", "#"];
   const head = el("h1", "", `${nameOf(a)} vs ${nameOf(b)}`);
   const finish = game.final ? `${nameOf(a)} ${game.final[0]} and ${game.final[2]}, ${nameOf(b)} ${game.final[1]} and ${game.final[3]}` : "";
@@ -252,7 +281,7 @@ const tally = (strip) => ["W", "D", "L"].map((c) => (strip || "").split(c).lengt
 function followButton() {
   const b = el("button", "", "Follow live");
   b.setAttribute("aria-pressed", follow);
-  b.onclick = () => { follow = true; stop(); showWatch(); };
+  b.onclick = () => { follow = true; stop(); nearLive(); renderGame(); if (!pace) playOn(); };
   return b;
 }
 
@@ -345,15 +374,46 @@ function watchNote() {
   return el("p", "note watch-note", `${nameOf(w.a)} against ${nameOf(w.b)}, game ${w.number + 1}, on public deals the home server plays alongside the rated sets. Rated cards stay hidden so the secret deals stay secret. ${state}`);
 }
 
+// Following live. Moves arrive in bursts (one bot thinks, then three answer at once), so the table
+// plays them one at a time at a steady pace, a few moves behind the live game, and holds a finished
+// trick long enough to see who took it.
+const MOVE_MS = 750, TRICK_HOLD_MS = 1700, NEAR_LIVE = 4, FAR_BEHIND = 12;
+let pace = null;
+
+function behind() {
+  let moves = game.rounds[view.round].moves.length - view.step;
+  for (let k = view.round + 1; k < game.rounds.length; k++) moves += game.rounds[k].moves.length;
+  return moves;
+}
+
+function nearLive() {
+  view.round = game.rounds.length - 1;
+  view.step = Math.max(game.rounds[view.round].moves.length - NEAR_LIVE, 0);
+}
+
+function playOn() {
+  pace = null;
+  if (!follow || !game) return;
+  let wait = MOVE_MS;
+  if (behind() > 0) {
+    if (view.step < game.rounds[view.round].moves.length) view.step++; else { view.round++; view.step = 0; }
+    renderGame();
+    const trick = stateAt(game.rounds[view.round], view.step).trick;
+    if (trick.length === 4) wait = TRICK_HOLD_MS;
+    else if (behind() > FAR_BEHIND) wait = MOVE_MS / 3;  // catch up after a pause, still move by move
+  }
+  pace = setTimeout(playOn, wait);
+}
+
 function showWatch() {
   const w = ladder?.watch;
   if (!w?.game || !w.game.rounds.length) { gameRoot.replaceChildren(); game = null; return; }
   const fresh = !game || view.watched !== `${w.a}|${w.b}|${w.number}`;
   game = w.game;
-  if (fresh) { view.watched = `${w.a}|${w.b}|${w.number}`; follow = true; }
-  if (follow) { view.round = game.rounds.length - 1; view.step = game.rounds[view.round].moves.length; }
+  if (fresh) { view.watched = `${w.a}|${w.b}|${w.number}`; follow = true; nearLive(); }
   view.round = Math.min(view.round, game.rounds.length - 1);
-  renderGame();
+  if (fresh || !follow) renderGame();
+  if (follow && !pace) playOn();
 }
 
 async function poll(url) { const res = await fetch(url, { cache: "no-store" }); if (!res.ok) throw new Error(url); return res.json(); }

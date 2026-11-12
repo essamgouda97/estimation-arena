@@ -69,3 +69,17 @@ def test_playing_one_anchor_at_a_time_builds_up_the_result(tmp_path: Path, capsy
     capsys.readouterr()
     main([*base, "--anchors", "random,heuristic", "--due", "--only-new"])
     assert capsys.readouterr().out == ""
+
+
+def test_a_bot_is_current_only_with_a_result_on_this_engine(tmp_path: Path) -> None:
+    """Matches between bots count only once both have such a result, so the ladder asks first."""
+    from arena.run import main
+
+    out = tmp_path / "result.json"
+    base = ["--bot", "lowcard-wire", "--out", str(out)]
+    assert main([*base, "--is-current"]) == 1
+    main([*base, "--anchors", "random", "--sets", "1"])
+    assert main([*base, "--is-current"]) == 0
+    result = json.loads(out.read_text())
+    out.write_text(json.dumps({**result, "engine": "an-older-engine"}))
+    assert main([*base, "--is-current"]) == 1
