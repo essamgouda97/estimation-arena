@@ -36,6 +36,17 @@ button:hover{background:var(--raised)}button[aria-pressed=true]{background:var(-
 .rounds{display:flex;flex-wrap:wrap;gap:3px;margin:10px 0}.rounds button{min-width:36px;padding:3px 0;font-size:14px}
 .score{width:100%;border-collapse:collapse;margin-top:6px}.score td,.score th{padding:5px 8px;border-bottom:1px solid var(--line);text-align:right;font-weight:400}.score td:first-child,.score th:first-child{text-align:left}.score th{color:var(--muted);font-size:14px}
 .calls{max-height:220px;overflow:auto;font-size:14px;color:var(--muted);columns:2;column-gap:20px;margin:0;padding:0;list-style:none}
+.status{font-size:18px;color:var(--ivory);max-width:70ch;margin:10px 0 4px}.status.idle{color:var(--muted)}
+.plan{margin:8px 0 0;border-bottom:1px solid var(--line)}.plan h3{font-size:15px;margin:18px 0 4px;color:var(--muted);font-weight:600}
+.pair{display:grid;grid-template-columns:minmax(0,13em) minmax(0,1fr) 5.5em 4.5em;gap:6px 16px;align-items:center;padding:9px 0 9px 10px;border-top:1px solid var(--line);border-left:3px solid transparent}
+.pair.now{border-left-color:var(--gold);background:linear-gradient(90deg,rgba(242,193,78,.08),transparent 60%)}.pair.wait{color:var(--muted)}
+.slots{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:2px;height:14px}.slots i{border-radius:2px;background:var(--raised)}.slots .W{background:var(--gold)}.slots .D{background:var(--muted)}.slots .L{background:var(--bad)}
+.pair.now .slots i:not(.W):not(.D):not(.L):first-of-type{outline:1px solid var(--ivory)}
+.pair .count,.pair .rec{text-align:right}.rec.won{color:var(--gold)}.rec.lost{color:var(--bad)}
+.places{list-style:none;margin:8px 0;padding:0;max-width:640px}.places li{display:grid;grid-template-columns:2.5em 1fr 4.5em;gap:10px;padding:6px 4px;border-bottom:1px solid var(--line)}
+.places li.me{background:var(--raised);font-weight:600;color:var(--ivory)}.places .at,.places .elo{color:var(--muted);text-align:right}.places .at{text-align:left}
+.places li.gap{color:var(--muted);border-bottom-style:dashed}
+@media(max-width:760px){.pair{grid-template-columns:minmax(0,1fr) auto auto}.pair .slots{grid-column:1/-1;grid-row:2}}
 @media(max-width:760px){.table{grid-template-columns:minmax(0,1fr);grid-template-areas:"mid" "bottom" "right" "top" "left"}.card{width:27px;height:38px;font-size:13px}.match-main{grid-template-columns:minmax(0,1fr) auto}.bar{grid-column:1/-1;grid-row:2}.actions{grid-column:1/-1;justify-content:flex-start}.calls{columns:1}}
 @media(prefers-reduced-motion:reduce){.trick .new{animation:none}}
 </style></head>
@@ -51,7 +62,9 @@ const rank = (c) => RANKS[c % 13].replace("T", "10");
 const cardText = (c) => rank(c) + SUITS[Math.floor(c / 13)];
 const bidText = (a) => { const t = (a - 2) % 5; return `${Math.floor((a - 2) / 5) + 4} ${SUITS[t]}`; };
 const moveText = (a) => a === 0 ? "No Dash" : a === 1 ? "Dash Call" : a <= 51 ? "bids " + bidText(a) : a === 52 ? "With" : a === 53 ? "Pass" : a <= 67 ? "estimates " + (a - 54) : "plays " + cardText(a - 68);
-const nameOf = (key) => data.bots.find((b) => b.key === key)?.name ?? key;
+const nameOf = (key) => data?.bots.find((b) => b.key === key)?.name ?? ladder?.names[key] ?? key;
+const LADDER = location.pathname === "/ladder";  // the nightly ladder as it plays, on the home server
+let ladder = null, board = null, follow = true, gameRoot = app;
 const signed = (x) => (x > 0 ? "+" : "") + Math.round(x);
 
 function card(c, trump, cls) {
@@ -82,7 +95,7 @@ function home() {
     a.append(el("span", "rank", b.provisional ? "" : place), name, el("span", "elo", Math.round(b.elo)));
     li.append(a); list.append(li);
   });
-  app.replaceChildren(crumbs(["Standings", BOARD]), el("h1", "", "Games"), el("p", "note", "Pick a bot to see who it played, how each match went, and to watch a game with every card showing."), list);
+  app.replaceChildren(crumbs(["Standings", BOARD], ...(location.pathname === "/games/" ? [["Ladder", "/ladder"]] : [])), el("h1", "", "Games"), el("p", "note", "Pick a bot to see who it played, how each match went, and to watch a game with every card showing."), list);
 }
 
 function sidesFor(m, key) {
@@ -206,19 +219,21 @@ function renderGame() {
 
   const controls = el("div", "controls");
   const line = el("div", "row"), slider = el("input"); slider.type = "range"; slider.min = 0; slider.max = r.moves.length; slider.value = view.step; slider.setAttribute("aria-label", "Move in this round");
-  slider.oninput = () => { stop(); view.step = +slider.value; renderGame(); };
+  slider.oninput = () => { stop(); follow = false; view.step = +slider.value; renderGame(); };
   const button = (text, label, fn) => { const x = el("button", "", text); x.setAttribute("aria-label", label); x.onclick = fn; return x; };
-  line.append(button("⏮", "Previous round", () => go(Math.max(view.round - 1, 0), 0)), button("◀", "Previous move", () => step(-1)), button(timer ? "Pause" : "Play", timer ? "Pause" : "Play", toggle), button("▶", "Next move", () => step(1)), button("⏭", "Next round", () => go(Math.min(view.round + 1, game.rounds.length - 1), 0)), slider, el("span", "muted", `Round ${r.round}${r.carry > 1 ? `, x${r.carry}` : ""}, move ${view.step} of ${r.moves.length}`));
+  line.append(button("⏮", "Previous round", () => go(Math.max(view.round - 1, 0), 0)), button("◀", "Previous move", () => step(-1)), button(timer ? "Pause" : "Play", timer ? "Pause" : "Play", toggle), ...(LADDER ? [followButton()] : []), button("▶", "Next move", () => step(1)), button("⏭", "Next round", () => go(Math.min(view.round + 1, game.rounds.length - 1), 0)), slider, el("span", "muted", `Round ${r.round}${r.carry > 1 ? `, x${r.carry}` : ""}, move ${view.step} of ${r.moves.length}`));
   controls.append(line);
 
+  const parts = [rounds, table, controls, el("h2", "", "Scores"), score, el("h2", "", "Calls this round"), calls];
+  if (LADDER) { gameRoot.replaceChildren(...parts); return; }
   const back = view.bot ? ["Back to " + nameOf(view.bot), "#bot=" + encodeURIComponent(view.bot)] : ["All bots", "#"];
   const head = el("h1", "", `${nameOf(a)} vs ${nameOf(b)}`);
   const finish = game.final ? `${nameOf(a)} ${game.final[0]} and ${game.final[2]}, ${nameOf(b)} ${game.final[1]} and ${game.final[3]}` : "";
-  app.replaceChildren(crumbs(back), head, el("p", "note", `Public deals, not a rated game. Every card is shown here, but each bot only saw its own hand. Final scores: ${finish}.`), rounds, table, controls, el("h2", "", "Scores"), score, el("h2", "", "Calls this round"), calls);
+  app.replaceChildren(crumbs(back), head, el("p", "note", `Public deals, not a rated game. Every card is shown here, but each bot only saw its own hand. Final scores: ${finish}.`), ...parts);
 }
 
 function stop() { clearInterval(timer); timer = null; }
-function step(by) { stop(); move(by); }
+function step(by) { stop(); follow = false; move(by); }
 function move(by) {
   const r = game.rounds[view.round], next = view.step + by;
   if (next > r.moves.length) { if (view.round + 1 < game.rounds.length) { view.round++; view.step = 0; } else stop(); }
@@ -226,8 +241,142 @@ function move(by) {
   else view.step = next;
   renderGame();
 }
-function toggle() { if (timer) stop(); else timer = setInterval(() => move(1), 800); renderGame(); }
-function go(round, at) { stop(); view.round = round; view.step = at; renderGame(); scrollTo({ top: 0 }); }
+function toggle() { if (timer) stop(); else { follow = false; timer = setInterval(() => move(1), 800); } renderGame(); }
+function go(round, at) { stop(); follow = false; view.round = round; view.step = at; renderGame(); if (!LADDER) scrollTo({ top: 0 }); }
+
+// The ladder ---------------------------------------------------------------------------------
+const STATUS_EVERY = 10000, WATCH_EVERY = 1500;
+const ago = (s) => { const m = Math.round(s / 60); return m < 60 ? `${m} min` : `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, "0")} min`; };
+const tally = (strip) => ["W", "D", "L"].map((c) => (strip || "").split(c).length - 1);
+
+function followButton() {
+  const b = el("button", "", "Follow live");
+  b.setAttribute("aria-pressed", follow);
+  b.onclick = () => { follow = true; stop(); showWatch(); };
+  return b;
+}
+
+function pairRow(label, m, sets, now) {
+  const row = el("div", `pair${now ? " now" : ""}${m ? "" : " wait"}`);
+  const name = el("div", "", label);
+  const slots = el("div", "slots"), outcomes = m?.strip || "";
+  slots.setAttribute("role", "img");
+  const [w, d, l] = tally(outcomes);
+  slots.setAttribute("aria-label", m ? `${m.done} of ${sets} sets played: ${w} won, ${d} drawn, ${l} lost` : "Not started");
+  for (let k = 0; k < sets; k++) slots.append(el("i", outcomes[k] || ""));
+  const early = m?.finished && m.done < sets;
+  const count = el("div", "count muted", !m ? "waiting" : early ? `settled at ${m.done}` : m.finished ? `${m.done} sets` : `${m.done} of ${sets}`);
+  if (early) count.title = "Stopped once more sets could not change the result";
+  const rec = el("div", `rec${!m ? "" : w > l ? " won" : l > w ? " lost" : ""}`, m ? `${w}-${d}-${l}` : "");
+  rec.title = "Sets won, drawn and lost on weighted rank";
+  row.append(name, slots, count, rec);
+  return row;
+}
+
+function statusLine(run) {
+  const now = Date.now() / 1000;
+  if (!run) return el("p", "status idle", "No ladder has reported here yet. The next one starts at 03:00 UTC.");
+  const plan = run.plan, sets = run.sets || 40, matches = run.matches;
+  const done = matches.filter((m) => plan.some((p) => m.key === "sub:" + p.bot && m.opponent === p.anchor)).reduce((n, m) => n + m.done, 0);
+  const total = plan.length * sets, playing = matches.find((m) => m.state === "playing");
+  if (!run.running) {
+    const when = new Date(run.updated_at * 1000).toLocaleString([], { weekday: "short", hour: "2-digit", minute: "2-digit" });
+    return el("p", "status idle", `${run.finished ? "Finished" : "Stopped reporting"} ${when}, after ${ago(run.updated_at - run.started_at)}. It played ${done} of ${total} rated sets. The next ladder starts at 03:00 UTC.`);
+  }
+  const rate = done / Math.max(now - run.started_at, 1), left = rate > 0 ? (total - done) / rate : null;
+  const what = playing ? `${nameOf(playing.key)} against ${nameOf(playing.opponent)}, set ${playing.done + 1} of ${playing.sets}` : "Between matches";
+  return el("p", "status", `Playing now: ${what}. Running for ${ago(now - run.started_at)}${left !== null && done < total ? `, about ${ago(left)} to go` : ""}.`);
+}
+
+function places(run) {
+  // The estimate refits every rating with tonight's sets counted, so it moves with each set.
+  const box = el("div"), est = ladder?.estimate;
+  if (!run || !est?.rows) return box;
+  const keys = [...new Set(run.plan.map((p) => "sub:" + p.bot))];
+  for (const key of keys) {
+    const rows = est.rows.filter((r) => r.key === key || !keys.includes(r.key)), me = rows.find((r) => r.key === key);
+    if (!me) { box.append(el("p", "note", `${nameOf(key)} has no rating yet. It gets one after its first sets.`)); continue; }
+    const at = rows.indexOf(me), saved = board?.standings.find((r) => r.key === key && !r.provisional);
+    const was = saved?.elo != null ? ` Its saved rating is ${Math.round(saved.elo)} until the ladder saves this benchmark.` : "";
+    box.append(el("p", "note", `With tonight's sets counted, ${me.name} would be rated about ${Math.round(me.elo)}, place ${at + 1} of ${rows.length}.${was}`));
+    const list = el("ol", "places");
+    rows.forEach((r, k) => {
+      if (k > 4 && Math.abs(k - at) > 2) { if (list.lastChild && !list.lastChild.classList.contains("gap")) list.append(el("li", "gap", "")); return; }
+      const li = el("li", r === me ? "me" : "");
+      li.append(el("span", "at", k + 1), el("span", "", r.name + (r.anchor ? " (benchmark)" : "")), el("span", "elo", Math.round(r.elo)));
+      list.append(li);
+    });
+    if (list.lastChild?.classList.contains("gap")) list.lastChild.remove();
+    box.append(list);
+  }
+  return box;
+}
+
+function showLadder() {
+  const run = ladder?.run;
+  const parts = [crumbs(["Standings", "/board"], ["Games", "/games/"], ...(run?.url ? [["The run on GitHub", run.url]] : [])), el("h1", "", "Ladder"), statusLine(run)];
+  if (run) {
+    const sets = run.sets || 40, plan = el("div", "plan"), bots = [...new Set(run.plan.map((p) => p.bot))];
+    for (const bot of bots) {
+      plan.append(el("h3", "", nameOf("sub:" + bot)));
+      for (const p of run.plan.filter((x) => x.bot === bot)) {
+        const m = run.matches.find((x) => x.key === "sub:" + bot && x.opponent === p.anchor);
+        plan.append(pairRow(`against ${nameOf(p.anchor)}`, m, m?.sets || sets, m?.state === "playing"));
+      }
+    }
+    const extra = run.matches.filter((m) => !run.plan.some((p) => m.key === "sub:" + p.bot && m.opponent === p.anchor));
+    if (extra.length) {
+      plan.append(el("h3", "", "Bot against bot"));
+      extra.forEach((m) => plan.append(pairRow(`${nameOf(m.key)} against ${nameOf(m.opponent)}`, m, m.sets, m.state === "playing")));
+    }
+    if (!run.plan.length && !extra.length) plan.append(el("p", "note", "Every bot had already played every benchmark, so this run had nothing to rate."));
+    parts.push(el("h2", "", "Rated sets"), el("p", "note", "One square per set, from the rated bot's side: gold won, grey drawn, pink lost. The deals are secret, so these show results only. Benchmarks go strongest first, and a match stops once more sets could not change its result."), plan);
+    parts.push(el("h2", "", "Where it would place"), places(run));
+  }
+  parts.push(el("h2", "", "Watch"), watchNote(), gameRoot);
+  app.replaceChildren(...parts);
+}
+
+function watchNote() {
+  const w = ladder?.watch;
+  if (!w) return el("p", "note watch-note", "While the ladder plays, the home server plays the same pairing on public deals so you can watch every card. Nothing is playing yet.");
+  if (w.error) return el("p", "note watch-note", `The home server can't play ${nameOf(w.a)} against ${nameOf(w.b)} right now, so there is nothing to watch.`);
+  const state = w.finished ? "Finished. The next game starts shortly while the ladder is still on this pairing." : "Playing now.";
+  return el("p", "note watch-note", `${nameOf(w.a)} against ${nameOf(w.b)}, game ${w.number + 1}, on public deals the home server plays alongside the rated sets. Rated cards stay hidden so the secret deals stay secret. ${state}`);
+}
+
+function showWatch() {
+  const w = ladder?.watch;
+  if (!w?.game || !w.game.rounds.length) { gameRoot.replaceChildren(); game = null; return; }
+  const fresh = !game || view.watched !== `${w.a}|${w.b}|${w.number}`;
+  game = w.game;
+  if (fresh) { view.watched = `${w.a}|${w.b}|${w.number}`; follow = true; }
+  if (follow) { view.round = game.rounds.length - 1; view.step = game.rounds[view.round].moves.length; }
+  view.round = Math.min(view.round, game.rounds.length - 1);
+  renderGame();
+}
+
+async function poll(url) { const res = await fetch(url, { cache: "no-store" }); if (!res.ok) throw new Error(url); return res.json(); }
+
+async function ladderLoop() {
+  gameRoot = el("div");
+  let last = 0, lastWatch = "";
+  const tick = async () => {
+    try {
+      const now = Date.now();
+      const fresh = await poll("/api/ladder");
+      const watchKey = JSON.stringify([fresh.watch?.updated_at, fresh.watch?.number]);
+      if (now - last >= STATUS_EVERY || !ladder) {
+        board = await poll("/api/board"); ladder = fresh; last = now; showLadder(); showWatch(); lastWatch = watchKey;
+      } else if (watchKey !== lastWatch) {
+        ladder.watch = fresh.watch; ladder.names = { ...ladder.names, ...fresh.names }; lastWatch = watchKey; showWatch();
+        app.querySelector(".watch-note")?.replaceWith(watchNote());
+      }
+    } catch { if (!ladder) app.replaceChildren(el("p", "note", "The ladder couldn't load. Reload the page to try again.")); }
+    setTimeout(tick, document.hidden ? STATUS_EVERY : WATCH_EVERY);
+  };
+  tick();
+}
 
 addEventListener("keydown", (e) => {
   if (!game || e.target.tagName === "INPUT" && e.target.type !== "range") return;
@@ -237,6 +386,10 @@ addEventListener("keydown", (e) => {
 });
 
 async function route() {
+  if (LADDER) {
+    if (ladder === null && gameRoot === app) { document.title = "Estimation ladder"; app.replaceChildren(el("p", "muted", "Loading the ladder")); ladderLoop(); }
+    return;
+  }
   stop(); game = null;
   const params = new URLSearchParams(location.hash.slice(1));
   if (!data) data = await (await fetch("data.json", { cache: "no-store" })).json();

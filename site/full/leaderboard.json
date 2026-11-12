@@ -1,11 +1,11 @@
 {
- "built_at": "2026-11-11T21:52:41+00:00",
+ "built_at": "2026-11-12T00:08:32+00:00",
  "contenders": [
   "sub:hybrid-v4",
   "sub:kooz-bot",
+  "sub:guess-search",
   "sub:rl-hybrid",
-  "sub:rl-pimc",
-  "sub:bitter-search"
+  "sub:rl-pimc"
  ],
  "rows": [
   {
@@ -38,7 +38,7 @@
    "name": "Self-taught + look-ahead",
    "author": "Essam Gouda",
    "anchor": false,
-   "contender": true,
+   "contender": false,
    "sets": 80,
    "elo": 1435.1169244979442,
    "king_elo": 1437.902180768988,
