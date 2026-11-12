@@ -1,10 +1,12 @@
 :root{--bg:#f6f7f9;--panel:#fff;--fg:#1b1b1f;--muted:#6b6f76;--line:#e1e4e8;--felt:#e9efe9;--accent:#2f6fd0;--gold:#d99a00;--red:#d23c3c;--good:#2e8b57}
 @media(prefers-color-scheme:dark){:root{--bg:#111316;--panel:#191c20;--fg:#e8e9ec;--muted:#9aa0a6;--line:#2b2f35;--felt:#16201a;--accent:#6ea3f0;--gold:#f0b429;--red:#f06b6b;--good:#6fcf97}}
+/* Home UI tokens (bar, menus, dialogs, toasts) take this page's own colours and type, in both themes. */
+:root{color-scheme:light dark;--home-page:var(--bg);--home-surface:var(--panel);--home-sunken:var(--bg);--home-ink:var(--fg);--home-ink-muted:var(--muted);--home-line:var(--line);--home-line-strong:var(--muted);--home-accent:var(--accent);--home-accent-fill:var(--accent);--home-accent-ink:#fff;--home-good:var(--good);--home-warn:var(--gold);--home-bad:var(--red);--home-font-text:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;--home-font-display:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
 main{max-width:1000px;margin:0 auto;padding:20px 16px 40px}h1{font-size:22px;margin:0 0 4px}.muted{color:var(--muted)}.small{font-size:13px}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:14px 0}
-button{font:inherit;border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:8px;padding:6px 12px;cursor:pointer}
-button.primary{background:var(--accent);border-color:var(--accent);color:#fff}button:disabled{opacity:.35;cursor:default}
+button:not(home-bar *){font:inherit;border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:8px;padding:6px 12px;cursor:pointer}
+button:not(home-bar *).primary{background:var(--accent);border-color:var(--accent);color:#fff}button:not(home-bar *):disabled{opacity:.35;cursor:default}
 select,input{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);max-width:100%}
 .seatrow{display:grid;grid-template-columns:70px 1fr 1fr;gap:8px;align-items:center;margin:6px 0}
 @media(max-width:560px){.seatrow{grid-template-columns:1fr}}
@@ -30,4 +32,7 @@ select,input{font:inherit;padding:6px 8px;border:1px solid var(--line);border-ra
 .cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:700px){.cols{grid-template-columns:1fr}.board{grid-template-columns:1fr 1.4fr 1fr;padding:8px;gap:6px}.card{width:38px;height:54px;font-size:14px}.card .s{font-size:15px}.trick{min-height:150px}}
 table{border-collapse:collapse;width:100%;font-size:13px}td,th{padding:4px 6px;border-bottom:1px solid var(--line);text-align:left}td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 .log{max-height:220px;overflow:auto;font-size:13px}.log div{padding:2px 0;border-bottom:1px dashed var(--line)}
-.err{color:var(--red);text-align:center;min-height:20px;font-size:13px}.win{color:var(--good)}
+.win{color:var(--good)}
+
+/* Page links in the Home bar menu read as menu items. */
+.pages a{color:inherit;text-decoration:none}

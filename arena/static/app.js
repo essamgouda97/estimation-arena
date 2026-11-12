@@ -4,6 +4,11 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "
 const SUITS = ["♣", "♦", "♥", "♠"], RANKS = "23456789TJQKA";
 const app = document.getElementById("app");
 
+// Toasts come from Home UI, which loads as a module after this script.
+function tell(kind, message) {
+  if (window.HomeUI) window.HomeUI.notify[kind](message);
+}
+
 function cardHtml(c, cls = "") {
   const red = c >= 13 && c < 39 ? " red" : "";
   const r = RANKS[c % 13] === "T" ? "10" : RANKS[c % 13];
@@ -35,12 +40,15 @@ async function lobby() {
     });
     const res = await (await fetch("/api/tables", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ seats }) })).json();
     const made = document.getElementById("made");
-    if (res.error) { made.innerHTML = `<p class="err">${esc(res.error)}</p>`; return; }
+    if (res.error) { tell("error", res.error); return; }
     const people = res.seats.map((s, k) => [s, k]).filter(([s]) => s.link);
     made.innerHTML = `<p class="small muted">Send each person their own link. Anyone with the watch link sees the table, never the hands.</p>` +
       people.map(([s, k]) => `<div><b>Seat ${k + 1} · ${esc(s.name)}</b> <button data-copy="${esc(location.origin + s.link)}">Copy link</button> <a href="${esc(s.link)}">open</a></div>`).join("") +
       `<div><b>Watch</b> <button data-copy="${esc(location.origin + res.watch)}">Copy link</button> <a href="${esc(res.watch)}">open</a></div>`;
-    made.querySelectorAll("[data-copy]").forEach((b) => (b.onclick = () => { navigator.clipboard?.writeText(b.dataset.copy); b.textContent = "Copied"; }));
+    made.querySelectorAll("[data-copy]").forEach((b) => (b.onclick = async () => {
+      try { await navigator.clipboard.writeText(b.dataset.copy); tell("success", "Link copied"); }
+      catch { tell("error", "Couldn't copy the link. Use open and copy the address instead."); }
+    }));
     if (people.length === 1) location.href = people[0][0].link;
     loadList();
   };
@@ -55,7 +63,7 @@ async function loadList() {
 }
 
 // ---------------------------------------------------------------- table
-let state = null, ws = null, mySeat = null, lastError = "";
+let state = null, ws = null;
 
 function connect(tid, token) {
   const proto = location.protocol === "https:" ? "wss" : "ws";
@@ -63,8 +71,8 @@ function connect(tid, token) {
   ws.onopen = () => ws.send(JSON.stringify({ type: "hello", token: token || "" }));
   ws.onmessage = (e) => {
     const msg = JSON.parse(e.data);
-    if (msg.type === "state") { state = msg.state; lastError = ""; render(); }
-    if (msg.type === "error") { lastError = msg.error; render(); }
+    if (msg.type === "state") { state = msg.state; render(); }
+    if (msg.type === "error") tell("error", msg.error);
   };
   ws.onclose = () => setTimeout(() => connect(tid, token), 1500);
 }
@@ -152,7 +160,7 @@ function render() {
     ${state.top_bid ? `<span class="chip">top bid ${esc(state.top_bid)} · ${esc(nameOf(state.top_bidder))}</span>` : ""}
     ${state.carry > 1 ? `<span class="chip">×${state.carry}</span>` : ""}<span class="muted small"><a href="/">lobby</a></span></div>`;
   app.innerHTML = `${bar}${over}<div class="board">${[0, 1, 2, 3].map(plate).join("")}${trickHtml()}</div>
-    ${handHtml()}<div class="err">${esc(lastError)}</div>${actionsHtml()}${sideHtml()}`;
+    ${handHtml()}${actionsHtml()}${sideHtml()}`;
   app.querySelectorAll("[data-act]").forEach((b) => (b.onclick = () => send({ type: "act", action: Number(b.dataset.act) })));
   if (state.me && state.turn === state.me.seat && state.phase === "play") {
     const ids = new Map(state.me.legal.filter((a) => a.card !== null).map((a) => [a.card, a.id]));
@@ -162,6 +170,51 @@ function render() {
   if (again) again.onclick = () => send({ type: "new_game" });
 }
 
+// WebMCP tools for the seat this page holds, through Home UI. Moves go over the same socket
+// as clicks, so the server checks them the same way.
+function tableView() {
+  if (!state) return { connected: false };
+  const me = state.me;
+  return {
+    round: state.round, phase: phaseText(), over: state.over, trump: state.trump || state.fixed_trump || null,
+    top_bid: state.top_bid || null, turn: nameOf(state.turn),
+    seats: state.seats.map((s, k) => ({ name: nameOf(k), bot: s.kind === "bot", won: state.won[k], estimate: state.estimates[k], points: state.scores[k] })),
+    trick: state.trick.map(([seat, card]) => ({ seat: nameOf(seat), card: cardName(card) })),
+    my_seat: me ? nameOf(me.seat) : null,
+    my_hand: me ? me.hand.map(cardName) : [],
+    my_moves: me && state.turn === me.seat ? me.legal.map((a) => ({ action: a.id, move: a.card !== null ? cardName(a.card) : a.label })) : [],
+  };
+}
+
+function cardName(c) { return (RANKS[c % 13] === "T" ? "10" : RANKS[c % 13]) + SUITS[Math.floor(c / 13)]; }
+
+function makeMove({ action }) {
+  const legal = state?.me && state.turn === state.me.seat ? state.me.legal.map((a) => a.id) : [];
+  if (!legal.includes(action)) throw new Error("That move isn't allowed now. Read estimation.get_table first.");
+  send({ type: "act", action });
+  return "Sent.";
+}
+
+function registerTableTools() {
+  customElements.whenDefined("home-bar").then(() => {
+    window.HomeUI.tools.register({
+      name: "estimation.get_table",
+      description: "Read this table: round, phase, scores, the trick on the table, your hand and the moves you may make now.",
+      inputSchema: { type: "object", properties: {} },
+      readOnly: true,
+      execute: tableView,
+    });
+    window.HomeUI.tools.register({
+      name: "estimation.make_move",
+      description: "Make one of your allowed moves at this table: a bid, an estimate, a pass or a card.",
+      inputSchema: { type: "object", required: ["action"], properties: {
+        action: { type: "integer", description: "The action number of a move listed in my_moves by estimation.get_table." } } },
+      consequential: true,
+      execute: makeMove,
+    });
+  });
+}
+
 const m = location.pathname.match(/^\/t\/([^/]+)/);
-if (m) { connect(decodeURIComponent(m[1]), location.hash.slice(1)); app.innerHTML = '<p class="muted">Connecting…</p>'; }
+if (m) { registerTableTools(); connect(decodeURIComponent(m[1]), location.hash.slice(1)); app.innerHTML = '<p class="muted">Connecting…</p>'; }
 else lobby();

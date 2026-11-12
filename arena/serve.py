@@ -23,7 +23,7 @@ from starlette.applications import Starlette
 from starlette.middleware import Middleware
 from starlette.middleware.gzip import GZipMiddleware
 from starlette.requests import Request
-from starlette.responses import FileResponse, JSONResponse, RedirectResponse, Response
+from starlette.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 from starlette.routing import Mount, Route, WebSocketRoute
 from starlette.staticfiles import StaticFiles
 from starlette.websockets import WebSocket, WebSocketDisconnect
@@ -106,20 +106,37 @@ async def tables(_: Request) -> Response:
     return JSONResponse(rows)
 
 
+# The home server's shared UI library, served by its proxy on this app's own host. It supplies
+# the Home bar, components and toasts; each page keeps its own look by setting the library's
+# tokens to its own colours and fonts.
+HOME_UI = """<link rel="stylesheet" href="/_home-ui/v1/home-ui.css">
+<script type="module" src="/_home-ui/v1/home-ui.js"></script>"""
+
+
+def home_page(name: str, current: str) -> HTMLResponse:
+    """A page with Home UI where it says <!-- home ui --> and the Home bar where it says
+    <!-- home bar -->, the bar's link to `current` marked as this page. The ladder's page is
+    also the public site's, which has no Home UI: there the markers stay plain comments."""
+    html = (STATIC / name).read_text()
+    bar = (STATIC / "home-bar.html").read_text()
+    bar = bar.replace(f'href="{current}"', f'href="{current}" aria-current="page"', 1)
+    return HTMLResponse(html.replace("<!-- home ui -->", HOME_UI, 1).replace("<!-- home bar -->", bar, 1))
+
+
 async def page(_: Request) -> Response:
-    return FileResponse(STATIC / "index.html")
+    return home_page("index.html", "/")
 
 
 async def lab_page(_: Request) -> Response:
-    return FileResponse(STATIC / "lab.html")
+    return home_page("lab.html", "/lab")
 
 
-async def games_page(_: Request) -> Response:
-    return FileResponse(STATIC / "games.html")
+async def games_page(request: Request) -> Response:
+    return home_page("games.html", request.url.path)
 
 
 async def board_page(_: Request) -> Response:
-    return FileResponse(STATIC / "board.html")
+    return home_page("board.html", "/board")
 
 
 async def health(_: Request) -> Response:
