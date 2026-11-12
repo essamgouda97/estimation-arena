@@ -11,7 +11,7 @@ h1,h2{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-weight:700;let
 h1{font-size:clamp(32px,6vw,56px);line-height:1.05}h2{font-size:22px;margin:32px 0 10px}
 a{color:var(--text)}:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 button{font:inherit;color:inherit;background:none;border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer;min-height:36px}
-button:hover{background:var(--raised)}button[aria-pressed=true]{background:var(--ivory);color:var(--ink);border-color:var(--ivory)}
+button:hover{background:var(--raised)}button:disabled{opacity:.5;cursor:default;background:none}button[aria-pressed=true]{background:var(--ivory);color:var(--ink);border-color:var(--ivory)}
 .crumb{color:var(--muted);margin:0 0 14px;display:flex;gap:14px;flex-wrap:wrap}.muted{color:var(--muted)}.note{color:var(--muted);max-width:70ch;margin:8px 0}
 .bots{list-style:none;margin:20px 0;padding:0;border-top:1px solid var(--line)}
 .bots li{border-bottom:1px solid var(--line)}.bots a{display:grid;grid-template-columns:2.5em 1fr auto;gap:10px;padding:11px 4px;text-decoration:none}.bots a:hover{background:var(--raised)}
@@ -263,16 +263,58 @@ async function versus(a, b) {
   } else parts.push(el("p", "note", data.bots.find((x) => x.key === a).anchor && data.bots.find((x) => x.key === b).anchor ? "Two benchmarks: their games against each other set the scale and are not listed set by set." : "These two have not played a rated match this season yet."));
   const file = m?.file ?? pairFile(a, b), slot = el("div");
   slot.append(el("p", "muted", "Loading their games"));
-  parts.push(el("h2", "", "Games to watch"), el("p", "note", "The same two bots on public deals, with every card showing. These games are not rated. The home server keeps one each time the ladder plays this pairing."), slot);
+  parts.push(el("h2", "", "Games to watch"), el("p", "note", "The same two bots on public deals, with every card showing. These games are not rated. The home server keeps one each time the ladder plays this pairing, and each one you ask for."), slot);
   app.replaceChildren(...parts);
   scrollTo(0, 0);
-  const games = [];
-  try { const res = await fetch("kept.json?file=" + encodeURIComponent(file), { cache: "no-store" }); if (res.ok) games.push(...(await res.json()).games); } catch { /* the public page keeps one game per pairing */ }
+  const here = () => location.hash === vsHash(a, b);  // false once another pair or page is picked
+  const keptUrl = `kept.json?file=${encodeURIComponent(file)}&a=${encodeURIComponent(a)}&b=${encodeURIComponent(b)}`;
+  const kept = async () => { try { const res = await fetch(keptUrl, { cache: "no-store" }); return res.ok ? await res.json() : null; } catch { return null; } };
+  let saved = null;
   if (data.games.includes(file)) {
-    try { const saved = await (await fetch(file)).json(); games.push({ file, played_at: null, seats: saved.seats, final: saved.final }); } catch { /* listed but not readable: skip it */ }
+    try { const g = await (await fetch(file)).json(); saved = { file, played_at: null, seats: g.seats, final: g.final }; } catch { /* listed but not readable: skip it */ }
   }
-  if (location.hash !== vsHash(a, b)) return;  // another pair was picked while these loaded
-  slot.replaceChildren(games.length ? keptList(a, b, games) : el("p", "note", "No game of these two has been kept yet."));
+  let server = await kept(), count = server?.games.length ?? 0;  // null on the public page, which can't play games
+  let pending = !!(server?.waiting || server?.playing);  // a game of this pair is on its way
+  const show = () => {
+    const games = [...(server?.games ?? []), ...(saved ? [saved] : [])];
+    const parts = [];
+    if (server) {
+      const row = el("div", "pick"), play = el("button", "", "Play a new game");
+      play.disabled = !server.can_play || pending;
+      play.onclick = async () => {
+        play.disabled = true;
+        const res = await fetch("play", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ a, b }) }).catch(() => null);
+        const reply = res ? await res.json().catch(() => ({})) : {};
+        if (!res?.ok) { row.replaceChildren(play, el("span", "", reply.error ?? "The game couldn't be started. Try again.")); play.disabled = false; return; }
+        server = (await kept()) ?? server;
+        if (here() && !pending) { pending = true; show(); poll(); }
+      };
+      row.append(play);
+      if (!server.can_play) row.append(el("span", "", "The home server can't play one of these two, so there are no new games of this pair."));
+      else if (server.playing) { const live = el("a", "", "Watch it live"); live.href = "/ladder"; const note = el("span", "", "Playing now. It shows up here when it ends. "); note.append(live); row.append(note); }
+      else if (server.waiting > 1) row.append(el("span", "", `Waiting its turn, ${server.waiting - 1} ahead of it.`));
+      else if (pending) row.append(el("span", "", "Next in line. It starts when the game now playing ends."));
+      else row.append(el("span", "", "A fresh public deal, played on the home server. It takes a few minutes."));
+      parts.push(row);
+    }
+    parts.push(games.length ? keptList(a, b, games) : el("p", "note", "No game of these two has been kept yet."));
+    slot.replaceChildren(...parts);
+  };
+  // Until the new game is kept. A request that left the line but never started playing (a bot
+  // that can't run here) is given up on after a minute of nothing.
+  const poll = async () => {
+    let quiet = 0;
+    while (here() && pending) {
+      await new Promise((done) => setTimeout(done, 6000));
+      const next = await kept();
+      if (!next || !here()) return;
+      quiet = next.waiting || next.playing ? 0 : quiet + 1;
+      if (next.games.length > count || quiet >= 10) { count = next.games.length; pending = false; }
+      server = next; show();
+    }
+  };
+  if (!here()) return;
+  show(); poll();
 }
 
 function beats(c, best, trump) { const s = Math.floor(c / 13), b = Math.floor(best / 13); return s === b ? c > best : s === trump; }
@@ -526,6 +568,7 @@ function watchNote() {
   if (!w) return el("p", "note watch-note", "While the ladder plays, the home server plays the same pairing on public deals so you can watch every card. Nothing is playing yet.");
   if (w.error) return el("p", "note watch-note", `The home server can't play ${nameOf(w.a)} against ${nameOf(w.b)} right now, so there is nothing to watch.`);
   const state = w.finished ? "Finished. The next game starts shortly while the ladder is still on this pairing." : "Playing now.";
+  if (w.requested) return el("p", "note watch-note", `${nameOf(w.a)} against ${nameOf(w.b)}, a game asked for in the game browser, on public deals. It is not rated. ${w.finished ? "Finished." : "Playing now."}`);
   return el("p", "note watch-note", `${nameOf(w.a)} against ${nameOf(w.b)}, game ${w.number + 1}, on public deals the home server plays alongside the rated sets. Rated cards stay hidden so the secret deals stay secret. ${state}`);
 }
 
