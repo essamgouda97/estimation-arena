@@ -39,6 +39,8 @@ FETCH_EVERY_S = 20
 WATCH_PAUSE_S = 20  # how long a finished watch game stays up before the next one starts
 KEPT = "games"  # finished watch games, kept for the game browser
 KEEP_PER_PAIRING = 40
+REQUESTS = "requests"  # games people asked for in the game browser, one file each, oldest first
+MAX_REQUESTS = 5
 
 # What a match file may say in public. Everything else (the seed, the process id, a file name
 # made from the seed) stays on the ladder's machine.
@@ -193,6 +195,59 @@ def kept_games(pairing_file: str, data: Path | None = None) -> list[dict[str, An
     return out
 
 
+def waiting(data: Path | None = None) -> list[tuple[str, str]]:
+    """The pairings people asked to see played, in the order they asked."""
+    out = []
+    for path in sorted(((data or DATA) / REQUESTS).glob("*.json")):
+        try:
+            asked = json.loads(path.read_text())
+            out.append((asked["a"], asked["b"]))
+        except (OSError, ValueError, KeyError):
+            continue
+    return out
+
+
+def place_in_line(a: str, b: str, data: Path | None = None) -> int:
+    """Where this pairing waits, 1 for next, or 0 when nobody asked for it."""
+    line = [set(pair) for pair in waiting(data)]
+    return line.index({a, b}) + 1 if {a, b} in line else 0
+
+
+def ask_for_game(a: str, b: str, data: Path | None = None) -> int:
+    """Ask the home server to play ``a`` against ``b`` on public deals; its place in line.
+    Only bots this checkout can play, one request per pairing, and a short line."""
+    if a == b or not (watchable(a) and watchable(b)):
+        raise ValueError("the home server can't play that pairing")
+    place = place_in_line(a, b, data)
+    if place:
+        return place
+    if len(waiting(data)) >= MAX_REQUESTS:
+        raise OverflowError("too many games are waiting")
+    folder = (data or DATA) / REQUESTS
+    folder.mkdir(parents=True, exist_ok=True)
+    _write(folder / f"{time.time_ns()}.json", {"a": a, "b": b})
+    return place_in_line(a, b, data)
+
+
+def take_request(data: Path) -> tuple[str, str] | None:
+    """The oldest request, taken out of the line. One that can't be read or played is dropped."""
+    for path in sorted((data / REQUESTS).glob("*.json")):
+        try:
+            asked = json.loads(path.read_text())
+            pairing = (asked["a"], asked["b"])
+        except (OSError, ValueError, KeyError):
+            pairing = None
+        path.unlink(missing_ok=True)
+        if pairing and all(map(watchable, pairing)):
+            return pairing
+    return None
+
+
+def is_playing(a: str, b: str, data: Path | None = None) -> bool:
+    watch = read_watch(data)
+    return bool(watch) and not watch.get("finished") and {watch["a"], watch["b"]} == {a, b}
+
+
 def _write(path: Path, value: Any) -> None:
     part = path.with_suffix(f".{os.getpid()}.part")
     part.write_text(json.dumps(value, separators=(",", ":")))
@@ -200,14 +255,16 @@ def _write(path: Path, value: Any) -> None:
 
 
 def watch_game(pairing: tuple[str, str], number: int, data: Path, every: float = 0.25,
-               record: Callable[..., dict[str, Any]] | None = None, stop: Callable[[], bool] = lambda: False) -> dict[str, Any]:  # fmt: skip
-    """Play one public-deal game of ``pairing`` and keep ``watch.json`` up to date as it goes."""
+               record: Callable[..., dict[str, Any]] | None = None, stop: Callable[[], bool] = lambda: False,
+               deal: int | None = None, requested: bool = False) -> dict[str, Any]:  # fmt: skip
+    """Play one public-deal game of ``pairing`` and keep ``watch.json`` up to date as it goes.
+    ``deal`` picks the deal among the pairing's public ones (``number`` when not given)."""
     from .replay import game_seed, record_game
     from .run import GAME_ROUNDS
 
     a, b = pairing
-    seed = game_seed(a, b) + number
-    head = {"a": a, "b": b, "number": number, "started_at": time.time()}
+    seed = game_seed(a, b) + (number if deal is None else deal)
+    head = {"a": a, "b": b, "number": number, "requested": requested, "started_at": time.time()}
     last = [0.0]
 
     def moved(game: dict[str, Any]) -> None:
@@ -231,7 +288,8 @@ def _pairing_file(pairing: tuple[str, str]) -> str:
 
 
 def follow(data: Path | None = None) -> None:
-    """Fetch the ladder's progress every 20 s and, while it plays, play its pairing on public deals."""
+    """Fetch the ladder's progress every 20 s and play games on public deals: first any game
+    someone asked for in the game browser, otherwise the pairing the ladder is on while it plays."""
     data = data or DATA
     data.mkdir(parents=True, exist_ok=True)
     parent = os.getppid()
@@ -252,14 +310,16 @@ def follow(data: Path | None = None) -> None:
     threading.Thread(target=fetching, daemon=True).start()
     played: dict[tuple[str, str], int] = {}
     while not orphaned():
-        pairing = current_pairing(read_feed(data))
+        asked = take_request(data)
+        pairing = asked or current_pairing(read_feed(data))
         if pairing is None or not all(map(watchable, pairing)):
-            time.sleep(FETCH_EVERY_S)
+            time.sleep(1 if asked else FETCH_EVERY_S)
             continue
         number = played.get(pairing, 0)
         played[pairing] = number + 1
         try:
-            game = watch_game(pairing, number, data, stop=orphaned)
+            # A fresh deal every time, so a game kept earlier is never played again.
+            game = watch_game(pairing, number, data, stop=orphaned, deal=int(time.time()) // 10 % 10**7, requested=bool(asked))
             keep_game(data, _pairing_file(pairing), game, time.time())
         except Exception as error:  # noqa: BLE001  a bot that can't play here must not stop the follower
             print(f"ladder-live: can't play {pairing} here: {error}", flush=True)
@@ -267,7 +327,10 @@ def follow(data: Path | None = None) -> None:
                                          "finished": True, "updated_at": time.time()})  # fmt: skip
             time.sleep(STALE_S)
             continue
-        time.sleep(WATCH_PAUSE_S)
+        for _ in range(WATCH_PAUSE_S):  # a finished game stays up, unless someone is waiting
+            if waiting(data) or orphaned():
+                break
+            time.sleep(1)
 
 
 def main(argv: list[str] | None = None) -> int:
