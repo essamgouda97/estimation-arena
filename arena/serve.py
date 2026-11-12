@@ -202,6 +202,7 @@ def app() -> Starlette:
         Route("/games", lambda _: RedirectResponse("/games/", status_code=308)),
         Route("/games/", games_page),
         Route("/games/data.json", board.games_data),
+        Route("/games/kept.json", board.kept_games),
         Route("/games/{name}", board.game_file),
         Route("/api/board", board.api),
         Route("/api/ladder", board.ladder),

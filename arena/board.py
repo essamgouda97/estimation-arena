@@ -24,6 +24,7 @@ from .bots import ROOT, SUB_PREFIX
 RESULTS_ROOT = Path(os.environ.get("ESTIMATION_RESULTS_ROOT", Path.home() / "workspace" / "estimation-arena"))
 RECENT = 8
 GAME_NAME = re.compile(r"[a-z0-9-]+\.vs\.[a-z0-9-]+\.json")
+KEPT_NAME = re.compile(r"[a-z0-9-]+\.vs\.[a-z0-9-]+\.\d+\.json")  # a watch game the home server kept
 _cache: dict[str, Any] = {"signature": None, "standings": [], "direct": [], "runoff": []}
 _estimate: dict[str, Any] = {"at": None, "value": {}}
 ROW_FIELDS = ("name", "author", "code_name", "key", "kind", "anchor", "provisional", "elo", "king_elo", "score_elo", "elo_margin", "king_elo_margin", "score_elo_margin", "close_to", "positions", "games", "played_at")
@@ -149,10 +150,18 @@ def games_data(_: Request) -> Response:
 def game_file(request: Request) -> Response:
     """A watchable game: the name is checked, so a request can't name any other file."""
     name = request.path_params["name"]
-    path = ROOT / "site" / "games" / name
-    if not GAME_NAME.fullmatch(name) or not path.is_file():
+    path = ladder_live.DATA / ladder_live.KEPT / name if KEPT_NAME.fullmatch(name) else ROOT / "site" / "games" / name
+    if not (GAME_NAME.fullmatch(name) or KEPT_NAME.fullmatch(name)) or not path.is_file():
         return JSONResponse({"error": "no such game"}, status_code=404)
     return FileResponse(path)
+
+
+def kept_games(request: Request) -> Response:
+    """The games the home server kept of one pairing, newest first."""
+    pairing = request.query_params.get("file", "")
+    if not GAME_NAME.fullmatch(pairing):
+        return JSONResponse({"error": "no such pairing"}, status_code=404)
+    return JSONResponse({"games": ladder_live.kept_games(pairing)})
 
 
 def guide(_: Request) -> Response:

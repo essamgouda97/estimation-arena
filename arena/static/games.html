@@ -17,6 +17,14 @@ button:hover{background:var(--raised)}button[aria-pressed=true]{background:var(-
 .bots li{border-bottom:1px solid var(--line)}.bots a{display:grid;grid-template-columns:2.5em 1fr auto;gap:10px;padding:11px 4px;text-decoration:none}.bots a:hover{background:var(--raised)}
 .bots .rank,.bots .elo{color:var(--muted)}.tag{font-size:13px;color:var(--muted);border:1px solid var(--line);border-radius:10px;padding:0 7px;margin-left:8px;white-space:nowrap}
 .filters{display:flex;gap:6px;flex-wrap:wrap}
+.pick{display:flex;gap:10px 14px;flex-wrap:wrap;align-items:center;margin:18px 0 26px}.pick span{color:var(--muted)}
+select{font:inherit;color:var(--ivory);background:var(--raised);border:1px solid var(--line);border-radius:6px;padding:7px 10px;min-height:40px;max-width:100%;border-top:3px solid var(--seat,var(--line))}
+.versus{border-collapse:collapse;margin:6px 0 4px;max-width:720px;width:100%}.versus th,.versus td{text-align:right;padding:8px 10px;border-bottom:1px solid var(--line)}
+.versus th:first-child,.versus td:first-child{text-align:left;color:var(--muted);font-weight:400}.versus thead th{color:var(--ivory);border-bottom:3px solid var(--seat,var(--line));vertical-align:bottom}
+.versus td{font-size:20px;color:var(--ivory)}.versus td.best{color:var(--gold);font-weight:600}.versus td small{display:block;font-size:13px;color:var(--muted);font-weight:400}
+.kept{list-style:none;margin:10px 0;padding:0;border-top:1px solid var(--line);max-width:900px}.kept li{display:grid;grid-template-columns:9.5em minmax(0,1fr) minmax(0,1fr) auto;gap:6px 16px;align-items:center;padding:9px 4px;border-bottom:1px solid var(--line)}
+.kept .when{color:var(--muted);font-size:14px}.kept .side{border-left:3px solid var(--seat);padding-left:8px}.kept .side.first{color:var(--ivory);font-weight:600}.kept a{padding:6px 12px;border-radius:6px;background:var(--ivory);color:var(--ink);text-decoration:none;font-weight:600}
+@media(max-width:760px){.kept li{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.kept .when{grid-column:1/-1}.kept a{grid-column:1/-1;justify-self:start}}
 .match{border-top:1px solid var(--line);padding:12px 0}.match-main{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(90px,1fr) 5em 11em;gap:6px 16px;align-items:center}
 .opp{font-weight:600}.record{text-align:right}.close{color:var(--muted)}.won{color:var(--gold);font-weight:600}.lost{color:var(--bad);font-weight:600}
 .bar{display:flex;height:9px;gap:1px;border-radius:3px;overflow:hidden;background:var(--raised)}.bar i{display:block}.bar .w{background:var(--gold)}.bar .d{background:var(--muted)}.bar .l{background:var(--bad)}
@@ -114,7 +122,9 @@ function home() {
     a.append(el("span", "rank", b.provisional ? "" : place), name, el("span", "elo", Math.round(b.elo)));
     li.append(a); list.append(li);
   });
-  app.replaceChildren(crumbs(["Standings", BOARD], ...(location.pathname === "/games/" ? [["Ladder", "/ladder"]] : [])), el("h1", "", "Games"), el("p", "note", "Pick a bot to see who it played, how each match went, and to watch a game with every card showing."), list);
+  const two = el("a", "", "Compare two bots"); two.href = "#vs";
+  const lead = el("p", "note", "Pick a bot to see who it played, how each match went, and to watch a game with every card showing. Or pick two: "); lead.append(two, ".");
+  app.replaceChildren(crumbs(["Standings", BOARD], ...(location.pathname === "/games/" ? [["Ladder", "/ladder"]] : [])), el("h1", "", "Games"), lead, list);
 }
 
 function sidesFor(m, key) {
@@ -168,12 +178,101 @@ function strategy(key) {
     let sets = null;
     open.onclick = () => { if (sets) { sets.remove(); sets = null; open.setAttribute("aria-expanded", "false"); } else { sets = setRows(m, side); box.append(sets); open.setAttribute("aria-expanded", "true"); } };
     actions.append(open);
+    const both = el("button", "", "Compare"); both.onclick = () => { location.hash = vsHash(key, side.other); }; actions.append(both);
     if (m.file && data.games.includes(m.file)) { const w = el("a", "", "Watch"); w.href = `#game=${encodeURIComponent(m.file)}&bot=${encodeURIComponent(key)}`; actions.append(w); }
     else actions.append(el("span", "muted", "Game coming"));
     main.append(label, bar, rec, actions); box.append(main); list.append(box);
   }
   app.replaceChildren(...head, el("h2", "", "Matches"), el("p", "note", "Records are rated sets won, drawn and lost. Sets lists each one, with the bot's margin in its four games. Rated cards stay hidden so the secret deals stay secret, so Watch shows the same two bots on public deals, in a game that isn't rated."), filters, rows.length ? list : el("p", "note", "No matches yet."));
   scrollTo(0, 0);
+}
+
+// Two bots side by side: their rated record, and every game of theirs that can be watched.
+const vsHash = (a, b) => `#a=${encodeURIComponent(a)}&b=${encodeURIComponent(b)}`;
+const slug = (name) => name.toLowerCase().replace(/[^a-z0-9-]+/g, "-").replace(/^-+|-+$/g, "");
+const pairFile = (a, b) => [a, b].map((key) => slug(data.bots.find((x) => x.key === key)?.code_name ?? key)).sort().join(".vs.") + ".json";
+const mean = (xs) => xs.reduce((t, x) => t + x, 0) / Math.max(xs.length, 1);
+
+function picker(chosen, side, onPick) {
+  const box = el("select", side);
+  box.setAttribute("aria-label", side === "a" ? "First bot" : "Second bot");
+  for (const bot of data.bots) { const o = el("option", "", bot.name + (bot.anchor ? " (benchmark)" : "")); o.value = bot.key; o.selected = bot.key === chosen; box.append(o); }
+  box.onchange = () => onPick(box.value);
+  return box;
+}
+
+function versusTable(a, b, m) {
+  const bots = [a, b].map((key) => data.bots.find((x) => x.key === key));
+  const table = el("table", "versus"), head = el("tr"), body = el("tbody");
+  head.append(el("th", "", ""), el("th", "a", bots[0].name), el("th", "b", bots[1].name));
+  const line = (label, left, right, leftBest, rightBest, small) => {
+    const tr = el("tr"), l = el("td", leftBest ? "best" : "", left), r = el("td", rightBest ? "best" : "", right);
+    if (small) { l.append(el("small", "", small[0])); r.append(el("small", "", small[1])); }
+    tr.append(el("td", "", label), l, r); body.append(tr);
+  };
+  const rating = (bot) => bot.elo === null ? "none yet" : Math.round(bot.elo) + (bot.provisional ? " (not ranked)" : "");
+  line("Rating", rating(bots[0]), rating(bots[1]), bots[0].elo > bots[1].elo, bots[1].elo > bots[0].elo);
+  if (m) {
+    const side = sidesFor(m, a);
+    line("Rated sets won", side.w, side.l, m.clear && side.w > side.l, m.clear && side.l > side.w, [`of ${m.sets}, ${m.draws} drawn`, m.clear ? "a clear result" : "too close to call"]);
+    const games = m.detail.flatMap((s) => s.games).map((g) => (side.flip ? [g[1], g[0]] : g));
+    if (games.length) {
+      const ahead = games.filter((g) => g[0] > g[1]).length, behind = games.filter((g) => g[1] > g[0]).length;
+      line("Games it outscored the other", ahead, behind, ahead > behind, behind > ahead, [`of ${games.length}`, `${games.length - ahead - behind} level`]);
+      const mine = mean(games.map((g) => g[0])), theirs = mean(games.map((g) => g[1]));
+      line("Average score per seat, per game", signed(mine), signed(theirs), mine > theirs, theirs > mine);
+    }
+  }
+  const top = el("thead"); top.append(head); table.append(top, body);
+  const wrap = el("div", "sheet-scroll"); wrap.append(table);
+  return wrap;
+}
+
+function keptList(a, b, games) {
+  const list = el("ul", "kept");
+  for (const g of games) {
+    const li = el("li"), best = Math.max(...g.final);
+    li.append(el("span", "when", g.played_at ? new Date(g.played_at * 1000).toLocaleString([], { dateStyle: "medium", timeStyle: "short" }) : "Saved with the standings"));
+    for (const [key, cls] of [[a, "a"], [b, "b"]]) {
+      const scores = g.final.filter((_, seat) => g.seats[seat] === key);
+      li.append(el("span", `side ${cls}${scores.includes(best) ? " first" : ""}`, `${nameOf(key)}: ${scores.join(" and ")}${scores.includes(best) ? ", finished first" : ""}`));
+    }
+    const watch = el("a", "", "Watch"); watch.href = `#game=${encodeURIComponent(g.file)}&a=${encodeURIComponent(a)}&b=${encodeURIComponent(b)}`;
+    li.append(watch); list.append(li);
+  }
+  return list;
+}
+
+async function versus(a, b) {
+  const keys = data.bots.map((x) => x.key);
+  if (!keys.includes(a)) a = keys[0];
+  if (!keys.includes(b) || b === a) b = keys.find((k) => k !== a);
+  if (location.hash !== vsHash(a, b)) history.replaceState(null, "", vsHash(a, b));
+  document.title = `${nameOf(a)} against ${nameOf(b)}, Estimation games`;
+  const pick = el("div", "pick"), swap = el("button", "", "Swap sides");
+  swap.onclick = () => { location.hash = vsHash(b, a); };
+  pick.append(picker(a, "a", (key) => { location.hash = vsHash(key, key === b ? a : b); }), el("span", "", "against"), picker(b, "b", (key) => { location.hash = vsHash(key === a ? b : a, key); }), swap);
+  const matches = data.matchups.filter((m) => (m.a === a && m.b === b) || (m.a === b && m.b === a));
+  const m = matches.find((x) => x.kind === "direct") ?? matches[0];
+  const parts = [crumbs(["All bots", "#"], ["Standings", BOARD], ...(location.pathname === "/games/" ? [["Ladder", "/ladder"]] : [])), el("h1", "", "Two bots, side by side"), pick, el("h2", "", "Rated games this season"), versusTable(a, b, m)];
+  if (m) {
+    const open = el("button", "", "Every set"); open.setAttribute("aria-expanded", "false");
+    let sets = null;
+    open.onclick = () => { if (sets) { sets.remove(); sets = null; } else { sets = setRows(m, sidesFor(m, a)); open.after(sets); } open.setAttribute("aria-expanded", String(!!sets)); };
+    parts.push(el("p", "note", `Sets are from ${nameOf(a)}'s side. Each set is one deal played from every seat, so luck in the cards cancels out. Rated cards stay hidden so the secret deals stay secret.`), open);
+  } else parts.push(el("p", "note", data.bots.find((x) => x.key === a).anchor && data.bots.find((x) => x.key === b).anchor ? "Two benchmarks: their games against each other set the scale and are not listed set by set." : "These two have not played a rated match this season yet."));
+  const file = m?.file ?? pairFile(a, b), slot = el("div");
+  slot.append(el("p", "muted", "Loading their games"));
+  parts.push(el("h2", "", "Games to watch"), el("p", "note", "The same two bots on public deals, with every card showing. These games are not rated. The home server keeps one each time the ladder plays this pairing."), slot);
+  app.replaceChildren(...parts);
+  scrollTo(0, 0);
+  const games = [];
+  try { const res = await fetch("kept.json?file=" + encodeURIComponent(file), { cache: "no-store" }); if (res.ok) games.push(...(await res.json()).games); } catch { /* the public page keeps one game per pairing */ }
+  if (data.games.includes(file)) {
+    try { const saved = await (await fetch(file)).json(); games.push({ file, played_at: null, seats: saved.seats, final: saved.final }); } catch { /* listed but not readable: skip it */ }
+  }
+  if (location.hash !== vsHash(a, b)) return;  // another pair was picked while these loaded
+  slot.replaceChildren(games.length ? keptList(a, b, games) : el("p", "note", "No game of these two has been kept yet."));
 }
 
 function beats(c, best, trump) { const s = Math.floor(c / 13), b = Math.floor(best / 13); return s === b ? c > best : s === trump; }
@@ -309,7 +408,8 @@ function renderGame() {
   const parts = [rounds, table, controls, el("h2", "", "Scores"), score, el("h2", "", "Calls this round"), calls];
   // On the ladder the score sheet sits above the cards, in view while the game plays.
   if (LADDER) { gameRoot.replaceChildren(score, rounds, table, controls, el("h2", "", "Calls this round"), calls); return; }
-  const back = view.bot ? ["Back to " + nameOf(view.bot), "#bot=" + encodeURIComponent(view.bot)] : ["All bots", "#"];
+  const back = view.a ? [`Back to ${nameOf(view.a)} against ${nameOf(view.b)}`, vsHash(view.a, view.b)]
+    : view.bot ? ["Back to " + nameOf(view.bot), "#bot=" + encodeURIComponent(view.bot)] : ["All bots", "#"];
   const head = el("h1", "", `${nameOf(a)} vs ${nameOf(b)}`);
   const finish = game.final ? `${nameOf(a)} ${game.final[0]} and ${game.final[2]}, ${nameOf(b)} ${game.final[1]} and ${game.final[3]}` : "";
   app.replaceChildren(crumbs(back), head, el("p", "note", `Public deals, not a rated game. Every card is shown here, but each bot only saw its own hand. Final scores: ${finish}.`), ...parts);
@@ -339,9 +439,10 @@ function followButton() {
   return b;
 }
 
-function pairRow(label, m, sets, now) {
+function pairRow(label, m, sets, now, pair) {
   const row = el("div", `pair${now ? " now" : ""}${m ? "" : " wait"}`);
-  const name = el("div", "", label);
+  const name = el("div");
+  if (pair) { const link = el("a", "", label); link.href = "/games/" + vsHash(...pair); link.title = "Their record and games"; name.append(link); } else name.textContent = label;
   const slots = el("div", "slots"), outcomes = m?.strip || "";
   slots.setAttribute("role", "img");
   const [w, d, l] = tally(outcomes);
@@ -397,19 +498,19 @@ function places(run) {
 
 function showLadder() {
   const run = ladder?.run;
-  const parts = [crumbs(["Standings", "/board"], ["Games", "/games/"], ...(run?.url ? [["The run on GitHub", run.url]] : [])), el("h1", "", "Ladder"), statusLine(run)];
+  const parts = [crumbs(["Standings", "/board"], ["Games", "/games/"], ["Compare two bots", "/games/#vs"], ...(run?.url ? [["The run on GitHub", run.url]] : [])), el("h1", "", "Ladder"), statusLine(run)];
   if (run) {
     const sets = run.sets || 40, plan = el("div", "plan"), bots = [...new Set(run.plan.map((p) => p.bot))];
     const extra = run.matches.filter((m) => !run.plan.some((p) => m.key === "sub:" + p.bot && m.opponent === p.anchor));
     if (extra.length) {
       plan.append(el("h3", "", "Against the ranked bots"));
-      extra.forEach((m) => plan.append(pairRow(`${nameOf(m.key)} against ${nameOf(m.opponent)}`, m, m.sets, m.state === "playing")));
+      extra.forEach((m) => plan.append(pairRow(`${nameOf(m.key)} against ${nameOf(m.opponent)}`, m, m.sets, m.state === "playing", [m.key, m.opponent])));
     }
     for (const bot of bots) {
       plan.append(el("h3", "", `${nameOf("sub:" + bot)} against the benchmarks`));
       for (const p of run.plan.filter((x) => x.bot === bot)) {
         const m = run.matches.find((x) => x.key === "sub:" + bot && x.opponent === p.anchor);
-        plan.append(pairRow(`against ${nameOf(p.anchor)}`, m, m?.sets || sets, m?.state === "playing"));
+        plan.append(pairRow(`against ${nameOf(p.anchor)}`, m, m?.sets || sets, m?.state === "playing", ["sub:" + bot, p.anchor]));
       }
     }
     if (!run.plan.length && !extra.length) plan.append(el("p", "note", "Every bot had already played every benchmark, so this run had nothing to rate."));
@@ -508,13 +609,14 @@ async function route() {
   const params = new URLSearchParams(location.hash.slice(1));
   if (!data) data = await (await fetch("data.json", { cache: "no-store" })).json();
   const file = params.get("game");
-  view = { filter: view.filter, bot: params.get("bot") };
-  if (file && /^[a-z0-9.-]+\.vs\.[a-z0-9.-]+\.json$/.test(file)) {
+  view = { filter: view.filter, bot: params.get("bot"), a: params.get("a"), b: params.get("b") };
+  if (file && /^[a-z0-9-]+\.vs\.[a-z0-9-]+(\.\d+)?\.json$/.test(file)) {
     app.replaceChildren(el("p", "muted", "Loading the game"));
     const res = await fetch(file);
     if (!res.ok) { app.replaceChildren(el("p", "note", "That game isn't available yet.")); return; }
     game = await res.json(); view.round = 0; view.step = 0; renderGame();
-  } else if (params.get("bot")) strategy(params.get("bot"));
+  } else if (params.has("vs") || params.has("a")) await versus(params.get("a"), params.get("b"));
+  else if (params.get("bot")) strategy(params.get("bot"));
   else home();
 }
 addEventListener("hashchange", route);
