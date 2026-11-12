@@ -43,7 +43,11 @@ def test_a_full_game_matches_the_engine():
 
 
 def test_the_engine_key_names_the_game_length():
-    micro, full = engine_version(), engine_version(FULL_GAME)
+    from arena import season
+    from arena.bots import ROOT
+
+    tag = season.tag(season.current(ROOT))  # "/s2" from the second season on, after the length
+    micro, full = engine_version().removesuffix(tag), engine_version(FULL_GAME).removesuffix(tag)
     assert micro == f"{full}/r5" and "/" not in full
     assert base_engine(micro) == base_engine(full) == full
 

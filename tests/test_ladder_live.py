@@ -111,3 +111,27 @@ def test_the_estimate_lets_tonights_sets_move_a_rated_bot():
     saved = elo(build(ROOT, [match])["rows"])
     assert saved == elo(build(ROOT)["rows"])  # the board keeps the saved rating
     assert elo(build(ROOT, [match], keep_official=False)["rows"]) > saved + 100
+
+
+def test_finished_watch_games_are_kept_for_the_game_browser(tmp_path, monkeypatch):
+    game = {"seats": ["sub:guess-search", "heuristic"] * 2, "seed": 7, "rounds": [], "final": [10, -4, 6, 2], "finished": True}
+    for at in range(1000, 1000 + ladder_live.KEEP_PER_PAIRING + 3):
+        ladder_live.keep_game(tmp_path, "guess-search.vs.heuristic.json", game, at)
+    ladder_live.keep_game(tmp_path, "guess-search.vs.heuristic-two.json", game, 5)
+    kept = ladder_live.kept_games("guess-search.vs.heuristic.json", tmp_path)
+    assert len(kept) == ladder_live.KEEP_PER_PAIRING  # the oldest ones are dropped
+    assert kept[0]["played_at"] == 1042 and kept[0]["final"] == [10, -4, 6, 2]
+    assert len(ladder_live.kept_games("guess-search.vs.heuristic-two.json", tmp_path)) == 1
+
+    monkeypatch.setattr(ladder_live, "DATA", tmp_path)
+    client = TestClient(app())
+    listed = client.get("/games/kept.json", params={"file": "guess-search.vs.heuristic.json"}).json()["games"]
+    assert listed[0]["file"] == "guess-search.vs.heuristic.1042.json"
+    assert client.get("/games/" + listed[0]["file"]).json()["seed"] == 7
+    assert client.get("/games/kept.json", params={"file": "../../etc/passwd"}).status_code == 404
+    assert client.get("/games/guess-search.vs.heuristic.9.json").status_code == 404
+
+
+def test_the_games_page_compares_two_bots():
+    page = (ladder_live.Path(__file__).parent.parent / "arena" / "static" / "games.html").read_text()
+    assert "async function versus(" in page and "kept.json?file=" in page

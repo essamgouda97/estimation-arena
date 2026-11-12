@@ -37,6 +37,8 @@ STALE_S = 300  # a ladder silent this long has stopped, even if it never said so
 PUBLISH_EVERY_S = 30
 FETCH_EVERY_S = 20
 WATCH_PAUSE_S = 20  # how long a finished watch game stays up before the next one starts
+KEPT = "games"  # finished watch games, kept for the game browser
+KEEP_PER_PAIRING = 40
 
 # What a match file may say in public. Everything else (the seed, the process id, a file name
 # made from the seed) stays on the ladder's machine.
@@ -162,6 +164,35 @@ def read_watch(data: Path | None = None) -> dict[str, Any] | None:
         return None
 
 
+def _kept_at(path: Path) -> int:
+    return int(path.name.rsplit(".", 2)[1])
+
+
+def keep_game(data: Path, pairing_file: str, game: dict[str, Any], at: float) -> Path:
+    """Save a finished watch game beside the others of its pairing, and drop the oldest ones.
+    ``pairing_file`` is the pairing's name in the game browser (arena.direct.game_file)."""
+    folder, stem = data / KEPT, pairing_file.removesuffix(".json")
+    folder.mkdir(parents=True, exist_ok=True)
+    path = folder / f"{stem}.{int(at)}.json"
+    _write(path, {**game, "played_at": int(at)})
+    for old in sorted(folder.glob(f"{stem}.*.json"), key=_kept_at)[:-KEEP_PER_PAIRING]:
+        old.unlink()
+    return path
+
+
+def kept_games(pairing_file: str, data: Path | None = None) -> list[dict[str, Any]]:
+    """The kept games of one pairing, newest first: each one's file, when it was played, who sat
+    where and the final scores."""
+    stem, out = pairing_file.removesuffix(".json"), []
+    for path in sorted(((data or DATA) / KEPT).glob(f"{stem}.*.json"), key=_kept_at, reverse=True):
+        try:
+            game = json.loads(path.read_text())
+        except (OSError, ValueError):
+            continue
+        out.append({"file": path.name, "played_at": game.get("played_at"), "seats": game["seats"], "final": game["final"]})
+    return out
+
+
 def _write(path: Path, value: Any) -> None:
     part = path.with_suffix(f".{os.getpid()}.part")
     part.write_text(json.dumps(value, separators=(",", ":")))
@@ -169,7 +200,7 @@ def _write(path: Path, value: Any) -> None:
 
 
 def watch_game(pairing: tuple[str, str], number: int, data: Path, every: float = 0.25,
-               record: Callable[..., dict[str, Any]] | None = None, stop: Callable[[], bool] = lambda: False) -> None:  # fmt: skip
+               record: Callable[..., dict[str, Any]] | None = None, stop: Callable[[], bool] = lambda: False) -> dict[str, Any]:  # fmt: skip
     """Play one public-deal game of ``pairing`` and keep ``watch.json`` up to date as it goes."""
     from .replay import game_seed, record_game
     from .run import GAME_ROUNDS
@@ -188,6 +219,15 @@ def watch_game(pairing: tuple[str, str], number: int, data: Path, every: float =
 
     game = (record or record_game)([a, b, a, b], seed, rounds=GAME_ROUNDS, on_move=moved)
     _write(data / "watch.json", {**head, "game": game, "finished": True, "updated_at": time.time()})
+    return game
+
+
+def _pairing_file(pairing: tuple[str, str]) -> str:
+    from .direct import game_file
+    from .replay import names_of
+
+    names = names_of()
+    return game_file(names[pairing[0]], names[pairing[1]])
 
 
 def follow(data: Path | None = None) -> None:
@@ -219,7 +259,8 @@ def follow(data: Path | None = None) -> None:
         number = played.get(pairing, 0)
         played[pairing] = number + 1
         try:
-            watch_game(pairing, number, data, stop=orphaned)
+            game = watch_game(pairing, number, data, stop=orphaned)
+            keep_game(data, _pairing_file(pairing), game, time.time())
         except Exception as error:  # noqa: BLE001  a bot that can't play here must not stop the follower
             print(f"ladder-live: can't play {pairing} here: {error}", flush=True)
             _write(data / "watch.json", {"a": pairing[0], "b": pairing[1], "number": number, "error": str(error),
