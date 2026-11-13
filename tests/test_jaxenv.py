@@ -17,3 +17,7 @@ def test_games_match_the_engine():
 
 def test_scripted_auctions_match_the_engine():
     assert check_rounds(len(SCRIPTS) * 3, seed=13, batch=1_000, scripts=SCRIPTS) > 1_000
+
+
+def test_gpu_and_numpy_views_match():
+    assert check_rounds(60, seed=14, views=True) > 2_000

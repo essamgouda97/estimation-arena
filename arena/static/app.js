@@ -16,7 +16,7 @@ async function lobby() {
   const options = ['<option value="human">Person</option>']
     .concat(bots.map((b) => `<option value="${esc(b.spec)}">${esc(b.name)}${b.group === "anchor" ? " · " + esc(b.author) : ""}</option>`)).join("");
   const defaults = ["human", "hybrid", "sub:rl-hybrid", "heuristic"];
-  app.innerHTML = `<h1>Estimation Table</h1><p class="muted">Seat people and bots in any mix. People get an invite link each; bots play here.</p>
+  app.innerHTML = `<h1>Estimation Table</h1><p class="muted">Seat people and bots in any mix. People get an invite link each; bots play here. <a href="/lab">Watch the model learn</a>. <a href="/board">See the live board</a>.</p>
   <div class="panel"><b>New table</b>${[0, 1, 2, 3].map((k) => `
     <div class="seatrow"><span class="muted">Seat ${k + 1}</span><select id="kind${k}">${options}</select>
     <input id="name${k}" placeholder="Name" maxlength="24" value="${k === 0 ? "Me" : ""}"></div>`).join("")}

@@ -63,6 +63,8 @@ class Round(NamedTuple):
     carry: jax.Array
     scores: jax.Array  # [4] game scores before this round
     hands: jax.Array  # [4, 52] bool, remaining hands
+    played: jax.Array  # [4, 52] bool, cards each seat has played this round
+    shown_out: jax.Array  # [4, 4] bool, suits each seat has failed to follow
     announced: jax.Array  # [4] bool, void at the deal (TBL-7)
     dash: jax.Array  # [4] bool
     chosen: jax.Array
@@ -124,6 +126,8 @@ def init_round(round_no, hands, fixed_trump=-1, carry=1, scores=(0, 0, 0, 0)) ->
         carry=carry,
         scores=_i(jnp.asarray(scores)),
         hands=hands,
+        played=jnp.zeros((4, 52), bool),
+        shown_out=jnp.zeros((4, 4), bool),
         announced=~suits.all(axis=1),
         dash=jnp.zeros(4, bool),
         chosen=_i(0),
@@ -458,7 +462,10 @@ def _step_play(s: Round, a) -> Round:
     seat = s.cur
     card = a - PLAY_BASE
     led = jnp.where(s.tlen == 0, card // 13, s.led)
-    s = s._replace(hands=s.hands.at[seat, card].set(False), led=led.astype(I32),
+    off = (s.tlen > 0) & (card // 13 != led)
+    s = s._replace(played=s.played.at[seat, card].set(True),
+                   shown_out=s.shown_out.at[seat, led].set(s.shown_out[seat, led] | off),
+                   hands=s.hands.at[seat, card].set(False), led=led.astype(I32),
                    trick=s.trick.at[s.tlen].set(card), tlen=s.tlen + 1)  # fmt: skip
     # PLY-3: highest trump wins, else the highest card of the led suit
     best, best_suit, offset = s.trick[0], s.led, 0

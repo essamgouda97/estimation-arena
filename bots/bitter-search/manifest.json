@@ -1,0 +1,31 @@
+{
+  "name": "bitter-search",
+  "author": "Essam",
+  "kind": "python",
+  "entry": "bot.py:make",
+  "description": "The bitter-lesson net with search on top: it bids alone, keeps its top cards, and plays each one out against itself on imagined deals.",
+  "timeout_s": 5,
+  "needs": "runs/m4-rules-v2/checkpoints/final.pt",
+  "method": [
+    [
+      "the net picks the bid",
+      "bid"
+    ],
+    [
+      "the net keeps its top 3 cards",
+      "net"
+    ],
+    [
+      "imagine hidden hands x16",
+      "deal"
+    ],
+    [
+      "each kept card: play all 4 seats to the end of the round",
+      "rollout"
+    ],
+    [
+      "play the best average score",
+      "pick"
+    ]
+  ]
+}

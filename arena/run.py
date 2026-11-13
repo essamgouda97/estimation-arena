@@ -30,6 +30,8 @@ from estimation.engine import RulesConfig
 from estimation.engine.config import DEFAULT_CONFIG
 
 from .bots import ROOT, SUB_PREFIX, Manifest, load_manifest, maker
+from .live import Match
+from .positions import encode_scores, summarize
 
 ANCHORS_FILE = ROOT / "anchors.json"
 RESULTS_DIR = ROOT / "results"
@@ -71,6 +73,7 @@ def run_sets(
     config: RulesConfig = DEFAULT_CONFIG,
     budget: float = DEFAULT_BUDGET,
     progress: bool = False,
+    kind: str = "rating",
 ) -> ArenaRun:
     """``estimation.arena.run_arena`` with submissions allowed in the lineup."""
     names = tuple(lineup)
@@ -78,12 +81,14 @@ def run_sets(
     timings = {name: Timing(budget) for name in dict.fromkeys(names)}
     results: list[SetResult] = []
     start = time.perf_counter()
+    match = Match(names, sets, seed, kind)
 
     def collect(outcome: tuple[SetResult, dict[str, Timing]]) -> None:
         result, set_timings = outcome
         results.append(result)
         for name, timing in set_timings.items():
             timings[name].merge(timing)
+        match.update(results)
         if progress:
             elapsed = time.perf_counter() - start
             print(f"  set {len(results)}/{sets}, {elapsed:.0f} s", file=sys.stderr, flush=True)
@@ -95,6 +100,7 @@ def run_sets(
         with ProcessPoolExecutor(max_workers=workers, initializer=_one_thread) as pool:
             for outcome in pool.map(task, range(sets)):
                 collect(outcome)
+    match.update(results, finished=True)
     return ArenaRun(
         lineup=names,
         seed=seed,
@@ -140,6 +146,8 @@ def play_submission(
     me = SUB_PREFIX + manifest.name
     versus: list[dict[str, Any]] = []
     pairs: list[dict[str, Any]] = []
+    position_pairs: list[dict[str, Any]] = []
+    king_pairs: list[dict[str, Any]] = []
     for anchor in anchors:
         lineup = (me, anchor["spec"], me, anchor["spec"])
         if progress:
@@ -147,6 +155,9 @@ def play_submission(
         run = run_sets(lineup, sets, seed, workers, progress=progress)
         report = build_report(run)
         mine = next(b for b in report.bots if b.name == me)
+        places, by_position = summarize(run.results, lineup)
+        position_pairs += by_position["weighted"]
+        king_pairs += by_position["king"]
         versus.append(
             {
                 "anchor": anchor["name"],
@@ -156,6 +167,11 @@ def play_submission(
                 "mean_score": mine.mean_score,
                 "rsa": _interval(mine.rsa),
                 "first_place": _interval(mine.first),
+                "positions": places[me]["shares"],
+                "position_reward": places[me]["reward"],
+                "king": places[me]["king"],
+                "delta": places[me]["delta"],
+                "scores": encode_scores(run.results),
                 "timing": _timing(run.timings[me]),
                 "wall_s": run.wall_seconds,
             }
@@ -181,6 +197,8 @@ def play_submission(
         "played_at": datetime.now(UTC).isoformat(timespec="seconds"),
         "versus": versus,
         "pairs": pairs,
+        "position_pairs": position_pairs,
+        "king_pairs": king_pairs,
     }
 
 
@@ -210,10 +228,11 @@ def keep_unplayed(result: dict[str, Any], old: dict[str, Any] | None) -> list[st
         v["carried_from"] = old.get("played_at")
         result["versus"].append(v)
     me = SUB_PREFIX + result["bot"]
-    for pair in old.get("pairs", []):
-        other = pair["b"] if pair["a"] == me else pair["a"]
-        if other in {v["spec"] for v in kept}:
-            result["pairs"].append(pair)
+    for key in ("pairs", "position_pairs", "king_pairs"):
+        for pair in old.get(key, []):
+            other = pair["b"] if pair["a"] == me else pair["a"]
+            if other in {v["spec"] for v in kept}:
+                result[key].append(pair)
     return [v["anchor"] for v in kept]
 
 

@@ -23,12 +23,15 @@ from estimation.engine.cards import deal as engine_deal
 from estimation.engine.actions import DASH_CALL, FIRST_BID, LAST_BID, PASS, WITH
 from estimation.engine.round import FIXED_ORDER, OPEN_ROUNDS
 
+from . import encode as E
+from . import encode_np as EN
 from . import game as G
 from . import rules as R
 
 _vstep = jax.jit(jax.vmap(R.step))
 _vlegal = jax.jit(jax.vmap(R.legal_mask))
 _vinit = jax.jit(jax.vmap(R.init_round))
+_vencode = jax.jit(jax.vmap(E.encode))
 _gstep = jax.jit(jax.vmap(G.game_step))
 _glegal = jax.jit(jax.vmap(G.game_legal))
 _gnew = jax.jit(jax.vmap(G.new_game))
@@ -121,7 +124,7 @@ def random_round(rng: random.Random) -> Round:
     return Round.new(round_no, hands, fixed, carry, scores)
 
 
-def check_rounds(n: int, seed: int, batch: int = 512, scripts=()) -> int:
+def check_rounds(n: int, seed: int, batch: int = 512, scripts=(), views: bool = False) -> int:
     """``n`` random rounds; with ``scripts``, one batch of those scripted auctions instead
     (each played out at random from several seeds)."""
     rng = random.Random(seed)
@@ -143,6 +146,8 @@ def check_rounds(n: int, seed: int, batch: int = 512, scripts=()) -> int:
         )
         while True:
             phase, cur, mask = (np.asarray(x) for x in (s.phase, s.cur, _vlegal(s)))
+            if views:
+                seen = np.asarray(_vencode(s, s.cur))
             actions = np.zeros(len(rounds), np.int32)
             live = False
             for i, r in enumerate(rounds):
@@ -167,7 +172,13 @@ def check_rounds(n: int, seed: int, batch: int = 512, scripts=()) -> int:
                         PASS not in legal or any(b not in legal for b in open_bids)
                     ):
                         _seen("a keep or raise barred by the 13 rule (AUC-6)")
-                a = choose[i](r.observation(r.current_player), legal)
+                obs = r.observation(r.current_player)
+                if views:
+                    want = EN.encode(obs, legal)
+                    if want.shape != seen[i].shape or not np.allclose(seen[i], want, atol=1e-5):
+                        bad = np.flatnonzero(np.abs(seen[i] - want) > 1e-5)[:8].tolist()
+                        raise Mismatch(f"{where}: encoders differ at {bad}: {seen[i][bad]} vs {want[bad]}")
+                a = choose[i](obs, legal)
                 r.step(a)
                 actions[i] = a
                 steps += 1
@@ -252,12 +263,15 @@ def main(argv=None) -> int:
     p.add_argument("--rounds", type=int, default=2000)
     p.add_argument("--games", type=int, default=50)
     p.add_argument("--seed", type=int, default=0)
+    p.add_argument("--views", type=int, default=2000, help="rounds also comparing the two encoders")
     a = p.parse_args(argv)
     t = time.perf_counter()
     steps = check_rounds(a.rounds, a.seed)
     print(f"PASS {a.rounds} rounds, {steps} steps identical ({time.perf_counter() - t:.0f} s)", flush=True)
     steps = check_rounds(len(SCRIPTS) * 20, a.seed, batch=10_000, scripts=SCRIPTS)
     print(f"PASS {len(SCRIPTS)} scripted auctions x 20 random play-outs, {steps} steps identical", flush=True)
+    steps = check_rounds(a.views, a.seed + 2, views=True)
+    print(f"PASS {a.views} rounds with encoders, {steps} views identical", flush=True)
     t = time.perf_counter()
     steps = check_games(a.games, a.seed + 1)
     print(f"PASS {a.games} full games, {steps} steps identical ({time.perf_counter() - t:.0f} s)")

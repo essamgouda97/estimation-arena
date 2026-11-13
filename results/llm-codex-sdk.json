@@ -1,0 +1,122 @@
+{
+ "schema": 1,
+ "bot": "llm-codex-sdk",
+ "manifest": {
+  "name": "llm-codex-sdk",
+  "author": "Essam",
+  "kind": "wire",
+  "description": "Experiment: Codex chooses every move through its SDK, with no tools and only this seat's view. Lives in experiments/bots, so it is never rated.",
+  "command": [
+   "python3",
+   "bot.py"
+  ],
+  "entry": "",
+  "timeout_s": 400.0,
+  "method": [
+   [
+    "describe this seat's view in words",
+    "data"
+   ],
+   [
+    "ask Codex for a move",
+    "net"
+   ],
+   [
+    "play the move it picks",
+    "pick"
+   ]
+  ],
+  "needs": ""
+ },
+ "engine": "0.1.0+2dbf68df",
+ "rules": {
+  "with_any_call": true,
+  "with_choose": true
+ },
+ "seed": 2000,
+ "sets": 1,
+ "played_at": "2026-11-08T01:30:15+00:00",
+ "versus": [
+  {
+   "anchor": "Heuristic",
+   "spec": "heuristic",
+   "sets": 1,
+   "games": 8,
+   "mean_score": 191.25,
+   "rsa": {
+    "mean": 90.66666666666666,
+    "low": null,
+    "high": null,
+    "sets": 1
+   },
+   "first_place": {
+    "mean": 0.375,
+    "low": null,
+    "high": null,
+    "sets": 1
+   },
+   "positions": [
+    0.375,
+    0.375,
+    0.25,
+    0.0
+   ],
+   "position_reward": {
+    "mean": 0.4,
+    "low": 0.4,
+    "high": 0.4,
+    "sets": 1
+   },
+   "king": {
+    "mean": 0.375,
+    "low": 0.375,
+    "high": 0.375,
+    "sets": 1
+   },
+   "delta": {
+    "mean": 136.0,
+    "low": 136.0,
+    "high": 136.0,
+    "sets": 1
+   },
+   "scores": "185 155 177 -83,224 220 -85 218,273 88 52 30,105 245 8 160",
+   "timing": {
+    "count": 1872,
+    "mean_s": 9.694754382389423,
+    "p95_s": 23.001016430096474,
+    "max_s": 36.14630586793646,
+    "budget_s": 0.25,
+    "over_budget": 1471
+   },
+   "wall_s": 21193.829122680938
+  }
+ ],
+ "pairs": [
+  {
+   "a": "sub:llm-codex-sdk",
+   "b": "heuristic",
+   "a_wins": 1,
+   "draws": 0,
+   "b_wins": 0
+  }
+ ],
+ "position_pairs": [
+  {
+   "a": "sub:llm-codex-sdk",
+   "b": "heuristic",
+   "a_wins": 1,
+   "draws": 0,
+   "b_wins": 0
+  }
+ ],
+ "king_pairs": [
+  {
+   "a": "sub:llm-codex-sdk",
+   "b": "heuristic",
+   "a_wins": 1,
+   "draws": 0,
+   "b_wins": 0
+  }
+ ],
+ "bot_hash": "ee3e4241758c514f"
+}

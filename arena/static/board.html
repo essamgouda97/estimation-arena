@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Estimation live board</title>
+<link rel="icon" href="data:,"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700&family=Instrument+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/board.css"></head>
+<body data-metric="elo">
+<header class="top">
+  <h1>Live board</h1>
+  <p id="status" class="status" role="status">Loading</p>
+  <nav><a href="/lab">Lab</a><a href="/tb/">TensorBoard</a><a href="/">Play at the table</a></nav>
+</header>
+
+<section aria-labelledby="playing-title">
+  <h2 id="playing-title">Playing now</h2>
+  <div id="playing"></div>
+</section>
+
+<section aria-labelledby="standings-title">
+  <div class="standings-head">
+    <h2 id="standings-title">Standings</h2>
+    <div class="rank-by" role="group" aria-label="Rank by">
+      <button data-rank="elo" aria-pressed="true">Weighted rank</button>
+      <button data-rank="king_elo" aria-pressed="false">King only</button>
+      <button data-rank="score_elo" aria-pressed="false">Score delta</button>
+    </div>
+  </div>
+  <div class="legend" aria-label="Finishing places">
+    <span><i class="k"></i>King</span><span><i class="sk"></i>Sub-King</span><span><i class="sko"></i>Sub-Kooz</span><span><i class="ko"></i>Kooz</span>
+  </div>
+  <table>
+    <thead><tr><th class="num">#</th><th>Bot</th><th class="num m-elo">Weighted</th><th class="num m-king_elo">King</th><th class="num m-score_elo">Score</th><th class="places-col">Places</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+</section>
+
+<section aria-labelledby="recent-title">
+  <h2 id="recent-title">Just finished</h2>
+  <div id="recent"></div>
+</section>
+<script src="/static/board.js"></script>
+</body></html>

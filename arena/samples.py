@@ -12,6 +12,8 @@ already in the file for them are kept.
 
 from __future__ import annotations
 
+import argparse
+import hashlib
 import json
 import math
 from typing import Any
@@ -26,7 +28,8 @@ from estimation.engine import Bola, Phase, cards_of
 from estimation.engine.actions import PLAY_BASE
 from estimation.engine.config import DEFAULT_CONFIG
 
-from .bots import ROOT, SUB_PREFIX, list_submissions, maker
+from .bots import ROOT, SUB_PREFIX, list_submissions, load_manifest, maker
+from .live import LIVE, public
 from .run import load_anchors
 
 SEED = 31_337
@@ -92,9 +95,31 @@ def _softmax(values: dict[int, float]) -> dict[int, float]:
     return {c: e / total for c, e in exp.items()}
 
 
-def main() -> int:
+def save_live(spec: str) -> None:
+    """Keep a bot's sample for the live board, under its public key. No path leaves the spec."""
+    folder = LIVE / "samples"
+    if not LIVE.is_dir():
+        return
+    folder.mkdir(exist_ok=True)
+    key = public(spec)[0]
+    path = folder / (hashlib.sha1(key.encode()).hexdigest()[:16] + ".json")
+    part = path.with_suffix(".part")
+    part.write_text(json.dumps({"key": key, **sample(spec)}))
+    part.replace(path)
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(prog="python -m arena.samples", description=__doc__.split("\n")[0])
+    parser.add_argument("--live", nargs="+", metavar="SPEC", help="keep these bots' samples for the live board instead")
+    args = parser.parse_args(argv)
+    if args.live:
+        for spec in args.live:
+            save_live(spec)
+            print(f"{public(spec)[1]}: sample kept")
+        return 0
     old = json.loads(OUT.read_text()) if OUT.is_file() else {}
-    specs = [SUB_PREFIX + n for n in list_submissions()] + [a["spec"] for a in load_anchors()]
+    ready = [n for n in list_submissions() if not (need := load_manifest(n).needs) or (ROOT / need).exists()]
+    specs = [SUB_PREFIX + n for n in ready] + [a["spec"] for a in load_anchors()]
     out = dict(old)
     for spec in specs:
         out[spec] = sample(spec)

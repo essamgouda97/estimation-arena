@@ -1,0 +1,23 @@
+{
+  "name": "bitter-net",
+  "author": "Essam",
+  "kind": "python",
+  "entry": "bot.py:make",
+  "description": "Bitter-lesson track: one net for every decision, from raw state, trained from nothing by PPO self-play on the GPU. No hand evaluation, imitation or search.",
+  "timeout_s": 5,
+  "method": [
+    [
+      "play itself on the GPU, millions of decisions a second",
+      "data"
+    ],
+    [
+      "one net scores every legal move",
+      "net"
+    ],
+    [
+      "play the top move",
+      "pick"
+    ]
+  ],
+  "needs": "bots/bitter-net/net.npz"
+}
