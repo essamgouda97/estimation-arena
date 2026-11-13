@@ -23,7 +23,7 @@ button:not(home-bar *):hover{background:var(--raised)}button:not(home-bar *):dis
 select{font:inherit;color:var(--ivory);background:var(--raised);border:1px solid var(--line);border-radius:6px;padding:7px 10px;min-height:40px;max-width:100%;border-top:3px solid var(--seat,var(--line))}
 .versus{border-collapse:collapse;margin:6px 0 4px;max-width:720px;width:100%}.versus th,.versus td{text-align:right;padding:8px 10px;border-bottom:1px solid var(--line)}
 .versus th:first-child,.versus td:first-child{text-align:left;color:var(--muted);font-weight:400}.versus thead th{color:var(--ivory);border-bottom:3px solid var(--seat,var(--line));vertical-align:bottom}
-.versus td{font-size:20px;color:var(--ivory)}.versus td.best{color:var(--gold);font-weight:600}.versus td small{display:block;font-size:13px;color:var(--muted);font-weight:400}
+.versus td{font-size:20px;color:var(--ivory)}.versus td.best{color:var(--gold);font-weight:600}.versus td small{display:block;font-size:13px;color:var(--muted);font-weight:400}.versus td:first-child{font-size:16px}
 .kept{list-style:none;margin:10px 0;padding:0;border-top:1px solid var(--line);max-width:900px}.kept li{display:grid;grid-template-columns:9.5em minmax(0,1fr) minmax(0,1fr) auto;gap:6px 16px;align-items:center;padding:9px 4px;border-bottom:1px solid var(--line)}
 .kept .when{color:var(--muted);font-size:14px}.kept .side{border-left:3px solid var(--seat);padding-left:8px}.kept .side.first{color:var(--ivory);font-weight:600}.kept a{padding:6px 12px;border-radius:6px;background:var(--ivory);color:var(--ink);text-decoration:none;font-weight:600}
 @media(max-width:760px){.kept li{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.kept .when{grid-column:1/-1}.kept a{grid-column:1/-1;justify-self:start}}
@@ -31,7 +31,8 @@ select{font:inherit;color:var(--ivory);background:var(--raised);border:1px solid
 .opp{font-weight:600}.record{text-align:right}.close{color:var(--muted)}.won{color:var(--gold);font-weight:600}.lost{color:var(--bad);font-weight:600}
 .bar{display:flex;height:9px;gap:1px;border-radius:3px;overflow:hidden;background:var(--raised)}.bar i{display:block}.bar .w{background:var(--gold)}.bar .d{background:var(--muted)}.bar .l{background:var(--bad)}
 .actions{display:flex;gap:6px;justify-content:flex-end;align-items:center}.actions a{display:inline-block;padding:6px 12px;border-radius:6px;background:var(--ivory);color:var(--ink);text-decoration:none;font-weight:600;min-height:36px}
-.sets .note{grid-column:1/-1;margin:0}.sets{margin:10px 0 2px;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:4px 18px}.set{display:flex;gap:10px;padding:3px 0;font-size:14px;align-items:baseline}.set b{width:1.5em}.set span{color:var(--muted)}.set .up{color:var(--gold)}.set .down{color:var(--bad)}
+.sets .note{grid-column:1/-1;margin:0}.sets{margin:10px 0 2px;display:grid;grid-template-columns:minmax(0,1fr);max-width:560px}.sets .note{margin:0 0 8px}.set{display:grid;grid-template-columns:2em 3.4em repeat(4,minmax(2.6em,1fr));gap:10px;padding:4px 0;font-size:15px;align-items:baseline;border-bottom:1px solid var(--line)}.set span{color:var(--muted);text-align:right}.set .no{text-align:left}.set .up{color:var(--ivory)}.set .down{color:var(--bad)}
+.set.head{font-size:13px;border-bottom-color:var(--muted)}.set.head span{color:var(--muted)}
 
 .table{display:grid;grid-template-columns:minmax(0,1fr) minmax(270px,1.3fr) minmax(0,1fr);grid-template-areas:". top ." "left mid right" ". bottom .";gap:14px 18px;margin:18px 0;align-items:center}
 .seat{min-width:0;display:flex;flex-direction:column;gap:8px;align-items:center}.s0{grid-area:bottom;flex-direction:column-reverse}.s1{grid-area:right}.s2{grid-area:top}.s3{grid-area:left}
@@ -100,7 +101,7 @@ const callText = (a) => a === 0 ? "No dash" : a === 1 ? "Dash" : a <= 51 ? bidTe
 const nameOf = (key) => data?.bots.find((b) => b.key === key)?.name ?? ladder?.names[key] ?? key;
 const LADDER = location.pathname === "/ladder";  // the nightly ladder as it plays, on the home server
 let ladder = null, board = null, follow = true, gameRoot = app;
-const signed = (x) => (x > 0 ? "+" : "") + Math.round(x);
+const signed = (x) => (x > 0 ? "+" : x < 0 ? "−" : "") + Math.abs(Math.round(x));
 
 function card(c, trump, cls) {
   const n = el("span", `card${Math.floor(c / 13) === 1 || Math.floor(c / 13) === 2 ? " r" : ""}${Math.floor(c / 13) === trump ? " t" : ""}${cls ? " " + cls : ""}`);
@@ -143,11 +144,14 @@ function sidesFor(m, key) {
 function setRows(m, side) {
   const box = el("div", "sets");
   if (!m.detail.length) { box.append(el("p", "note", "Only this match's total was kept. Set-by-set scores start with matches played from now on.")); return box; }
+  box.append(el("p", "note", "One row per set: its result, then the points this bot finished ahead or behind in each of the set's four games. A set is decided by finishing places, not points, so a set can be drawn or lost with more points."));
+  const heading = () => { const row = el("div", "set head"); ["Set", "Result", "Game 1", "Game 2", "Game 3", "Game 4"].forEach((t, k) => row.append(el("span", k ? "" : "no", t))); row.children[1].style.textAlign = "left"; return row; };
+  box.append(heading());
   m.detail.forEach((s, k) => {
     const raw = s.outcome, out = side.flip ? raw.replace(/[WL]/g, (c) => (c === "W" ? "L" : "W")) : raw;
     const row = el("div", "set");
+    row.append(el("span", "no", k + 1));
     row.append(el("b", out === "W" ? "won" : out === "L" ? "lost" : "close", out === "W" ? "Won" : out === "L" ? "Lost" : "Draw"));
-    row.append(el("span", "", `Set ${k + 1}`));
     for (const g of s.games) { const d = side.flip ? g[1] - g[0] : g[0] - g[1]; row.append(el("span", d > 0 ? "up" : d < 0 ? "down" : "", signed(d))); }
     box.append(row);
   });
@@ -214,19 +218,19 @@ function versusTable(a, b, m) {
   const table = el("table", "versus"), head = el("tr"), body = el("tbody");
   head.append(el("th", "", ""), el("th", "a", bots[0].name), el("th", "b", bots[1].name));
   const line = (label, left, right, leftBest, rightBest, small) => {
-    const tr = el("tr"), l = el("td", leftBest ? "best" : "", left), r = el("td", rightBest ? "best" : "", right);
-    if (small) { l.append(el("small", "", small[0])); r.append(el("small", "", small[1])); }
-    tr.append(el("td", "", label), l, r); body.append(tr);
+    const tr = el("tr"), name = el("td", "", label), l = el("td", leftBest ? "best" : "", left), r = el("td", rightBest ? "best" : "", right);
+    if (small) name.append(el("small", "", small));
+    tr.append(name, l, r); body.append(tr);
   };
   const rating = (bot) => bot.elo === null ? "none yet" : Math.round(bot.elo) + (bot.provisional ? " (not ranked)" : "");
   line("Rating", rating(bots[0]), rating(bots[1]), bots[0].elo > bots[1].elo, bots[1].elo > bots[0].elo);
   if (m) {
     const side = sidesFor(m, a);
-    line("Rated sets won", side.w, side.l, m.clear && side.w > side.l, m.clear && side.l > side.w, [`of ${m.sets}, ${m.draws} drawn`, m.clear ? "a clear result" : "too close to call"]);
+    line("Rated sets won", side.w, side.l, m.clear && side.w > side.l, m.clear && side.l > side.w, `${m.sets} sets, ${m.draws} drawn. ${m.clear ? "A clear result." : "Too close to call."}`);
     const games = m.detail.flatMap((s) => s.games).map((g) => (side.flip ? [g[1], g[0]] : g));
     if (games.length) {
       const ahead = games.filter((g) => g[0] > g[1]).length, behind = games.filter((g) => g[1] > g[0]).length;
-      line("Games it outscored the other", ahead, behind, ahead > behind, behind > ahead, [`of ${games.length}`, `${games.length - ahead - behind} level`]);
+      line("Games it outscored the other", ahead, behind, ahead > behind, behind > ahead, `${games.length} games, ${games.length - ahead - behind || "none"} tied on points`);
       const mine = mean(games.map((g) => g[0])), theirs = mean(games.map((g) => g[1]));
       line("Average score per seat, per game", signed(mine), signed(theirs), mine > theirs, theirs > mine);
     }
