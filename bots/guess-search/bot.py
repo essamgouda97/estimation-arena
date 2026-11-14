@@ -4,7 +4,10 @@ The same bot as bots/bitter-search, except the hidden hands it imagines: each un
 to a seat in proportion to our guess net's chance that the seat holds it, and the drawn deals
 are then kept by how well they explain the bidding, as Hybrid v4 does with Yosif's guess net.
 
-Options: ``guess`` (path from this folder), ``net`` and any HybridConfig field, e.g.
+It plays for its finishing place, not the round's points: each imagined round is judged by the
+standings net saved beside the policy (``objective=standings``; ``score`` plays for points).
+
+Options: ``guess`` (path from this folder), ``net``, ``objective`` and any HybridConfig field, e.g.
 ``sub:guess-search:samples=64``. It imagines 256 deals per card by default.
 """
 
@@ -28,8 +31,8 @@ _spec.loader.exec_module(_bitter)
 
 
 class GuessSearch(_bitter.BitterSearch):
-    def __init__(self, seed: int, config: HybridConfig, net: str, guess: str) -> None:
-        super().__init__(seed, replace(config, deals="bidding"), net, "net")  # RL v2 has no guess net
+    def __init__(self, seed: int, config: HybridConfig, net: str, guess: str, objective: str = "score") -> None:
+        super().__init__(seed, replace(config, deals="bidding"), net, "net", objective)  # RL v2 has no guess net
         self.config = replace(config, deals=BOTH)
         self._guess = load_np(guess)
         self._legal: list[int] = []
@@ -48,7 +51,7 @@ class GuessSearch(_bitter.BitterSearch):
 
 
 def make(seed: int, rules: RulesConfig, net: str = "../bitter-search/net.npz", guess: str = "guess.npz",
-         **options: str) -> GuessSearch:  # fmt: skip
+         objective: str = "standings", **options: str) -> GuessSearch:  # fmt: skip
     config = configure(HybridConfig(rules=rules), {"top_k": "2", "samples": "256", **options}, "guess-search")
     paths = [Path(p) if Path(p).is_absolute() else HERE / p for p in (net, guess)]
-    return GuessSearch(seed, config, str(paths[0]), str(paths[1]))
+    return GuessSearch(seed, config, str(paths[0]), str(paths[1]), objective)
