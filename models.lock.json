@@ -1,15 +1,15 @@
 {
  "bots/bitter-net/net.npz": {
   "repo": "GoudaGame/estimation-self-taught",
-  "revision": "269b6f90503eec88885d7f0e555d58cfb362e2a0",
+  "revision": "9f287576f9057b7d4d4086b6cb9a4fbd65fa19b3",
   "file": "net.npz",
-  "sha256": "3797358d96b83b67dd8370c047c3004ad4e333587bbef66ac65b14d1b25081dc"
+  "sha256": "3d34e45ccf4463eddb0728e200c8b81bc13b4a5272321842aa108cf2ea714dce"
  },
  "bots/bitter-search/net.npz": {
   "repo": "GoudaGame/estimation-self-taught",
-  "revision": "269b6f90503eec88885d7f0e555d58cfb362e2a0",
+  "revision": "9f287576f9057b7d4d4086b6cb9a4fbd65fa19b3",
   "file": "net.npz",
-  "sha256": "3797358d96b83b67dd8370c047c3004ad4e333587bbef66ac65b14d1b25081dc"
+  "sha256": "3d34e45ccf4463eddb0728e200c8b81bc13b4a5272321842aa108cf2ea714dce"
  },
  "bots/guess-search/guess.npz": {
   "repo": "GoudaGame/estimation-guess-net",

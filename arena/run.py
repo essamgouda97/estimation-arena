@@ -15,6 +15,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import sys
 import time
 from collections.abc import Sequence
@@ -37,6 +38,7 @@ from estimation.engine.config import DEFAULT_CONFIG
 from . import season
 from .bots import ROOT, SUB_PREFIX, Manifest, load_manifest, maker
 from .live import Match
+from .lookahead import GAME_ROUNDS_ENV
 from .positions import encode_scores, set_outcomes, summarize
 
 ANCHORS_FILE = ROOT / "anchors.json"
@@ -74,6 +76,7 @@ def play_game(
 
     Each bot sees only its own seat. Card decisions are timed into ``timers[seat]``. The game's
     ``scores`` after the last round played are its result."""
+    os.environ[GAME_ROUNDS_ENV] = str(rounds)  # public: every bot may read how long the game is
     bola = Bola(seed, config)
     while not bola.is_over and not (rounds and len(bola.history) >= rounds):
         seat = bola.current_player

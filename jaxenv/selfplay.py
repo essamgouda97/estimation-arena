@@ -16,6 +16,14 @@
 - Opponents: half the games are self-play; in the rest two opposite seats play a past version.
 - --benchmark: RL v2's weights. It then plays the other seats in --benchmark-share of the
   iterations, and the log reports the King rate against it.
+- --rounds: a game ends after that many rounds, as the ladder's micro games do (0: the whole
+  Bola). --init starts from a trained policy; --warmup then trains only the critic and the
+  auxiliary head for that many iterations, so a critic that knows nothing can't spoil it.
+- Standings net, a by-product: from the scores after a round, the rounds left and the carry, each
+  seat's expected final reward. It reads no cards, so a search can score a round's outcome with
+  it. Saved in the same file (``sw0``...).
+- --rivals: copies of other people's bots (train.rival). In --rival-share of the iterations one
+  of them is the opponent in place of a past version, and the log reports the score against each.
 - Evaluation: King rate and mean position reward of greedy seats against a random player and
   the starting policy (25% and 0 are an even share). Real strength is measured by the arena (bots/bitter-net).
 """
@@ -59,9 +67,30 @@ def _head(key, hidden, out, scale):
     return {"w": _orth(scale)(key, (hidden, out)), "b": jnp.zeros(out)}
 
 
+STANDINGS_SIZE, STANDINGS_HIDDEN = 5, 64
+FULL_ROUNDS = 18  # a whole Bola without replays
+
+
+def standings_view(scores, left, carry):
+    """[..., 4, 5]: for each seat, the other three's leads over it (largest first, in units of
+    200 points), the share of the game still to play, and the carry."""
+    lead = (scores[..., None, :] - scores[..., :, None]).astype(jnp.float32) / 200.0
+    own = jnp.eye(4, dtype=bool)
+    top, low = jnp.where(own, -jnp.inf, lead).max(-1), jnp.where(own, jnp.inf, lead).min(-1)
+    middle = lead.sum(-1) - top - low  # a seat's lead over itself is 0; no sort: sorting tiny rows is slow on the GPU
+    others = jnp.clip(jnp.stack([top, middle, low], -1), -5.0, 5.0)
+    tail = jnp.stack([left.astype(jnp.float32), jnp.log2(jnp.maximum(carry, 1).astype(jnp.float32)) / 10.0], -1)
+    return jnp.concatenate([others, jnp.broadcast_to(tail[..., None, :], (*others.shape[:-1], 2))], -1)
+
+
+def apply_standings(net, view):
+    return _out(net["value"], _body(net["body"], view))[..., 0]
+
+
 def init_nets(key, hidden: int, depth: int):
-    k1, k2, k3, k4, k5 = jax.random.split(key, 5)
+    k1, k2, k3, k4, k5, k6, k7 = jax.random.split(key, 7)
     return {
+        "standings": {"body": _mlp(k6, STANDINGS_SIZE, STANDINGS_HIDDEN, 2), "value": _head(k7, STANDINGS_HIDDEN, 1, 1.0)},
         "policy": {"body": _mlp(k1, E.SIZE, hidden, depth), "policy": _head(k2, hidden, R.NUM_ACTIONS, 0.01),
                    "aux": _head(k3, hidden, 1, 1.0)},
         "critic": {"body": _mlp(k4, E.SIZE + HIDDEN, hidden, depth), "value": _head(k5, hidden, 1, 1.0)},
@@ -182,21 +211,24 @@ def choose(policy, opp, g, learner, key, greedy=False, benchmark=None):
     return action, logp, x, mine, mask.sum(1)
 
 
-def _advance(g, used, base, pool, action):
+def _advance(g, used, base, pool, action, rounds: int = 0):
     """Play ``action``. Returns the games (finished ones restarted), the deal counter, the round
-    just played, whether it ended, and the game before any restart."""
+    just played, whether it ended, the game before any restart, and whether that game is over:
+    the Bola ended, or ``rounds`` rounds were played (0: no limit)."""
     r = jax.vmap(R.step)(g.round, action)
     ended = (r.phase == R.DONE) & ~g.over
     before = g.round_no
     after = jax.vmap(G.game_step)(g, action, pool[base + used % POOL_DEALS])
     used = used + (after.round_no != before)
-    stop = after.over | after.overflow
+    over = after.over | ((after.round_no > rounds) if rounds else False)
+    stop = over | after.overflow
     fresh = jax.vmap(G.new_game)(pool[base + (used + 1) % POOL_DEALS])
-    return _where_games(stop, fresh, after), used + stop, r, ended, after
+    return _where_games(stop, fresh, after), used + stop, r, ended, after, over
 
 
-def make_rollout(batch: int, steps: int, lam: float, objective: str = "weighted", benchmark=None):
+def make_rollout(batch: int, steps: int, lam: float, objective: str = "weighted", benchmark=None, rounds: int = 0):
     base = jnp.arange(batch) * POOL_DEALS
+    length = rounds or FULL_ROUNDS
 
     def rollout(nets, opp, g, key):
         k_pool, k_seats, k_mix, k_steps = jax.random.split(key, 4)
@@ -213,13 +245,15 @@ def make_rollout(batch: int, steps: int, lam: float, objective: str = "weighted"
             action, logp, x, mine, n_legal = choose(nets["policy"], opp, g, learner, k, benchmark=benchmark)
             hidden = hidden_of(g.round, seat)
             value = apply_critic(nets["critic"], x, hidden)
-            g, used, r, ended, after = _advance(g, used, base, pool, action)
+            g, used, r, ended, after, over = _advance(g, used, base, pool, action, rounds)
             played = ended & ~r.skipped
+            left = jnp.clip(length + 1 - after.round_no, 0, length) / length  # share of the game still to play
             made = jnp.take_along_axis(r.est == r.won, jnp.maximum(r.caller, 0)[:, None], 1)[:, 0]
             return (g, used), dict(
                 x=x.astype(jnp.float16), hidden=hidden, action=action, logp=logp, value=value, seat=seat,
                 train=mine & (n_legal > 1), ended=ended, round_rew=round_rewards(r),
-                finished=after.over & ~after.overflow, overflow=after.overflow,
+                finished=over & ~after.overflow, overflow=after.overflow,
+                standings=standings_view(after.scores, jnp.where(over, 0.0, left), after.carry),
                 reward=objective_rewards(after.scores, objective), phase=phase, pre_super=pre_super,
                 skipped=ended & r.skipped, played=played, made=played & made,
                 all_lose=played & ~(r.est == r.won).any(1), game_rounds=after.round_no,
@@ -237,12 +271,12 @@ def make_rollout(batch: int, steps: int, lam: float, objective: str = "weighted"
             s = t["seat"][:, None]
             return (ret, has_round, final, has_final), (
                 jnp.take_along_axis(ret, s, 1)[:, 0], has_round,
-                jnp.take_along_axis(final, s, 1)[:, 0], has_final,
+                jnp.take_along_axis(final, s, 1)[:, 0], has_final, final,
             )  # fmt: skip
 
         zeros = (jnp.zeros((batch, 4)), jnp.zeros(batch, bool), jnp.zeros((batch, 4)), jnp.zeros(batch, bool))
         keys = ("ended", "round_rew", "finished", "reward", "overflow", "seat")
-        _, (aux_target, aux_ok, final, has_final) = jax.lax.scan(back, zeros, {k: tr[k] for k in keys}, reverse=True)
+        _, (aux_target, aux_ok, final, has_final, final_all) = jax.lax.scan(back, zeros, {k: tr[k] for k in keys}, reverse=True)
 
         a, ph = tr["action"], tr["phase"]
         rate = lambda hit, of: hit.sum() / jnp.maximum(of.sum(), 1)  # noqa: E731
@@ -269,7 +303,8 @@ def make_rollout(batch: int, steps: int, lam: float, objective: str = "weighted"
             final_mse=((tr["value"] - final) ** 2 * has_final).sum() / jnp.maximum(has_final.sum(), 1),
         )
         data = dict(x=tr["x"], hidden=tr["hidden"], action=a, logp=tr["logp"], value=tr["value"], target=target,
-                    valid=valid, aux_target=aux_target, aux_ok=aux_ok & tr["train"])  # fmt: skip
+                    valid=valid, aux_target=aux_target, aux_ok=aux_ok & tr["train"],
+                    standings=tr["standings"], standings_target=final_all, standings_ok=tr["ended"] & has_final)  # fmt: skip
         flat = jax.tree.map(lambda v: v.reshape(batch * steps, *v.shape[2:]), data)
         adv = adv.reshape(batch * steps)
         w = flat["valid"]
@@ -281,7 +316,7 @@ def make_rollout(batch: int, steps: int, lam: float, objective: str = "weighted"
     return jax.jit(rollout)
 
 
-def make_update(tx_policy, tx_critic, clip: float, aux_weight: float):
+def make_update(tx_policy, tx_critic, clip: float, aux_weight: float, tx_standings=None):
     def policy_loss(net, mb, ent):
         x = mb["x"].astype(jnp.float32)
         logits, aux = apply_policy(net, x)
@@ -303,19 +338,31 @@ def make_update(tx_policy, tx_critic, clip: float, aux_weight: float):
         w = mb["valid"].astype(jnp.float32)
         return (w * (value - mb["target"]) ** 2).sum() / jnp.maximum(w.sum(), 1.0)
 
+    def standings_loss(net, mb):
+        w = mb["standings_ok"].astype(jnp.float32)[:, None]
+        error = (apply_standings(net, mb["standings"]) - mb["standings_target"]) ** 2
+        return (w * error).sum() / jnp.maximum(4.0 * w.sum(), 1.0)
+
     @jax.jit
-    def step(nets, opts, mb, ent):
+    def step(nets, opts, mb, ent, gate=1.0):
+        """``gate`` 0 holds the policy's body and move head still (the warm-up after --init)."""
         (_, info), g_p = jax.value_and_grad(policy_loss, has_aux=True)(nets["policy"], mb, ent)
         v_loss, g_c = jax.value_and_grad(critic_loss)(nets["critic"], mb)
         up_p, o_p = tx_policy.update(g_p, opts[0], nets["policy"])
+        up_p = {**up_p, "body": jax.tree.map(lambda u: u * gate, up_p["body"]), "policy": jax.tree.map(lambda u: u * gate, up_p["policy"])}
         up_c, o_c = tx_critic.update(g_c, opts[1], nets["critic"])
-        nets = {"policy": optax.apply_updates(nets["policy"], up_p), "critic": optax.apply_updates(nets["critic"], up_c)}
-        return nets, (o_p, o_c), info | {"value_loss": v_loss}
+        out = {"policy": optax.apply_updates(nets["policy"], up_p), "critic": optax.apply_updates(nets["critic"], up_c)}
+        out["standings"], s_loss, o_s = nets["standings"], 0.0, opts[2]
+        if tx_standings is not None:
+            s_loss, g_s = jax.value_and_grad(standings_loss)(nets["standings"], mb)
+            up_s, o_s = tx_standings.update(g_s, opts[2], nets["standings"])
+            out["standings"] = optax.apply_updates(nets["standings"], up_s)
+        return out, (o_p, o_c, o_s), info | {"value_loss": v_loss, "standings_loss": s_loss}
 
     return step
 
 
-def make_eval(batch: int, steps: int, benchmark=None):
+def make_eval(batch: int, steps: int, benchmark=None, rounds: int = 0):
     """Greedy ``policy`` in two opposite seats vs ``opp``: (King rate, mean reward, games)."""
     base = jnp.arange(batch) * POOL_DEALS
 
@@ -329,8 +376,8 @@ def make_eval(batch: int, steps: int, benchmark=None):
         def one(carry, k):
             g, used, firsts, total, games = carry
             action, *_ = choose(policy, opp, g, learner, k, greedy=True, benchmark=benchmark)
-            g, used, _, _, after = _advance(g, used, base, pool, action)
-            done = after.over & ~after.overflow
+            g, used, _, _, after, over = _advance(g, used, base, pool, action, rounds)
+            done = over & ~after.overflow
             top = after.scores == after.scores.max(1, keepdims=True)
             share = (top * learner).sum(1) / top.sum(1)
             mean_r = (position_rewards(after.scores) * learner).sum(1) / 2.0
@@ -344,8 +391,20 @@ def make_eval(batch: int, steps: int, benchmark=None):
     return run
 
 
-def save_npz(policy, path: Path, meta: dict) -> None:
+def load_policy(path: Path, like):
+    """A saved policy's body and move head in ``like``'s shape; the auxiliary head stays as it is."""
+    data = np.load(path)
+    body = [{"w": jnp.asarray(data[f"w{k}"]), "b": jnp.asarray(data[f"b{k}"])} for k in range(len(like["body"]))]
+    if [layer["w"].shape for layer in body] != [layer["w"].shape for layer in like["body"]]:
+        raise ValueError(f"{path} does not fit --hidden and --depth")
+    return {**like, "body": body, "policy": {"w": jnp.asarray(data["pw"]), "b": jnp.asarray(data["pb"])}}
+
+
+def save_npz(policy, path: Path, meta: dict, standings=None) -> None:
     arrays = {}
+    if standings is not None:
+        for k, layer in enumerate([*standings["body"], standings["value"]]):
+            arrays[f"sw{k}"], arrays[f"sb{k}"] = np.asarray(layer["w"]), np.asarray(layer["b"])
     for k, layer in enumerate(policy["body"]):
         arrays[f"w{k}"], arrays[f"b{k}"] = np.asarray(layer["w"]), np.asarray(layer["b"])
     arrays["pw"], arrays["pb"] = np.asarray(policy["policy"]["w"]), np.asarray(policy["policy"]["b"])
@@ -377,6 +436,11 @@ def main(argv=None) -> int:
     p.add_argument("--eval-every", type=int, default=25)
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--logdir", type=Path)
+    p.add_argument("--rounds", type=int, default=0, help="rounds a game lasts (0: the whole Bola; the ladder plays 5)")
+    p.add_argument("--init", type=Path, help="a trained policy (net.npz) to start from")
+    p.add_argument("--warmup", type=int, default=0, help="iterations that leave the starting policy's moves alone")
+    p.add_argument("--rivals", type=Path, nargs="*", default=[], help="copies of other bots (train.rival) to play against")
+    p.add_argument("--rival-share", type=float, default=0.3, help="share of iterations played against a rival copy")
     p.add_argument("--benchmark", type=Path, help="RL v2 weights: train against it and report the score vs it")
     p.add_argument("--benchmark-share", type=float, default=0.5, help="share of iterations played against it")
     a = p.parse_args(argv)
@@ -386,20 +450,30 @@ def main(argv=None) -> int:
     key = jax.random.key(a.seed)
     key, k_net = jax.random.split(key)
     nets = init_nets(k_net, a.hidden, a.depth)
+    if a.init:
+        nets["policy"] = load_policy(a.init.expanduser(), nets["policy"])
     uniform = jax.tree.map(jnp.zeros_like, nets["policy"])  # all-zero logits: uniform over legal
     tx_policy = optax.chain(optax.clip_by_global_norm(1.0), optax.adam(a.lr))
     tx_critic = optax.chain(optax.clip_by_global_norm(1.0), optax.adam(a.lr))
-    opts = (tx_policy.init(nets["policy"]), tx_critic.init(nets["critic"]))
+    tx_standings = optax.adam(1e-3)
+    opts = (tx_policy.init(nets["policy"]), tx_critic.init(nets["critic"]), tx_standings.init(nets["standings"]))
     first_policy = jax.device_get(nets["policy"])
+    rivals = [jax.device_get(load_policy(path.expanduser(), nets["policy"])) for path in a.rivals]
     pool = [first_policy]
-    rollout = make_rollout(a.batch, a.steps, a.lam, a.objective)
-    update = make_update(tx_policy, tx_critic, a.clip, a.aux)
-    evaluate = make_eval(512, 4000)
+    rollout = make_rollout(a.batch, a.steps, a.lam, a.objective, rounds=a.rounds)
+    update = make_update(tx_policy, tx_critic, a.clip, a.aux, tx_standings)
+    evaluate = make_eval(512, 4000, rounds=a.rounds)
     benchmark = V.load(a.benchmark.expanduser()) if a.benchmark else None
-    rollout_benchmark = make_rollout(a.batch, a.steps, a.lam, a.objective, benchmark) if benchmark else None
-    evaluate_benchmark = make_eval(512, 4000, benchmark) if benchmark else None
+    rollout_benchmark = make_rollout(a.batch, a.steps, a.lam, a.objective, benchmark, a.rounds) if benchmark else None
+    evaluate_benchmark = make_eval(512, 4000, benchmark, a.rounds) if benchmark else None
     key, k = jax.random.split(key)
-    g = jax.vmap(G.new_game)(G.deal_pool(k, a.batch))
+    hands = G.deal_pool(k, a.batch)
+    g = jax.vmap(G.new_game)(hands)
+    if a.rounds:
+        # Short games all started together would all end together, and whole iterations would
+        # see no result. So the first games start at a random round and end at different times.
+        first = jax.random.randint(jax.random.fold_in(k, 1), (a.batch,), 1, a.rounds + 1)
+        g = g._replace(round_no=first, round=jax.vmap(R.init_round)(first, hands))
     writer = None
     if a.logdir:
         from tensorboardX import SummaryWriter
@@ -412,6 +486,8 @@ def main(argv=None) -> int:
     for it in range(1, a.iterations + 1):
         key, k_opp, k_roll, k_perm, k_eval = jax.random.split(key, 5)
         opp = pool[int(jax.random.randint(k_opp, (), 0, len(pool)))]
+        if rivals and float(jax.random.uniform(jax.random.fold_in(k_opp, 2))) < a.rival_share:
+            opp = rivals[int(jax.random.randint(jax.random.fold_in(k_opp, 3), (), 0, len(rivals)))]
         versus = benchmark and float(jax.random.uniform(jax.random.fold_in(k_opp, 1))) < a.benchmark_share
         g, flat, stats = (rollout_benchmark if versus else rollout)(nets, opp, g, k_roll)
         n = a.batch * a.steps
@@ -421,7 +497,7 @@ def main(argv=None) -> int:
             order = jnp.argsort(jax.random.uniform(jax.random.fold_in(k_perm, epoch), (n,)))
             for s in range(0, n - a.minibatch + 1, a.minibatch):
                 mb = jax.tree.map(lambda x: x[order[s : s + a.minibatch]], flat)
-                nets, opts, info = update(nets, opts, mb, ent)
+                nets, opts, info = update(nets, opts, mb, ent, 0.0 if it <= a.warmup else 1.0)
         decisions += n
         if it % a.snapshot_every == 0:
             pool = (pool + [jax.device_get(nets["policy"])])[-a.pool :]
@@ -433,6 +509,9 @@ def main(argv=None) -> int:
             king_s, pos_s, _ = evaluate(nets["policy"], first_policy, jax.random.fold_in(k_eval, 1))
             row |= {"king_vs_random": float(king_r), "pos_vs_random": float(pos_r), "king_vs_start": float(king_s),
                     "pos_vs_start": float(pos_s), "eval_games": int(games)}
+            for number, rival in enumerate(rivals):
+                _, pos_v, _ = evaluate(nets["policy"], rival, jax.random.fold_in(k_eval, 10 + number))
+                row[f"pos_vs_rival_{number}"] = float(pos_v)
             if benchmark:
                 king_b, pos_b, _ = evaluate_benchmark(nets["policy"], uniform, jax.random.fold_in(k_eval, 2))
                 row |= {"king_vs_benchmark": float(king_b), "pos_vs_benchmark": float(pos_b)}
@@ -443,9 +522,9 @@ def main(argv=None) -> int:
                   f"dash {row['dash']:.2f} bid {row['bid']:.2f} with {row['with_']:.2f} pass {row['pass_']:.2f} super {row['super_']:.2f} | "
                   f"skip {row['skipped']:.2f} alllose {row['all_lose']:.2f} made {row['caller_made']:.2f} "
                   f"rounds/game {row['rounds_per_game']:.1f} ovf {row['overflow']:.2f} | {row['per_s']:,.0f}/s", flush=True)
-            save_npz(nets["policy"], a.out / "net.npz", {"iteration": it, "args": {k: str(v) for k, v in vars(a).items()}})
+            save_npz(nets["policy"], a.out / "net.npz", {"iteration": it, "args": {k: str(v) for k, v in vars(a).items()}}, nets["standings"])
         if it % 200 == 0:
-            save_npz(nets["policy"], a.out / f"net-{it:05d}.npz", {"iteration": it})
+            save_npz(nets["policy"], a.out / f"net-{it:05d}.npz", {"iteration": it}, nets["standings"])
         log.write(json.dumps(row) + "\n")
         log.flush()
         if writer:

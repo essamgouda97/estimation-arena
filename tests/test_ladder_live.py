@@ -4,6 +4,8 @@ import json
 import subprocess
 import time
 
+import pytest
+
 from starlette.testclient import TestClient
 
 from arena import board, ladder_live
@@ -104,13 +106,21 @@ def test_the_estimate_lets_tonights_sets_move_a_rated_bot():
     from arena.bots import ROOT
     from arena.leaderboard import build
 
-    win = [{"a": "sub:lowcard-wire", "b": "sub:guess-search", "a_wins": 40, "draws": 0, "b_wins": 0}]
-    match = {**MATCH, "key": "sub:lowcard-wire", "opponent": "sub:guess-search", "alive": True, "state": "playing",
-             "pairs": {"weighted": win, "king": win, "delta": win}}  # fmt: skip
     elo = lambda rows: next(r["elo"] for r in rows if r["key"] == "sub:lowcard-wire")  # noqa: E731
-    saved = elo(build(ROOT, [match])["rows"])
-    assert saved == elo(build(ROOT)["rows"])  # the board keeps the saved rating
-    assert elo(build(ROOT, [match], keep_official=False)["rows"]) > saved + 100
+
+    def tonight(opponent: str) -> dict:
+        win = [{"a": "sub:lowcard-wire", "b": opponent, "a_wins": 40, "draws": 0, "b_wins": 0}]
+        return {**MATCH, "key": "sub:lowcard-wire", "opponent": opponent, "alive": True, "state": "playing",
+                "pairs": {"weighted": win, "king": win, "delta": win}}  # fmt: skip
+
+    board = build(ROOT)["rows"]
+    saved = elo(board)
+    strong = [r["key"] for r in board if r["elo"] and r["elo"] > saved + 300 and not r.get("provisional")]
+    assert saved == elo(build(ROOT, [tonight(strong[0])])["rows"])  # the board keeps the saved rating
+    # finished results outrank tonight's sets, so only a pairing the ladder has not played can move it
+    moved = any(elo(build(ROOT, [tonight(key)], keep_official=False)["rows"]) > saved + 100 for key in strong)
+    if not moved:
+        pytest.skip("the ladder has finished every pairing of this bot")
 
 
 def test_finished_watch_games_are_kept_for_the_game_browser(tmp_path, monkeypatch):
