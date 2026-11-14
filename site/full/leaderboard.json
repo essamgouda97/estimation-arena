@@ -1,5 +1,5 @@
 {
- "built_at": "2026-11-14T19:30:41+00:00",
+ "built_at": "2026-11-14T19:30:48+00:00",
  "contenders": [
   "sub:guess-search",
   "sub:kooz-bot",
@@ -16,9 +16,9 @@
    "anchor": false,
    "contender": true,
    "sets": 20,
-   "elo": 1908.5023903496854,
-   "king_elo": 1812.7965191236594,
-   "score_elo": 1880.162876313053
+   "elo": 1905.5535064131545,
+   "king_elo": 1813.9076166863815,
+   "score_elo": 1844.0375414033167
   },
   {
    "key": "sub:hybrid-v4",
@@ -28,9 +28,21 @@
    "anchor": false,
    "contender": true,
    "sets": 20,
-   "elo": 1514.7444196824317,
-   "king_elo": 1518.093093033759,
-   "score_elo": 1582.7420215181073
+   "elo": 1511.795535745953,
+   "king_elo": 1519.2041905965023,
+   "score_elo": 1546.6166866084093
+  },
+  {
+   "key": "sub:kooz-bot",
+   "code_name": "kooz-bot",
+   "name": "Kooz bot",
+   "author": "Abdulrahman Boudi",
+   "anchor": false,
+   "contender": true,
+   "sets": 20,
+   "elo": 1511.795535745953,
+   "king_elo": 1495.5556097490366,
+   "score_elo": 1644.5013396387947
   },
   {
    "key": "sub:bitter-search",
@@ -40,9 +52,9 @@
    "anchor": false,
    "contender": true,
    "sets": 20,
-   "elo": 1313.3643423056078,
-   "king_elo": 1376.725866984276,
-   "score_elo": 1302.045768543179
+   "elo": 1310.4154583691343,
+   "king_elo": 1377.8369645470236,
+   "score_elo": 1265.9204336334967
   },
   {
    "key": "sub:bitter-net",
@@ -51,10 +63,10 @@
    "author": "Essam Gouda",
    "anchor": false,
    "contender": true,
-   "sets": 60,
-   "elo": 1263.388847662275,
-   "king_elo": 1292.3845208583052,
-   "score_elo": 1235.0493336256607
+   "sets": 80,
+   "elo": 1260.439963725805,
+   "king_elo": 1293.4956184210562,
+   "score_elo": 1198.9239987159826
   }
  ],
  "direct": [
@@ -84,11 +96,21 @@
    "b_wins": 16,
    "sets": 20,
    "clear": true
+  },
+  {
+   "a": "sub:bitter-net",
+   "b": "sub:kooz-bot",
+   "a_wins": 3,
+   "draws": 1,
+   "b_wins": 16,
+   "sets": 20,
+   "clear": true
   }
  ],
  "runoff": [
   "sub:guess-search",
   "sub:hybrid-v4",
+  "sub:kooz-bot",
   "sub:bitter-search",
   "sub:bitter-net"
  ],
