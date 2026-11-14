@@ -1,5 +1,5 @@
 {
- "built_at": "2026-11-14T19:30:48+00:00",
+ "built_at": "2026-11-14T19:30:56+00:00",
  "contenders": [
   "sub:guess-search",
   "sub:kooz-bot",
@@ -15,22 +15,10 @@
    "author": "Essam Gouda",
    "anchor": false,
    "contender": true,
-   "sets": 20,
-   "elo": 1905.5535064131545,
-   "king_elo": 1813.9076166863815,
-   "score_elo": 1844.0375414033167
-  },
-  {
-   "key": "sub:hybrid-v4",
-   "code_name": "hybrid-v4",
-   "name": "Hybrid v4",
-   "author": "Yosif Elessawi",
-   "anchor": false,
-   "contender": true,
-   "sets": 20,
-   "elo": 1511.795535745953,
-   "king_elo": 1519.2041905965023,
-   "score_elo": 1546.6166866084093
+   "sets": 40,
+   "elo": 1926.339175771126,
+   "king_elo": 1752.3785223289965,
+   "score_elo": 1776.164709917407
   },
   {
    "key": "sub:kooz-bot",
@@ -40,9 +28,21 @@
    "anchor": false,
    "contender": true,
    "sets": 20,
-   "elo": 1511.795535745953,
-   "king_elo": 1495.5556097490366,
-   "score_elo": 1644.5013396387947
+   "elo": 1507.161508040781,
+   "king_elo": 1506.6543998561197,
+   "score_elo": 1658.9512708432164
+  },
+  {
+   "key": "sub:hybrid-v4",
+   "code_name": "hybrid-v4",
+   "name": "Hybrid v4",
+   "author": "Yosif Elessawi",
+   "anchor": false,
+   "contender": true,
+   "sets": 20,
+   "elo": 1507.161508040781,
+   "king_elo": 1530.3029807035905,
+   "score_elo": 1561.0666178127094
   },
   {
    "key": "sub:bitter-search",
@@ -51,10 +51,10 @@
    "author": "Essam Gouda",
    "anchor": false,
    "contender": true,
-   "sets": 20,
-   "elo": 1310.4154583691343,
-   "king_elo": 1377.8369645470236,
-   "score_elo": 1265.9204336334967
+   "sets": 40,
+   "elo": 1303.531872126694,
+   "king_elo": 1406.0696885831712,
+   "score_elo": 1290.4434715064044
   },
   {
    "key": "sub:bitter-net",
@@ -64,9 +64,9 @@
    "anchor": false,
    "contender": true,
    "sets": 80,
-   "elo": 1260.439963725805,
-   "king_elo": 1293.4956184210562,
-   "score_elo": 1198.9239987159826
+   "elo": 1255.8059360206175,
+   "king_elo": 1304.594408528122,
+   "score_elo": 1213.3739299202625
   }
  ],
  "direct": [
@@ -105,12 +105,21 @@
    "b_wins": 16,
    "sets": 20,
    "clear": true
+  },
+  {
+   "a": "sub:bitter-search",
+   "b": "sub:guess-search",
+   "a_wins": 0,
+   "draws": 0,
+   "b_wins": 20,
+   "sets": 20,
+   "clear": true
   }
  ],
  "runoff": [
   "sub:guess-search",
-  "sub:hybrid-v4",
   "sub:kooz-bot",
+  "sub:hybrid-v4",
   "sub:bitter-search",
   "sub:bitter-net"
  ],
