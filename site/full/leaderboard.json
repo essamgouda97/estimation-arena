@@ -1,5 +1,5 @@
 {
- "built_at": "2026-11-14T19:31:26+00:00",
+ "built_at": "2026-11-14T19:31:34+00:00",
  "contenders": [
   "sub:guess-search",
   "sub:kooz-bot",
@@ -16,9 +16,9 @@
    "anchor": false,
    "contender": true,
    "sets": 80,
-   "elo": 1746.5449452522626,
-   "king_elo": 1673.1104606644915,
-   "score_elo": 1686.6825979892067
+   "elo": 1746.7595692832797,
+   "king_elo": 1673.2568053083376,
+   "score_elo": 1685.3775630513076
   },
   {
    "key": "sub:hybrid-v4",
@@ -27,10 +27,10 @@
    "author": "Yosif Elessawi",
    "anchor": false,
    "contender": true,
-   "sets": 60,
-   "elo": 1568.27881368682,
-   "king_elo": 1570.604855158088,
-   "score_elo": 1597.5109787908723
+   "sets": 80,
+   "elo": 1576.6581103337855,
+   "king_elo": 1586.288926124821,
+   "score_elo": 1640.1251875999703
   },
   {
    "key": "sub:kooz-bot",
@@ -39,10 +39,10 @@
    "author": "Abdulrahman Boudi",
    "anchor": false,
    "contender": true,
-   "sets": 60,
-   "elo": 1551.9657832371622,
-   "king_elo": 1570.604855158088,
-   "score_elo": 1694.856426438268
+   "sets": 80,
+   "elo": 1543.741190097616,
+   "king_elo": 1555.133979718728,
+   "score_elo": 1649.0355147782716
   },
   {
    "key": "sub:bitter-search",
@@ -52,9 +52,9 @@
    "anchor": false,
    "contender": true,
    "sets": 80,
-   "elo": 1344.6598447475071,
-   "king_elo": 1375.7765891646425,
-   "score_elo": 1299.3034252597458
+   "elo": 1344.4872715138117,
+   "king_elo": 1375.6138573037015,
+   "score_elo": 1301.4912560257385
   },
   {
    "key": "sub:bitter-net",
@@ -64,9 +64,9 @@
    "anchor": false,
    "contender": true,
    "sets": 80,
-   "elo": 1288.550613076248,
-   "king_elo": 1309.9032398546901,
-   "score_elo": 1221.6465715219072
+   "elo": 1288.353858771507,
+   "king_elo": 1309.7064315444118,
+   "score_elo": 1223.9704785447125
   }
  ],
  "direct": [
@@ -148,6 +148,15 @@
    "a_wins": 12,
    "draws": 4,
    "b_wins": 4,
+   "sets": 20,
+   "clear": false
+  },
+  {
+   "a": "sub:hybrid-v4",
+   "b": "sub:kooz-bot",
+   "a_wins": 11,
+   "draws": 1,
+   "b_wins": 8,
    "sets": 20,
    "clear": false
   }
