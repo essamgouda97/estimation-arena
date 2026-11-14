@@ -1,5 +1,5 @@
 {
- "built_at": "2026-11-14T14:44:39+00:00",
+ "built_at": "2026-11-14T19:30:25+00:00",
  "contenders": [
   "sub:guess-search",
   "sub:kooz-bot",
@@ -7,8 +7,46 @@
   "sub:bitter-search",
   "sub:bitter-net"
  ],
- "rows": [],
- "direct": [],
- "runoff": [],
+ "rows": [
+  {
+   "key": "sub:bitter-search",
+   "code_name": "bitter-search",
+   "name": "Self-taught + look-ahead",
+   "author": "Essam Gouda",
+   "anchor": false,
+   "contender": true,
+   "sets": 20,
+   "elo": 1524.98774732166,
+   "king_elo": 1542.1706730629787,
+   "score_elo": 1533.4982174587528
+  },
+  {
+   "key": "sub:bitter-net",
+   "code_name": "bitter-net",
+   "name": "Self-taught",
+   "author": "Essam Gouda",
+   "anchor": false,
+   "contender": true,
+   "sets": 20,
+   "elo": 1475.01225267834,
+   "king_elo": 1457.8293269370213,
+   "score_elo": 1466.5017825412472
+  }
+ ],
+ "direct": [
+  {
+   "a": "sub:bitter-net",
+   "b": "sub:bitter-search",
+   "a_wins": 8,
+   "draws": 1,
+   "b_wins": 11,
+   "sets": 20,
+   "clear": false
+  }
+ ],
+ "runoff": [
+  "sub:bitter-search",
+  "sub:bitter-net"
+ ],
  "scale": 1500
 }
