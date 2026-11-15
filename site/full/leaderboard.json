@@ -1,25 +1,13 @@
 {
- "built_at": "2026-11-15T10:31:54+00:00",
+ "built_at": "2026-11-15T11:01:25+00:00",
  "contenders": [
+  "sub:guess-search",
   "sub:bitter-search",
   "sub:bitter-net",
-  "sub:guess-search",
   "sub:kooz-bot",
   "sub:hybrid-v4"
  ],
  "rows": [
-  {
-   "key": "sub:guess-search",
-   "code_name": "guess-search",
-   "name": "Self-taught + guesses",
-   "author": "Essam Gouda",
-   "anchor": false,
-   "contender": true,
-   "sets": 40,
-   "elo": 1593.1434875930172,
-   "king_elo": 1550.6794162547571,
-   "score_elo": 1511.0408341833456
-  },
   {
    "key": "sub:hybrid-v4",
    "code_name": "hybrid-v4",
@@ -27,10 +15,10 @@
    "author": "Yosif Elessawi",
    "anchor": false,
    "contender": true,
-   "sets": 40,
-   "elo": 1470.8609457286816,
-   "king_elo": 1500.0000000000016,
-   "score_elo": 1500.000000000002
+   "sets": 20,
+   "elo": 1524.98774732166,
+   "king_elo": 1533.4982174587528,
+   "score_elo": 1533.4982174587528
   },
   {
    "key": "sub:kooz-bot",
@@ -39,31 +27,13 @@
    "author": "Abdulrahman Boudi",
    "anchor": false,
    "contender": true,
-   "sets": 40,
-   "elo": 1435.9955666783014,
-   "king_elo": 1449.3205837452413,
-   "score_elo": 1488.9591658166523
+   "sets": 20,
+   "elo": 1475.01225267834,
+   "king_elo": 1466.5017825412472,
+   "score_elo": 1466.5017825412472
   }
  ],
  "direct": [
-  {
-   "a": "sub:guess-search",
-   "b": "sub:hybrid-v4",
-   "a_wins": 13,
-   "draws": 2,
-   "b_wins": 5,
-   "sets": 20,
-   "clear": false
-  },
-  {
-   "a": "sub:guess-search",
-   "b": "sub:kooz-bot",
-   "a_wins": 12,
-   "draws": 4,
-   "b_wins": 4,
-   "sets": 20,
-   "clear": false
-  },
   {
    "a": "sub:hybrid-v4",
    "b": "sub:kooz-bot",
@@ -75,7 +45,6 @@
   }
  ],
  "runoff": [
-  "sub:guess-search",
   "sub:hybrid-v4",
   "sub:kooz-bot"
  ],
