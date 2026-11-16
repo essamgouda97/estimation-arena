@@ -1,11 +1,11 @@
 {
- "built_at": "2026-11-16T13:46:29+00:00",
+ "built_at": "2026-11-16T13:49:36+00:00",
  "contenders": [
   "sub:guess-search",
   "sub:kooz-bot",
   "sub:hybrid-v4",
-  "sub:bitter-search",
-  "sub:bitter-net"
+  "sub:bitter-net",
+  "sub:bitter-search"
  ],
  "rows": [
   {
