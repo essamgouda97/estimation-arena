@@ -31836,6 +31836,274 @@
   },
   {
    "a": "sub:bitter-net",
+   "b": "sub:cautious-heuristic",
+   "kind": "direct",
+   "a_wins": 11,
+   "draws": 1,
+   "b_wins": 0,
+   "sets": 12,
+   "clear": true,
+   "played_at": "2026-11-18",
+   "detail": [
+    {
+     "outcome": "W",
+     "games": [
+      [
+       70.0,
+       -4.0
+      ],
+      [
+       2.0,
+       17.5
+      ],
+      [
+       70.0,
+       -4.0
+      ],
+      [
+       2.0,
+       17.5
+      ]
+     ]
+    },
+    {
+     "outcome": "W",
+     "games": [
+      [
+       32.0,
+       10.5
+      ],
+      [
+       81.0,
+       -21.5
+      ],
+      [
+       32.0,
+       10.5
+      ],
+      [
+       81.0,
+       -21.5
+      ]
+     ]
+    },
+    {
+     "outcome": "W",
+     "games": [
+      [
+       65.0,
+       -11.5
+      ],
+      [
+       87.0,
+       6.5
+      ],
+      [
+       65.0,
+       -11.5
+      ],
+      [
+       87.0,
+       6.5
+      ]
+     ]
+    },
+    {
+     "outcome": "W",
+     "games": [
+      [
+       98.5,
+       43.5
+      ],
+      [
+       79.5,
+       -12.0
+      ],
+      [
+       98.5,
+       43.5
+      ],
+      [
+       79.5,
+       -12.0
+      ]
+     ]
+    },
+    {
+     "outcome": "W",
+     "games": [
+      [
+       84.5,
+       29.5
+      ],
+      [
+       41.5,
+       -7.0
+      ],
+      [
+       84.5,
+       29.5
+      ],
+      [
+       41.5,
+       -7.0
+      ]
+     ]
+    },
+    {
+     "outcome": "D",
+     "games": [
+      [
+       5.5,
+       43.0
+      ],
+      [
+       56.0,
+       25.5
+      ],
+      [
+       5.5,
+       43.0
+      ],
+      [
+       56.0,
+       25.5
+      ]
+     ]
+    },
+    {
+     "outcome": "W",
+     "games": [
+      [
+       56.0,
+       -30.0
+      ],
+      [
+       71.5,
+       14.0
+      ],
+      [
+       56.0,
+       -30.0
+      ],
+      [
+       71.5,
+       14.0
+      ]
+     ]
+    },
+    {
+     "outcome": "W",
+     "games": [
+      [
+       92.0,
+       10.0
+      ],
+      [
+       31.0,
+       7.0
+      ],
+      [
+       92.0,
+       10.0
+      ],
+      [
+       31.0,
+       7.0
+      ]
+     ]
+    },
+    {
+     "outcome": "W",
+     "games": [
+      [
+       90.5,
+       17.5
+      ],
+      [
+       65.5,
+       32.0
+      ],
+      [
+       90.5,
+       17.5
+      ],
+      [
+       65.5,
+       32.0
+      ]
+     ]
+    },
+    {
+     "outcome": "W",
+     "games": [
+      [
+       84.5,
+       1.0
+      ],
+      [
+       46.5,
+       30.5
+      ],
+      [
+       84.5,
+       1.0
+      ],
+      [
+       46.5,
+       30.5
+      ]
+     ]
+    },
+    {
+     "outcome": "W",
+     "games": [
+      [
+       97.5,
+       -3.5
+      ],
+      [
+       97.5,
+       -19.0
+      ],
+      [
+       97.5,
+       -3.5
+      ],
+      [
+       97.5,
+       -19.0
+      ]
+     ]
+    },
+    {
+     "outcome": "W",
+     "games": [
+      [
+       12.0,
+       22.5
+      ],
+      [
+       87.0,
+       12.0
+      ],
+      [
+       12.0,
+       22.5
+      ],
+      [
+       87.0,
+       12.0
+      ]
+     ]
+    }
+   ],
+   "a_name": "Self-taught",
+   "b_name": "Cautious rules",
+   "file": "bitter-net.vs.cautious-heuristic.json"
+  },
+  {
+   "a": "sub:bitter-net",
    "b": "sub:guess-search",
    "kind": "direct",
    "a_wins": 1,
@@ -62324,6 +62592,15 @@
   },
   {
    "a": "sub:bitter-net",
+   "b": "sub:cautious-heuristic",
+   "a_wins": 11,
+   "draws": 1,
+   "b_wins": 0,
+   "sets": 12,
+   "clear": true
+  },
+  {
+   "a": "sub:bitter-net",
    "b": "sub:guess-search",
    "a_wins": 1,
    "draws": 1,
@@ -63122,13 +63399,13 @@
   "search",
   "sub:pimc-clone",
   "sub:table-pressure",
-  "sub:cautious-heuristic",
   "heuristic",
+  "sub:cautious-heuristic",
   "sub:highcard-wire",
   "sub:lowcard-wire",
   "random"
  ],
- "built_at": "2026-11-18T13:14:24+00:00",
+ "built_at": "2026-11-18T13:14:35+00:00",
  "anchor": "random",
  "anchor_rating": 400.0,
  "ladder": {
@@ -63380,9 +63657,9 @@
      "pick"
     ]
    ],
-   "elo": 1698.2405863400268,
-   "king_elo": 1464.5084553117244,
-   "score_elo": 4302.148756128966,
+   "elo": 1695.5558058632205,
+   "king_elo": 1462.1896469133962,
+   "score_elo": 4292.26362225354,
    "positions": [
     0.4328440656565657,
     0.3667337436868687,
@@ -63489,9 +63766,9 @@
    ],
    "anchor": false,
    "code_name": "guess-search",
-   "elo_margin": 64.95613823647027,
-   "king_elo_margin": 56.91169607086397,
-   "score_elo_margin": 67.3234676442609,
+   "elo_margin": 64.88460098366824,
+   "king_elo_margin": 56.846242201456384,
+   "score_elo_margin": 67.12345114894336,
    "close_to": null
   },
   {
@@ -63523,9 +63800,9 @@
      "pick"
     ]
    ],
-   "elo": 1548.6609958035035,
-   "king_elo": 1364.4573846411001,
-   "score_elo": 4175.595322698135,
+   "elo": 1546.0455101565008,
+   "king_elo": 1362.1930465387054,
+   "score_elo": 4165.842730912354,
    "positions": [
     0.4074337121212121,
     0.3126420454545455,
@@ -63632,9 +63909,9 @@
    ],
    "anchor": false,
    "code_name": "hybrid-v4",
-   "elo_margin": 49.30676486219151,
-   "king_elo_margin": 45.52920173798865,
-   "score_elo_margin": 54.586193151613344,
+   "elo_margin": 49.21865316601781,
+   "king_elo_margin": 45.45604112153601,
+   "score_elo_margin": 54.34587152205526,
    "close_to": null
   },
   {
@@ -63666,9 +63943,9 @@
      "pick"
     ]
    ],
-   "elo": 1544.0220674614739,
-   "king_elo": 1327.2045226191667,
-   "score_elo": 4176.727364637237,
+   "elo": 1541.4093265268705,
+   "king_elo": 1324.959980602325,
+   "score_elo": 4167.030963840958,
    "positions": [
     0.3865381758764112,
     0.350616458704694,
@@ -63775,9 +64052,9 @@
    ],
    "anchor": false,
    "code_name": "kooz-bot",
-   "elo_margin": 47.09556198463426,
-   "king_elo_margin": 42.620541229999866,
-   "score_elo_margin": 52.02809149792632,
+   "elo_margin": 47.00751265925334,
+   "king_elo_margin": 42.546458181855144,
+   "score_elo_margin": 51.7873449168194,
    "close_to": "Hybrid v4"
   },
   {
@@ -63801,9 +64078,9 @@
      "pick"
     ]
    ],
-   "elo": 1498.873327963634,
-   "king_elo": 1319.0658361149942,
-   "score_elo": 4137.355150869725,
+   "elo": 1493.6107958045718,
+   "king_elo": 1313.412030214879,
+   "score_elo": 4122.121956287685,
    "positions": [
     0.290625,
     0.2453125,
@@ -63835,9 +64112,9 @@
    ],
    "anchor": false,
    "code_name": "bitter-net",
-   "elo_margin": 53.778541686360754,
-   "king_elo_margin": 50.80368753549632,
-   "score_elo_margin": 57.85757780982627,
+   "elo_margin": 53.37651590531178,
+   "king_elo_margin": 50.283351821996284,
+   "score_elo_margin": 57.46072977913535,
    "close_to": "Kooz bot"
   },
   {
@@ -63869,9 +64146,9 @@
      "pick"
     ]
    ],
-   "elo": 1479.350366468043,
-   "king_elo": 1316.99389964588,
-   "score_elo": 4126.009334589768,
+   "elo": 1476.7341421257886,
+   "king_elo": 1314.6741916107883,
+   "score_elo": 4116.338763748965,
    "positions": [
     0.309375,
     0.2671875,
@@ -63903,9 +64180,9 @@
    ],
    "anchor": false,
    "code_name": "bitter-search",
-   "elo_margin": 51.59229630743105,
-   "king_elo_margin": 48.96239573156231,
-   "score_elo_margin": 56.222672930475085,
+   "elo_margin": 51.5050581528839,
+   "king_elo_margin": 48.88518867384004,
+   "score_elo_margin": 55.99573160283245,
    "close_to": "Self-taught"
   },
   {
@@ -63936,9 +64213,9 @@
      "pick"
     ]
    ],
-   "elo": 1382.3185121907077,
-   "king_elo": 1265.8465221819981,
-   "score_elo": 4069.7302358338848,
+   "elo": 1379.8608428431417,
+   "king_elo": 1263.6143236641303,
+   "score_elo": 4061.1681855459956,
    "positions": [
     0.426875,
     0.353125,
@@ -63949,9 +64226,9 @@
    "versus": [],
    "anchor": true,
    "code_name": "Hybrid (B-Tig)",
-   "elo_margin": 40.062605855263435,
-   "king_elo_margin": 38.06119594357315,
-   "score_elo_margin": 37.39923304924554,
+   "elo_margin": 39.97334938928465,
+   "king_elo_margin": 37.982239021300835,
+   "score_elo_margin": 37.14009119252714,
    "close_to": null
   },
   {
@@ -63983,9 +64260,9 @@
      "pick"
     ]
    ],
-   "elo": 1366.6121738447016,
-   "king_elo": 1217.1318051334147,
-   "score_elo": 3960.334513864263,
+   "elo": 1364.3379847048286,
+   "king_elo": 1215.1560078514829,
+   "score_elo": 3951.5495701845566,
    "positions": [
     0.3675583964646465,
     0.3093434343434343,
@@ -64092,9 +64369,9 @@
    ],
    "anchor": false,
    "code_name": "rl-hybrid",
-   "elo_margin": 44.17369270031442,
-   "king_elo_margin": 41.558724520793625,
-   "score_elo_margin": 49.808620909465105,
+   "elo_margin": 44.09561840402033,
+   "king_elo_margin": 41.49303232543131,
+   "score_elo_margin": 49.55859924554779,
    "close_to": "Trained bot + look-ahead"
   },
   {
@@ -64126,9 +64403,9 @@
      "pick"
     ]
    ],
-   "elo": 1365.7653440242493,
-   "king_elo": 1195.1477547433528,
-   "score_elo": 3957.2729531177456,
+   "elo": 1363.5602609394587,
+   "king_elo": 1193.2999018918629,
+   "score_elo": 3948.570604884372,
    "positions": [
     0.3540364583333333,
     0.3504123263888889,
@@ -64235,9 +64512,9 @@
    ],
    "anchor": false,
    "code_name": "rl-pimc",
-   "elo_margin": 45.56050077179748,
-   "king_elo_margin": 42.45135834118786,
-   "score_elo_margin": 51.84595328595313,
+   "elo_margin": 45.48491847990623,
+   "king_elo_margin": 42.3890096750528,
+   "score_elo_margin": 51.59669927275255,
    "close_to": "Hybrid with Copycat cards"
   },
   {
@@ -64261,9 +64538,9 @@
      "pick"
     ]
    ],
-   "elo": 1307.1311129128023,
-   "king_elo": 1116.0855503191417,
-   "score_elo": 3890.450654593858,
+   "elo": 1305.0515920379257,
+   "king_elo": 1114.3850468739147,
+   "score_elo": 3882.1097425494268,
    "positions": [
     0.3095486111111111,
     0.3315261994949495,
@@ -64370,9 +64647,9 @@
    ],
    "anchor": false,
    "code_name": "rl-cards",
-   "elo_margin": 40.652951204743616,
-   "king_elo_margin": 37.927003866756024,
-   "score_elo_margin": 47.1598250403293,
+   "elo_margin": 40.581634078817864,
+   "king_elo_margin": 37.869476734655535,
+   "score_elo_margin": 46.90073858751974,
    "close_to": null
   },
   {
@@ -64399,9 +64676,9 @@
      "pick"
     ]
    ],
-   "elo": 1251.5246583107844,
-   "king_elo": 1132.498863301717,
-   "score_elo": 3852.7754541338327,
+   "elo": 1249.7420802132651,
+   "king_elo": 1131.0261005174455,
+   "score_elo": 3845.38490813798,
    "positions": [
     0.36,
     0.33187500000000003,
@@ -64412,9 +64689,9 @@
    "versus": [],
    "anchor": true,
    "code_name": "RL v2",
-   "elo_margin": 43.71083923541135,
-   "king_elo_margin": 41.19201254106377,
-   "score_elo_margin": 34.53910828012286,
+   "elo_margin": 43.65199171705999,
+   "king_elo_margin": 41.145886248914294,
+   "score_elo_margin": 34.30096370079352,
    "close_to": null
   },
   {
@@ -64446,9 +64723,9 @@
      "pick"
     ]
    ],
-   "elo": 1169.150522586694,
-   "king_elo": 1047.9924056245231,
-   "score_elo": 3727.9530174879183,
+   "elo": 1167.3922253188334,
+   "king_elo": 1046.4806027869995,
+   "score_elo": 3720.3902997938726,
    "positions": [
     0.2953063241106719,
     0.3023557586736934,
@@ -64555,9 +64832,9 @@
    ],
    "anchor": false,
    "code_name": "net-pimc",
-   "elo_margin": 42.23070584565538,
-   "king_elo_margin": 39.59637935874502,
-   "score_elo_margin": 49.51164979169695,
+   "elo_margin": 42.16160276654275,
+   "king_elo_margin": 39.53829449127998,
+   "score_elo_margin": 49.237839229388925,
    "close_to": null
   },
   {
@@ -64584,9 +64861,9 @@
      "pick"
     ]
    ],
-   "elo": 1157.1174023709148,
-   "king_elo": 1059.0873872727968,
-   "score_elo": 3667.6789412099233,
+   "elo": 1155.5389663834524,
+   "king_elo": 1057.772126839459,
+   "score_elo": 3660.7140061347254,
    "positions": [
     0.31375000000000003,
     0.32875,
@@ -64597,9 +64874,9 @@
    "versus": [],
    "anchor": true,
    "code_name": "PIMC",
-   "elo_margin": 44.1973229176673,
-   "king_elo_margin": 41.337598397875006,
-   "score_elo_margin": 34.28108250476215,
+   "elo_margin": 44.13335536999466,
+   "king_elo_margin": 41.28728513042665,
+   "score_elo_margin": 34.05766113567444,
    "close_to": "Copycat + look-ahead"
   },
   {
@@ -64626,9 +64903,9 @@
      "pick"
     ]
    ],
-   "elo": 1111.0204949727276,
-   "king_elo": 1007.1339077928983,
-   "score_elo": 3628.663711276061,
+   "elo": 1109.5470635759957,
+   "king_elo": 1005.9242776058597,
+   "score_elo": 3621.657003865299,
    "positions": [
     0.286875,
     0.3125,
@@ -64639,9 +64916,9 @@
    "versus": [],
    "anchor": true,
    "code_name": "Search bot",
-   "elo_margin": 44.27811677515924,
-   "king_elo_margin": 41.16338338141496,
-   "score_elo_margin": 37.11228531463499,
+   "elo_margin": 44.20979368776678,
+   "king_elo_margin": 41.10909558198268,
+   "score_elo_margin": 36.84876737172427,
    "close_to": "Look-ahead"
   },
   {
@@ -64665,9 +64942,9 @@
      "pick"
     ]
    ],
-   "elo": 1068.3048157474173,
-   "king_elo": 973.0573380721627,
-   "score_elo": 3601.6950878826037,
+   "elo": 1066.823544167593,
+   "king_elo": 971.7749436483771,
+   "score_elo": 3594.8103003530014,
    "positions": [
     0.25825554653679655,
     0.29353073142135644,
@@ -64774,9 +65051,9 @@
    ],
    "anchor": false,
    "code_name": "pimc-clone",
-   "elo_margin": 46.137735468222054,
-   "king_elo_margin": 42.861765056735976,
-   "score_elo_margin": 54.58404478959251,
+   "elo_margin": 46.06491403180552,
+   "king_elo_margin": 42.80153317072999,
+   "score_elo_margin": 54.27810530776969,
    "close_to": "Look-ahead, tuned rules"
   },
   {
@@ -64804,9 +65081,9 @@
      "pick"
     ]
    ],
-   "elo": 912.6323491715716,
-   "king_elo": 856.775679627445,
-   "score_elo": 3223.8070244725277,
+   "elo": 912.1180303707508,
+   "king_elo": 856.2116526033276,
+   "score_elo": 3224.872273576772,
    "positions": [
     0.19438131313131313,
     0.2680239898989899,
@@ -64913,9 +65190,9 @@
    ],
    "anchor": false,
    "code_name": "table-pressure",
-   "elo_margin": 56.26520504743609,
-   "king_elo_margin": 50.65171938709213,
-   "score_elo_margin": 80.33858386236903,
+   "elo_margin": 56.111572139134985,
+   "king_elo_margin": 50.53326874855907,
+   "score_elo_margin": 79.36620692017371,
    "close_to": null
   },
   {
@@ -64943,9 +65220,9 @@
      "pick"
     ]
    ],
-   "elo": 833.1482938476809,
-   "king_elo": 765.7784196162283,
-   "score_elo": 3097.4351106709523,
+   "elo": 836.0835044317425,
+   "king_elo": 769.425167284922,
+   "score_elo": 3108.9325981476136,
    "positions": [
     0.18046442936148818,
     0.23572061108825815,
@@ -65052,9 +65329,9 @@
    ],
    "anchor": false,
    "code_name": "cautious-heuristic",
-   "elo_margin": 59.68188688661098,
-   "king_elo_margin": 54.88015170283201,
-   "score_elo_margin": 80.41228372869097,
+   "elo_margin": 59.07502904627696,
+   "king_elo_margin": 54.13868753692558,
+   "score_elo_margin": 79.50931823486661,
    "close_to": null
   },
   {
@@ -65081,9 +65358,9 @@
      "pick"
     ]
    ],
-   "elo": 832.7672573803438,
-   "king_elo": 798.7696544356568,
-   "score_elo": 2962.5019716339616,
+   "elo": 832.7800556788488,
+   "king_elo": 798.7669435320687,
+   "score_elo": 2962.501943933135,
    "positions": [
     0.1125,
     0.17250000000000001,
@@ -65094,9 +65371,9 @@
    "versus": [],
    "anchor": true,
    "code_name": "Heuristic",
-   "elo_margin": 55.70066519730102,
-   "king_elo_margin": 49.83735336644742,
-   "score_elo_margin": 57.15108873660639,
+   "elo_margin": 55.51987273596996,
+   "king_elo_margin": 49.69452540939656,
+   "score_elo_margin": 56.69424821714387,
    "close_to": "Cautious rules"
   },
   {
@@ -65120,9 +65397,9 @@
      "pick"
     ]
    ],
-   "elo": 655.1599494039591,
-   "king_elo": 607.3545546333255,
-   "score_elo": 2921.1595297086046,
+   "elo": 655.3203051229923,
+   "king_elo": 607.5422191862485,
+   "score_elo": 2925.10858597149,
    "positions": [
     0.06944444444444445,
     0.1320233585858586,
@@ -65229,9 +65506,9 @@
    ],
    "anchor": false,
    "code_name": "highcard-wire",
-   "elo_margin": 78.86790721887982,
-   "king_elo_margin": 72.08650883228529,
-   "score_elo_margin": 100.90895009738495,
+   "elo_margin": 78.71799414660103,
+   "king_elo_margin": 71.96029671919355,
+   "score_elo_margin": 100.29439994676459,
    "close_to": null
   },
   {
@@ -65255,9 +65532,9 @@
      "pick"
     ]
    ],
-   "elo": 624.0343999193301,
-   "king_elo": 580.6569486046312,
-   "score_elo": 2890.8693895831207,
+   "elo": 624.0010202622606,
+   "king_elo": 580.6140558797059,
+   "score_elo": 2894.0718649486007,
    "positions": [
     0.05809294871794871,
     0.14531128593628592,
@@ -65364,9 +65641,9 @@
    ],
    "anchor": false,
    "code_name": "lowcard-wire",
-   "elo_margin": 83.18611283702144,
-   "king_elo_margin": 75.81739109046126,
-   "score_elo_margin": 106.12076549061081,
+   "elo_margin": 83.05075461695947,
+   "king_elo_margin": 75.70761528982027,
+   "score_elo_margin": 105.52487451516036,
    "close_to": "Always highest card"
   },
   {
@@ -65428,9 +65705,9 @@
      "pick"
     ]
    ],
-   "elo": 1023.6157592682443,
-   "king_elo": 989.6181563235589,
-   "score_elo": 3153.3504735218276,
+   "elo": 1023.6285575667465,
+   "king_elo": 989.615445419973,
+   "score_elo": 3153.350445821001,
    "positions": [
     0.375,
     0.375,
@@ -65462,9 +65739,9 @@
    ],
    "anchor": false,
    "code_name": "llm-claude-api",
-   "elo_margin": 558.7957832748692,
-   "king_elo_margin": 558.2418159659185,
-   "score_elo_margin": 558.9422244258361
+   "elo_margin": 558.7777908712626,
+   "king_elo_margin": 558.2290830456805,
+   "score_elo_margin": 558.8956978571489
   }
  ]
 }
