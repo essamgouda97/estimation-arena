@@ -26,7 +26,7 @@ from pathlib import Path
 import numpy as np
 
 import estimation.bots  # noqa: F401  (import order: the encoder imports the bots package)
-from arena.lookahead import PositionScorer, StandingsScorer, skipped_round_value, standings_net
+from arena.lookahead import PositionScorer, StandingsScorer, rounds_after, skipped_round_value, standings_net
 from estimation.bots.hybrid.beliefs import PublicBidding
 from estimation.bots.hybrid.bot import HybridBot, HybridConfig
 from estimation.bots.hybrid.rollout import Start, _beats, _only_card, bits
@@ -36,7 +36,7 @@ from estimation.bots.registry import configure
 from estimation.bots.scoring import RoundScorer, estimates_of, standings_weights
 from estimation.engine import Observation, Phase, RulesConfig, play_action
 from estimation.engine.cards import SUIT_MASKS
-from jaxenv.encode_np import PLAY_BASE, SIZE, encode
+from jaxenv.encode_np import PLAY_BASE, SIZE, encode, told_rounds_left
 
 HERE = Path(__file__).resolve().parent
 PLAYED, TABLE, SHOWN, WON, LEADER, MASK = 52, 260, 468, 580, 594, SIZE - 120
@@ -45,12 +45,15 @@ _SUITS = np.array(SUIT_MASKS, dtype=np.uint64)
 
 
 @cache
-def load_net(path: str):
+def load_net(path: str, rounds_left: int = 0):
+    """The policy at ``path`` for a round with ``rounds_left`` rounds after it: raw views in,
+    a score per move out."""
     data = np.load(path)
     layers, k = [], 0
     while f"w{k}" in data:
         layers.append((data[f"w{k}"].astype(np.float32), data[f"b{k}"].astype(np.float32)))
         k += 1
+    layers[0] = tuple(part.astype(np.float32) for part in told_rounds_left(*layers[0], rounds_left))
     head = data["pw"].astype(np.float32), data["pb"].astype(np.float32)
 
     def logits(x: np.ndarray) -> np.ndarray:
@@ -203,17 +206,21 @@ class BitterSearch(HybridBot):
         if objective not in ("score", "position", "standings"):
             raise ValueError(f"objective must be score, position or standings, not {objective!r}")
         super().__init__(seed, config)
-        self._net = load_net(net)
+        self._net_path = net
         self._for_position = objective != "score"
         self._standings = standings_net(net) if objective == "standings" else None  # learned beside the policy
         self._own_rollout = rollout == "net"
         if not self._own_rollout:
             self._policy = _CardsPolicy(self._policy, load_cards(str(HERE / "../rl-cards/net.npz")))
 
+    def net(self, obs: Observation):
+        """The policy for the round in ``obs``, knowing how many rounds follow it."""
+        return load_net(self._net_path, rounds_after(obs.round_no))
+
     def act(self, obs: Observation, legal: list[int]) -> int:
         if len(legal) == 1:
             return legal[0]
-        logits = self._net(encode(obs, legal))
+        logits = self.net(obs)(encode(obs, legal))
         if obs.phase is not Phase.PLAY:
             if self.config.bid_search:
                 return self.best_call(obs, sorted(legal, key=lambda a: -logits[a])[: self.config.bid_top_k])
@@ -231,7 +238,7 @@ class BitterSearch(HybridBot):
     def try_calls(self, obs: Observation, calls: list[int], deals: list[list[int]]) -> list[float]:
         """For each call, the sum over ``deals`` of what the round is worth to ``obs.seat`` after
         making it, the net finishing the bidding and playing the cards for every seat."""
-        me, rules = obs.seat, self.config.rules
+        me, rules, net = obs.seat, self.config.rules, self.net(obs)
         before = PublicBidding(obs, rules)
         for seat, action in obs.log:
             before.step(seat, action)
@@ -241,12 +248,12 @@ class BitterSearch(HybridBot):
             for k, call in enumerate(calls):
                 state = before.clone()
                 state.step(me, call)
-                finish_bidding(self._net, state, hands)
+                finish_bidding(net, state, hands)
                 if state.phase is not Phase.PLAY:  # the round was skipped: nobody scores
                     totals[k] += skipped_round_value(obs) if self._for_position else 0.0
                     continue
                 view = state.observation(me)
-                totals[k] += self.scorer(view, weights).value(play_round(self._net, view, hands))
+                totals[k] += self.scorer(view, weights).value(play_round(net, view, hands))
         return totals
 
     def scorer(self, obs: Observation, weights):
@@ -258,7 +265,7 @@ class BitterSearch(HybridBot):
     def explain(self, obs: Observation, cards: list[int]) -> tuple[int, dict[str, dict[int, float]]]:
         """The card it plays and why: the net's probability per legal card and the search's mean
         value of the cards it searched (for "how it plays")."""
-        logits = self._net(encode(obs, [PLAY_BASE + c for c in cards]))
+        logits = self.net(obs)(encode(obs, [PLAY_BASE + c for c in cards]))
         values = np.array([logits[PLAY_BASE + c] for c in cards])
         prob = np.exp(values - values.max())
         prob /= prob.sum()
@@ -288,7 +295,7 @@ class BitterSearch(HybridBot):
             trump=obs.trump,
         )
         won = play_out(
-            self._net,
+            self.net(obs),
             templates_of(obs),
             start,
             np.repeat(np.array(deals, dtype=np.uint64), n_cards, axis=0),

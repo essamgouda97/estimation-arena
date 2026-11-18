@@ -108,7 +108,9 @@ Throughput in that run: 0.8M decisions/s on all 6 CPU cores, 8.7M/s on the GTX 1
 ## Self-play
 
 `jaxenv.selfplay` trains one policy for every decision from raw state (`jaxenv.encode`, 747
-inputs). `jaxenv.check` requires the GPU encoder to equal `jaxenv.encode_np`, the numpy version an
+inputs) plus one more: the rounds still to play. `--rounds 5 mini whole --shares 0.5 0.25 0.25`
+mixes game lengths in one run (`5` is a micro game, `mini` is 5 open rounds then the 5 fixed
+trumps, `whole` is a Bola), so one net plays every length. `jaxenv.check` requires the GPU encoder to equal `jaxenv.encode_np`, the numpy version an
 arena bot plays through, at every step, so the policy sees only what a seat may see.
 
 | Piece | Choice |

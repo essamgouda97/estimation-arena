@@ -11,6 +11,16 @@ from estimation.engine import Phase, cards_of
 
 SIZE = 52 + 208 + 208 + 16 + 20 + 51 + 5 + 4 * 6 + 5 * 3 + 4 + 6 + 6 + 1 + 1 + 1 + 4 + 2 + 3 + 120
 FIRST_BID, WITH, PLAY_BASE = 2, 52, 68
+WHOLE_GAME = 18  # rounds; the scale of the rounds-left input (jaxenv.selfplay.view_of)
+
+
+def told_rounds_left(w: np.ndarray, b: np.ndarray, rounds_left: int) -> tuple[np.ndarray, np.ndarray]:
+    """A policy's first layer for a round that has ``rounds_left`` rounds after it, taking the
+    raw view alone. A policy trained to be told that number has one more input than SIZE; the
+    number is the same all round, so it goes into the bias. An older policy comes back as it is."""
+    if w.shape[0] == SIZE:
+        return w, b
+    return w[:SIZE], b + w[SIZE] * (rounds_left / WHOLE_GAME)
 
 
 def _seat_hot(x, me):

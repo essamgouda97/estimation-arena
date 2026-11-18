@@ -90,7 +90,7 @@ def train(args: argparse.Namespace) -> None:
 
     from jaxenv import game as G
     from jaxenv.encode import SIZE
-    from jaxenv.selfplay import init_nets, make_rollout
+    from jaxenv.selfplay import VIEW, init_nets, make_rollout
 
     args.out.mkdir(parents=True, exist_ok=True)
     key = jax.random.key(args.seed)
@@ -100,6 +100,8 @@ def train(args: argparse.Namespace) -> None:
     while f"w{k}" in data:
         body.append({"w": jnp.asarray(data[f"w{k}"]), "b": jnp.asarray(data[f"b{k}"])})
         k += 1
+    if body[0]["w"].shape[0] == SIZE:  # a net from before the view told the rounds left: zero weight on it
+        body[0]["w"] = jnp.concatenate([body[0]["w"], jnp.zeros((VIEW - SIZE, body[0]["w"].shape[1]))])
     policy = {"body": body, "policy": {"w": jnp.asarray(data["pw"]), "b": jnp.asarray(data["pb"])},
               "aux": {"w": jnp.zeros((body[-1]["w"].shape[1], 1)), "b": jnp.zeros(1)}}  # fmt: skip
     nets = {"policy": policy, "critic": init_nets(k_c, 512, 3)["critic"]}  # the critic is unused here
@@ -141,7 +143,7 @@ def train(args: argparse.Namespace) -> None:
     for it in range(1, args.iterations + 1):
         key, k_roll, k_perm = jax.random.split(key, 3)
         g, flat, _ = rollout(nets, policy, g, k_roll)
-        x = flat["x"].astype(jnp.float32)
+        x = flat["x"][:, :SIZE].astype(jnp.float32)  # the guess net reads the raw view alone
         hidden = flat["hidden"]
         fresh = float(np.mean([float(score(params, x[s : s + 8192], hidden[s : s + 8192])) for s in range(0, n, 8192)]))
         order = jax.random.permutation(k_perm, n)

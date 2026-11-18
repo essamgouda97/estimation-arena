@@ -16,6 +16,7 @@
 | **Anchor** | A fixed bot that every other bot is measured against, so ratings stay comparable. The page calls these benchmarks. |
 | **Bola** | One full game of Estimation: 13 open rounds, then 5 with a fixed trump. |
 | **Micro game** | The first 5 rounds of a Bola, each with 13 cards and open bidding. The nightly ladder plays these. |
+| **Mini game** | 5 open rounds, then the 5 fixed-trump rounds. Used in training only: the engine doesn't play it yet. |
 | **King, Sub-King, Sub-Kooz, Kooz** | Final places in a Bola, from first to last. |
 | **Set** | One deal played 4 times with the seats rotated, so lucky cards cancel out. |
 | **Elo** | A rating from who won each set. 200 points ahead means winning about 76% of sets. Random is fixed at 400. |

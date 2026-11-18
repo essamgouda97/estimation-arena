@@ -3,7 +3,7 @@
   "author": "Essam Gouda",
   "kind": "python",
   "entry": "bot.py:make",
-  "description": "Self-taught + look-ahead with a guess net of its own, trained only on its own games: it imagines 256 hidden deals per card from where the guess net thinks each card is, kept by how well they fit the bids, and plays for its finishing place in the game.",
+  "description": "Self-taught + look-ahead with a guess net of its own, trained only on its own games: it imagines 256 hidden deals per card from where the guess net thinks each card is, kept by how well they fit the bids, and plays for its finishing place in the game, knowing how many rounds are left.",
   "timeout_s": 5,
   "needs": "runs/m4-rules-v2/checkpoints/final.pt",
   "method": [

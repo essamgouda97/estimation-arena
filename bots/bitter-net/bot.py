@@ -8,8 +8,9 @@ from pathlib import Path
 
 import numpy as np
 
+from arena.lookahead import rounds_after
 from estimation.engine import Observation, RulesConfig
-from jaxenv.encode_np import PLAY_BASE, encode
+from jaxenv.encode_np import PLAY_BASE, encode, told_rounds_left
 
 HERE = Path(__file__).resolve().parent
 
@@ -25,7 +26,8 @@ class BitterNet:
 
     def logits(self, obs: Observation, legal: list[int]) -> np.ndarray:
         x = encode(obs, legal)
-        for w, b in self.layers:
+        first = told_rounds_left(*self.layers[0], rounds_after(obs.round_no))
+        for w, b in (first, *self.layers[1:]):
             x = np.maximum(x @ w + b, 0.0)
         return x @ self.head[0] + self.head[1]
 

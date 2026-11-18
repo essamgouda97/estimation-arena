@@ -16,8 +16,12 @@
 - Opponents: half the games are self-play; in the rest two opposite seats play a past version.
 - --benchmark: RL v2's weights. It then plays the other seats in --benchmark-share of the
   iterations, and the log reports the King rate against it.
-- --rounds: a game ends after that many rounds, as the ladder's micro games do (0: the whole
-  Bola). --init starts from a trained policy; --warmup then trains only the critic and the
+- --rounds: the kind of game (``kind_of``). A number ends the game after that many rounds, as
+  the ladder's micro games do (5); 0 or "whole" is the whole Bola; "mini" is 5 open rounds and
+  then the five fixed trumps. Several kinds train one policy on a mix, --shares giving each
+  kind's share of the games. The policy is told how many rounds follow the one it is playing
+  (``view_of``), so it knows a micro game's fifth round is the last and a whole game's is not.
+- --init starts from a trained policy; --warmup then trains only the critic and the
   auxiliary head for that many iterations, so a critic that knows nothing can't spoil it.
 - Standings net, a by-product: from the scores after a round, the rounds left and the carry, each
   seat's expected final reward. It reads no cards, so a search can score a round's outcome with
@@ -34,6 +38,7 @@ import os
 import pickle
 import time
 from pathlib import Path
+from typing import NamedTuple
 
 os.environ.setdefault("XLA_PYTHON_CLIENT_MEM_FRACTION", "0.85")  # before JAX touches the GPU
 
@@ -69,6 +74,7 @@ def _head(key, hidden, out, scale):
 
 STANDINGS_SIZE, STANDINGS_HIDDEN = 5, 64
 FULL_ROUNDS = 18  # a whole Bola without replays
+VIEW = E.SIZE + 1  # the policy's input: the round as one seat sees it, then the rounds left
 
 
 def standings_view(scores, left, carry):
@@ -91,9 +97,9 @@ def init_nets(key, hidden: int, depth: int):
     k1, k2, k3, k4, k5, k6, k7 = jax.random.split(key, 7)
     return {
         "standings": {"body": _mlp(k6, STANDINGS_SIZE, STANDINGS_HIDDEN, 2), "value": _head(k7, STANDINGS_HIDDEN, 1, 1.0)},
-        "policy": {"body": _mlp(k1, E.SIZE, hidden, depth), "policy": _head(k2, hidden, R.NUM_ACTIONS, 0.01),
+        "policy": {"body": _mlp(k1, VIEW, hidden, depth), "policy": _head(k2, hidden, R.NUM_ACTIONS, 0.01),
                    "aux": _head(k3, hidden, 1, 1.0)},
-        "critic": {"body": _mlp(k4, E.SIZE + HIDDEN, hidden, depth), "value": _head(k5, hidden, 1, 1.0)},
+        "critic": {"body": _mlp(k4, VIEW + HIDDEN, hidden, depth), "value": _head(k5, hidden, 1, 1.0)},
     }  # fmt: skip
 
 
@@ -194,10 +200,54 @@ def hidden_of(rounds, seat):
     return jnp.concatenate(parts, -1)
 
 
-def choose(policy, opp, g, learner, key, greedy=False, benchmark=None):
-    """``benchmark``: RL v2's nets (jaxenv.rlv2), which then play the other seats instead of ``opp``."""
+class Kind(NamedTuple):
+    """The kind of game a seat is in. Micro: stop after 5 of a Bola's rounds. Mini: 5 open
+    rounds, then the five fixed trumps. Whole: the Bola, 13 open rounds and the fixed trumps."""
+
+    limit: jax.Array  # stop after this many rounds (0: play until the fixed trumps are done)
+    open_rounds: jax.Array  # open rounds before the fixed trumps
+
+
+MINI_OPEN = 5
+SPEED_ROUNDS = len(R.FIXED_ORDER)
+
+
+def kind_of(name) -> tuple[int, int]:
+    """(limit, open rounds) of "whole" (or 0), "mini", or a number of rounds to stop after."""
+    if str(name) in ("0", "whole"):
+        return 0, R.OPEN_ROUNDS
+    if str(name) == "mini":
+        return 0, MINI_OPEN
+    return int(name), R.OPEN_ROUNDS
+
+
+def game_length(kind: Kind):
+    """Rounds in a game of this kind, fixed-trump replays aside."""
+    return jnp.where(kind.limit > 0, kind.limit, kind.open_rounds + SPEED_ROUNDS)
+
+
+def rounds_left(round_no, kind: Kind):
+    """Rounds still to play once round ``round_no`` (from 1) is over, as arena.lookahead.rounds_after."""
+    return jnp.maximum(game_length(kind) - round_no, 0)
+
+
+def view_of(g, kind: Kind):
+    """[B, VIEW]: what the policy sees. The acting seat's raw view of the round, then how many
+    rounds follow it, out of a whole game's 18."""
+    x = jax.vmap(E.encode)(g.round, g.round.cur)
+    return jnp.concatenate([x, (rounds_left(g.round_no, kind) / FULL_ROUNDS)[:, None]], 1)
+
+
+def legal_in(x):
+    """The legal moves, which close the raw view inside a policy's input."""
+    return x[:, E.SIZE - R.NUM_ACTIONS : E.SIZE] > 0.5
+
+
+def choose(policy, opp, g, learner, key, kind: Kind, greedy=False, benchmark=None):
+    """``kind``: each game's kind. ``benchmark``: RL v2's nets (jaxenv.rlv2), which then play
+    the other seats instead of ``opp``."""
     seat = g.round.cur
-    x = jax.vmap(E.encode)(g.round, seat)
+    x = view_of(g, kind)
     mask = jax.vmap(G.game_legal)(g)
     logits, _ = apply_policy(policy, x)
     if benchmark is None:
@@ -211,24 +261,39 @@ def choose(policy, opp, g, learner, key, greedy=False, benchmark=None):
     return action, logp, x, mine, mask.sum(1)
 
 
-def _advance(g, used, base, pool, action, rounds: int = 0):
+def _advance(g, used, base, pool, action, kind: Kind):
     """Play ``action``. Returns the games (finished ones restarted), the deal counter, the round
     just played, whether it ended, the game before any restart, and whether that game is over:
-    the Bola ended, or ``rounds`` rounds were played (0: no limit)."""
+    its fixed trumps are done, or its kind's limit of rounds was played."""
     r = jax.vmap(R.step)(g.round, action)
     ended = (r.phase == R.DONE) & ~g.over
     before = g.round_no
     after = jax.vmap(G.game_step)(g, action, pool[base + used % POOL_DEALS])
     used = used + (after.round_no != before)
-    over = after.over | ((after.round_no > rounds) if rounds else False)
+    over = after.over | ((kind.limit > 0) & (after.round_no > kind.limit))
     stop = over | after.overflow
-    fresh = jax.vmap(G.new_game)(pool[base + (used + 1) % POOL_DEALS])
+    fresh = jax.vmap(G.new_game)(pool[base + (used + 1) % POOL_DEALS], kind.open_rounds)
     return _where_games(stop, fresh, after), used + stop, r, ended, after, over
 
 
-def make_rollout(batch: int, steps: int, lam: float, objective: str = "weighted", benchmark=None, rounds: int = 0):
+def game_kinds(batch: int, rounds=(0,), shares=()) -> Kind:
+    """Each of ``batch`` game slots' kind: the kinds named in ``rounds`` (``kind_of``), each on
+    its share of the slots (equal shares when none are given). A slot keeps its kind, so a
+    kind's share of the slots is also its share of the decisions trained on."""
+    shares = np.asarray(shares or [1.0] * len(rounds), np.float64)
+    if len(shares) != len(rounds) or shares.min() <= 0:
+        raise ValueError("--shares needs one positive share per --rounds")
+    upto = np.round(np.cumsum(shares / shares.sum()) * batch).astype(int)
+    which = np.searchsorted(upto, np.arange(batch), side="right").clip(max=len(rounds) - 1)
+    limit, open_rounds = np.array([kind_of(name) for name in rounds])[which].T
+    return Kind(jnp.asarray(limit, jnp.int32), jnp.asarray(open_rounds, jnp.int32))
+
+
+def make_rollout(batch: int, steps: int, lam: float, objective: str = "weighted", benchmark=None, rounds=0):
+    """``rounds``: every game's kind by name (``kind_of``), or each game's own (``game_kinds``)."""
     base = jnp.arange(batch) * POOL_DEALS
-    length = rounds or FULL_ROUNDS
+    kind = rounds if isinstance(rounds, Kind) else game_kinds(batch, (rounds,))
+    length = game_length(kind)
 
     def rollout(nets, opp, g, key):
         k_pool, k_seats, k_mix, k_steps = jax.random.split(key, 4)
@@ -242,10 +307,10 @@ def make_rollout(batch: int, steps: int, lam: float, objective: str = "weighted"
             seat = g.round.cur
             phase = g.round.phase
             pre_super = g.round.caller < 0
-            action, logp, x, mine, n_legal = choose(nets["policy"], opp, g, learner, k, benchmark=benchmark)
+            action, logp, x, mine, n_legal = choose(nets["policy"], opp, g, learner, k, kind, benchmark=benchmark)
             hidden = hidden_of(g.round, seat)
             value = apply_critic(nets["critic"], x, hidden)
-            g, used, r, ended, after, over = _advance(g, used, base, pool, action, rounds)
+            g, used, r, ended, after, over = _advance(g, used, base, pool, action, kind)
             played = ended & ~r.skipped
             left = jnp.clip(length + 1 - after.round_no, 0, length) / length  # share of the game still to play
             made = jnp.take_along_axis(r.est == r.won, jnp.maximum(r.caller, 0)[:, None], 1)[:, 0]
@@ -320,7 +385,7 @@ def make_update(tx_policy, tx_critic, clip: float, aux_weight: float, tx_standin
     def policy_loss(net, mb, ent):
         x = mb["x"].astype(jnp.float32)
         logits, aux = apply_policy(net, x)
-        legal = x[:, -R.NUM_ACTIONS :] > 0.5
+        legal = legal_in(x)
         logp_all = jax.nn.log_softmax(jnp.where(legal, logits, -1e9))
         logp = jnp.take_along_axis(logp_all, mb["action"][:, None], 1)[:, 0]
         ratio = jnp.exp(logp - mb["logp"])
@@ -362,21 +427,23 @@ def make_update(tx_policy, tx_critic, clip: float, aux_weight: float, tx_standin
     return step
 
 
-def make_eval(batch: int, steps: int, benchmark=None, rounds: int = 0):
-    """Greedy ``policy`` in two opposite seats vs ``opp``: (King rate, mean reward, games)."""
+def make_eval(batch: int, steps: int, benchmark=None, rounds=0):
+    """Greedy ``policy`` in two opposite seats vs ``opp`` in games of the kind ``rounds`` names:
+    (King rate, mean reward, games)."""
     base = jnp.arange(batch) * POOL_DEALS
+    kind = game_kinds(batch, (rounds,))
 
     @jax.jit
     def run(policy, opp, key):
         k_pool, k_steps = jax.random.split(key)
         pool = G.deal_pool(k_pool, batch * POOL_DEALS)
-        g = jax.vmap(G.new_game)(pool[base])
+        g = jax.vmap(G.new_game)(pool[base], kind.open_rounds)
         learner = jnp.array([True, False, True, False])[None, :] ^ (jnp.arange(batch) % 2 == 0)[:, None]
 
         def one(carry, k):
             g, used, firsts, total, games = carry
-            action, *_ = choose(policy, opp, g, learner, k, greedy=True, benchmark=benchmark)
-            g, used, _, _, after, over = _advance(g, used, base, pool, action, rounds)
+            action, *_ = choose(policy, opp, g, learner, k, kind, greedy=True, benchmark=benchmark)
+            g, used, _, _, after, over = _advance(g, used, base, pool, action, kind)
             done = over & ~after.overflow
             top = after.scores == after.scores.max(1, keepdims=True)
             share = (top * learner).sum(1) / top.sum(1)
@@ -392,9 +459,13 @@ def make_eval(batch: int, steps: int, benchmark=None, rounds: int = 0):
 
 
 def load_policy(path: Path, like):
-    """A saved policy's body and move head in ``like``'s shape; the auxiliary head stays as it is."""
+    """A saved policy's body and move head in ``like``'s shape; the auxiliary head stays as it is.
+    A policy saved before the view told the rounds left gets that input with zero weights, so
+    it plays exactly as it did."""
     data = np.load(path)
     body = [{"w": jnp.asarray(data[f"w{k}"]), "b": jnp.asarray(data[f"b{k}"])} for k in range(len(like["body"]))]
+    if body[0]["w"].shape[0] == E.SIZE:
+        body[0]["w"] = jnp.concatenate([body[0]["w"], jnp.zeros((VIEW - E.SIZE, body[0]["w"].shape[1]))])
     if [layer["w"].shape for layer in body] != [layer["w"].shape for layer in like["body"]]:
         raise ValueError(f"{path} does not fit --hidden and --depth")
     return {**like, "body": body, "policy": {"w": jnp.asarray(data["pw"]), "b": jnp.asarray(data["pb"])}}
@@ -436,7 +507,9 @@ def main(argv=None) -> int:
     p.add_argument("--eval-every", type=int, default=25)
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--logdir", type=Path)
-    p.add_argument("--rounds", type=int, default=0, help="rounds a game lasts (0: the whole Bola; the ladder plays 5)")
+    p.add_argument("--rounds", nargs="+", default=["whole"],
+                   help="the kind of game: rounds to stop after (the ladder plays 5), whole, or mini; several: a mix")
+    p.add_argument("--shares", type=float, nargs="*", default=[], help="each kind's share of the games (default: equal)")
     p.add_argument("--init", type=Path, help="a trained policy (net.npz) to start from")
     p.add_argument("--warmup", type=int, default=0, help="iterations that leave the starting policy's moves alone")
     p.add_argument("--rivals", type=Path, nargs="*", default=[], help="copies of other bots (train.rival) to play against")
@@ -446,7 +519,7 @@ def main(argv=None) -> int:
     a = p.parse_args(argv)
     a.out = a.out.expanduser()
     a.out.mkdir(parents=True, exist_ok=True)
-    print("device:", jax.devices()[0], "| view:", E.SIZE, "| critic adds:", HIDDEN, flush=True)
+    print("device:", jax.devices()[0], "| view:", VIEW, "| critic adds:", HIDDEN, flush=True)
     key = jax.random.key(a.seed)
     key, k_net = jax.random.split(key)
     nets = init_nets(k_net, a.hidden, a.depth)
@@ -460,19 +533,21 @@ def main(argv=None) -> int:
     first_policy = jax.device_get(nets["policy"])
     rivals = [jax.device_get(load_policy(path.expanduser(), nets["policy"])) for path in a.rivals]
     pool = [first_policy]
-    rollout = make_rollout(a.batch, a.steps, a.lam, a.objective, rounds=a.rounds)
+    kind = game_kinds(a.batch, a.rounds, a.shares)
+    rollout = make_rollout(a.batch, a.steps, a.lam, a.objective, rounds=kind)
     update = make_update(tx_policy, tx_critic, a.clip, a.aux, tx_standings)
-    evaluate = make_eval(512, 4000, rounds=a.rounds)
+    evaluate = make_eval(512, 4000, rounds=a.rounds[0])  # the first kind is the one the log is read by
+    evaluate_other = {n: make_eval(512, 4000, rounds=n) for n in a.rounds[1:]}
     benchmark = V.load(a.benchmark.expanduser()) if a.benchmark else None
-    rollout_benchmark = make_rollout(a.batch, a.steps, a.lam, a.objective, benchmark, a.rounds) if benchmark else None
-    evaluate_benchmark = make_eval(512, 4000, benchmark, a.rounds) if benchmark else None
+    rollout_benchmark = make_rollout(a.batch, a.steps, a.lam, a.objective, benchmark, kind) if benchmark else None
+    evaluate_benchmark = make_eval(512, 4000, benchmark, a.rounds[0]) if benchmark else None
     key, k = jax.random.split(key)
     hands = G.deal_pool(k, a.batch)
-    g = jax.vmap(G.new_game)(hands)
-    if a.rounds:
+    g = jax.vmap(G.new_game)(hands, kind.open_rounds)
+    if any(kind_of(name) != kind_of("whole") for name in a.rounds):
         # Short games all started together would all end together, and whole iterations would
-        # see no result. So the first games start at a random round and end at different times.
-        first = jax.random.randint(jax.random.fold_in(k, 1), (a.batch,), 1, a.rounds + 1)
+        # see no result. So the first games start at a random open round and end at different times.
+        first = jax.random.randint(jax.random.fold_in(k, 1), (a.batch,), 1, jnp.minimum(game_length(kind), kind.open_rounds) + 1)
         g = g._replace(round_no=first, round=jax.vmap(R.init_round)(first, hands))
     writer = None
     if a.logdir:
@@ -509,6 +584,9 @@ def main(argv=None) -> int:
             king_s, pos_s, _ = evaluate(nets["policy"], first_policy, jax.random.fold_in(k_eval, 1))
             row |= {"king_vs_random": float(king_r), "pos_vs_random": float(pos_r), "king_vs_start": float(king_s),
                     "pos_vs_start": float(pos_s), "eval_games": int(games)}
+            for number, (n, evaluate_n) in enumerate(evaluate_other.items()):  # the same comparison in the other kinds
+                king_n, pos_n, _ = evaluate_n(nets["policy"], first_policy, jax.random.fold_in(k_eval, 100 + number))
+                row |= {f"king_vs_start_r{n}": float(king_n), f"pos_vs_start_r{n}": float(pos_n)}
             for number, rival in enumerate(rivals):
                 _, pos_v, _ = evaluate(nets["policy"], rival, jax.random.fold_in(k_eval, 10 + number))
                 row[f"pos_vs_rival_{number}"] = float(pos_v)
@@ -521,7 +599,8 @@ def main(argv=None) -> int:
                   f"entropy {row['entropy']:.2f} final_mse {row['final_mse']:.3f} ev {row['explained_var']:+.2f} kl {row['kl']:.4f} | "
                   f"dash {row['dash']:.2f} bid {row['bid']:.2f} with {row['with_']:.2f} pass {row['pass_']:.2f} super {row['super_']:.2f} | "
                   f"skip {row['skipped']:.2f} alllose {row['all_lose']:.2f} made {row['caller_made']:.2f} "
-                  f"rounds/game {row['rounds_per_game']:.1f} ovf {row['overflow']:.2f} | {row['per_s']:,.0f}/s", flush=True)
+                  f"rounds/game {row['rounds_per_game']:.1f} ovf {row['overflow']:.2f} | {row['per_s']:,.0f}/s"
+                  + "".join(f" | {n if kind_of(n)[0] == 0 else f'{n}-round'} games vs start {row[f'king_vs_start_r{n}']:5.1%} {row[f'pos_vs_start_r{n}']:+.2f}" for n in evaluate_other), flush=True)
             save_npz(nets["policy"], a.out / "net.npz", {"iteration": it, "args": {k: str(v) for k, v in vars(a).items()}}, nets["standings"])
         if it % 200 == 0:
             save_npz(nets["policy"], a.out / f"net-{it:05d}.npz", {"iteration": it}, nets["standings"])
