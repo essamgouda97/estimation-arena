@@ -21,7 +21,7 @@ from estimation.arena.report import build_report
 
 from .bots import SUB_PREFIX, load_manifest
 from .positions import summarize
-from .run import run_sets
+from .run import FULL_GAME, GAME_ROUNDS, run_sets
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -33,6 +33,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--seed", type=int, default=1000)
     parser.add_argument("--workers", type=int, default=1)
     parser.add_argument("--out", type=Path, help="write the rows as JSON here")
+    parser.add_argument("--whole", action="store_true", help="play whole 18-round games, not micro games")
     args = parser.parse_args(argv)
     load_manifest(args.bot)
     keys, values = [], []
@@ -41,11 +42,12 @@ def main(argv: list[str] | None = None) -> int:
         keys.append(key)
         values.append(vals.split(","))
     rows = []
-    print(f"{args.bot} vs {args.vs}, {args.sets} sets, seed {args.seed}", flush=True)
+    rounds = FULL_GAME if args.whole else GAME_ROUNDS
+    print(f"{args.bot} vs {args.vs}, {args.sets} sets of {'whole' if args.whole else 'micro'} games, seed {args.seed}", flush=True)
     combos = list(itertools.product(*values))
     for combo in combos:
         spec = SUB_PREFIX + args.bot + "".join(f":{k}={v}" for k, v in zip(keys, combo))
-        run = run_sets((spec, args.vs, spec, args.vs), args.sets, args.seed, args.workers, kind="entry" if len(combos) == 1 else "tuning")
+        run = run_sets((spec, args.vs, spec, args.vs), args.sets, args.seed, args.workers, kind="entry" if len(combos) == 1 else "tuning", rounds=rounds)
         report = build_report(run)
         places, _ = summarize(run.results, (spec, args.vs, spec, args.vs))
         pr, king, delta = (places[spec][k] for k in ("reward", "king", "delta"))

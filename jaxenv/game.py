@@ -33,6 +33,7 @@ class Game(NamedTuple):
     round_no: jax.Array
     over: jax.Array  # bool
     overflow: jax.Array  # bool: left int32's safe range; scores no longer the engine's
+    open_rounds: jax.Array  # open rounds before the fixed trumps: 13 in a Bola, 5 in a mini game
 
 
 def deal(key) -> jax.Array:
@@ -47,7 +48,9 @@ def deal_pool(key, n: int) -> jax.Array:
     return jax.vmap(deal)(jax.random.split(key, n))
 
 
-def new_game(hands) -> Game:
+def new_game(hands, open_rounds=OPEN_ROUNDS) -> Game:
+    """A game from its first deal. ``open_rounds`` other than 13 is a shorter game the engine
+    does not play (a mini game: 5 open rounds, then the five fixed trumps); training only."""
     return Game(
         round=init_round(1, hands),
         scores=jnp.zeros(4, I32),
@@ -57,6 +60,7 @@ def new_game(hands) -> Game:
         round_no=jnp.asarray(1, I32),
         over=jnp.asarray(False),
         overflow=jnp.asarray(False),
+        open_rounds=jnp.asarray(open_rounds, I32),
     )
 
 
@@ -71,12 +75,12 @@ def advance(g: Game, hands) -> Game:
     fixed_index = g.fixed_index + (fixed & ~replay)
     over = fixed_index >= len(FIXED_ORDER)
     round_no = jnp.where(over, g.round_no, g.round_no + 1)
-    fixed_trump = jnp.where(round_no > OPEN_ROUNDS, _FIXED[jnp.minimum(fixed_index, 4)], -1)
+    fixed_trump = jnp.where(round_no > g.open_rounds, _FIXED[jnp.minimum(fixed_index, 4)], -1)
     overflow = g.overflow | (r.next_carry > CARRY_CAP) | (jnp.abs(scores) > SCORE_LIMIT).any()
     carry = jnp.minimum(r.next_carry, CARRY_CAP)
     nxt = init_round(round_no, hands, fixed_trump, carry, scores)
     keep = jax.tree.map(lambda a, b: jnp.where(over, a, b), r, nxt)
-    return Game(keep, scores, carry, fixed_index, replays, round_no, over, overflow)
+    return Game(keep, scores, carry, fixed_index, replays, round_no, over, overflow, g.open_rounds)
 
 
 def game_step(g: Game, action, next_hands) -> Game:

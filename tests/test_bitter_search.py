@@ -109,3 +109,21 @@ def test_it_plays_a_set(tmp_path):
     spec = f"sub:bitter-search:net={_random_net(tmp_path)}:samples=2:top_k=2"
     result, _ = play_set((spec, "random", spec, "random"), 1, 0, RulesConfig(), make=maker)
     assert len(result.scores) == 4
+
+
+def test_a_net_told_the_rounds_left_scores_as_if_it_read_them(tmp_path):
+    """The rounds left go into the first layer's bias; that must equal reading them as an input."""
+    rng = np.random.default_rng(1)
+    w0, pw = rng.normal(size=(SIZE + 1, 8)).astype(np.float32), rng.normal(size=(8, 120)).astype(np.float32)
+    path = tmp_path / "told.npz"
+    np.savez(path, w0=w0, b0=np.zeros(8, np.float32), pw=pw, pb=np.zeros(120, np.float32))
+    x = rng.random(SIZE).astype(np.float32)
+    for rounds_left in (0, 4, 13):
+        read = np.maximum(np.append(x, rounds_left / 18) @ w0, 0.0) @ pw
+        np.testing.assert_allclose(search.load_net(str(path), rounds_left)(x), read, rtol=1e-4, atol=1e-4)
+
+
+def test_an_older_net_ignores_the_rounds_left(tmp_path):
+    path = _random_net(tmp_path)
+    x = np.random.default_rng(2).random(SIZE).astype(np.float32)
+    np.testing.assert_array_equal(search.load_net(path, 0)(x), search.load_net(path, 13)(x))
