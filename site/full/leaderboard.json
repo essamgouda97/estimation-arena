@@ -1,5 +1,5 @@
 {
- "built_at": "2026-11-21T10:50:24+00:00",
+ "built_at": "2026-11-21T21:26:58+00:00",
  "contenders": [
   "sub:guess-search",
   "sub:hybrid-v4",
@@ -9,6 +9,30 @@
  ],
  "rows": [
   {
+   "key": "sub:bitter-search",
+   "code_name": "bitter-search",
+   "name": "Self-taught + look-ahead",
+   "author": "Essam Gouda",
+   "anchor": false,
+   "contender": true,
+   "sets": 20,
+   "elo": 1524.98774732166,
+   "king_elo": 1533.4982174587528,
+   "score_elo": 1551.0545010206613
+  },
+  {
+   "key": "sub:bitter-net",
+   "code_name": "bitter-net",
+   "name": "Self-taught",
+   "author": "Essam Gouda",
+   "anchor": false,
+   "contender": true,
+   "sets": 20,
+   "elo": 1475.01225267834,
+   "king_elo": 1466.5017825412472,
+   "score_elo": 1448.9454989793387
+  },
+  {
    "key": "sub:hybrid-v4",
    "code_name": "hybrid-v4",
    "name": "Hybrid v4",
@@ -16,9 +40,9 @@
    "anchor": false,
    "contender": true,
    "sets": 20,
-   "elo": 1524.98774732166,
-   "king_elo": 1533.4982174587528,
-   "score_elo": 1533.4982174587528
+   "elo": null,
+   "king_elo": null,
+   "score_elo": null
   },
   {
    "key": "sub:kooz-bot",
@@ -28,12 +52,21 @@
    "anchor": false,
    "contender": true,
    "sets": 20,
-   "elo": 1475.01225267834,
-   "king_elo": 1466.5017825412472,
-   "score_elo": 1466.5017825412472
+   "elo": null,
+   "king_elo": null,
+   "score_elo": null
   }
  ],
  "direct": [
+  {
+   "a": "sub:bitter-net",
+   "b": "sub:bitter-search",
+   "a_wins": 7,
+   "draws": 3,
+   "b_wins": 10,
+   "sets": 20,
+   "clear": false
+  },
   {
    "a": "sub:hybrid-v4",
    "b": "sub:kooz-bot",
@@ -45,6 +78,8 @@
   }
  ],
  "runoff": [
+  "sub:bitter-search",
+  "sub:bitter-net",
   "sub:hybrid-v4",
   "sub:kooz-bot"
  ],
