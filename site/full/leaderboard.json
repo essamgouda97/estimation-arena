@@ -1,5 +1,5 @@
 {
- "built_at": "2026-11-21T21:27:34+00:00",
+ "built_at": "2026-11-21T21:27:40+00:00",
  "contenders": [
   "sub:guess-search",
   "sub:hybrid-v4",
@@ -16,9 +16,9 @@
    "anchor": false,
    "contender": true,
    "sets": 40,
-   "elo": 1918.8637403262126,
-   "king_elo": 1898.9807134807752,
-   "score_elo": 1798.9766339722073
+   "elo": 1911.6356282502675,
+   "king_elo": 1887.6908986197022,
+   "score_elo": 1791.0251517529655
   },
   {
    "key": "sub:hybrid-v4",
@@ -28,9 +28,9 @@
    "anchor": false,
    "contender": true,
    "sets": 60,
-   "elo": 1476.9765248810547,
-   "king_elo": 1459.2227961305284,
-   "score_elo": 1625.7284020428472
+   "elo": 1479.3809869340914,
+   "king_elo": 1462.2011888484576,
+   "score_elo": 1631.0306294204506
   },
   {
    "key": "sub:kooz-bot",
@@ -39,22 +39,10 @@
    "author": "Abdulrahman Boudi",
    "anchor": false,
    "contender": true,
-   "sets": 40,
-   "elo": 1411.5235926625264,
-   "king_elo": 1385.8155193792916,
-   "score_elo": 1523.5184205773146
-  },
-  {
-   "key": "sub:bitter-search",
-   "code_name": "bitter-search",
-   "name": "Self-taught + look-ahead",
-   "author": "Essam Gouda",
-   "anchor": false,
-   "contender": true,
    "sets": 60,
-   "elo": 1346.565481686229,
-   "king_elo": 1392.898303145467,
-   "score_elo": 1308.0130893574392
+   "elo": 1431.183632351987,
+   "king_elo": 1415.571405467602,
+   "score_elo": 1540.341055447077
   },
   {
    "key": "sub:bitter-net",
@@ -64,9 +52,21 @@
    "anchor": false,
    "contender": true,
    "sets": 80,
-   "elo": 1346.0706604439772,
-   "king_elo": 1363.082667863938,
-   "score_elo": 1243.7634540501915
+   "elo": 1347.338184629195,
+   "king_elo": 1365.246242285044,
+   "score_elo": 1242.389327799215
+  },
+  {
+   "key": "sub:bitter-search",
+   "code_name": "bitter-search",
+   "name": "Self-taught + look-ahead",
+   "author": "Essam Gouda",
+   "anchor": false,
+   "contender": true,
+   "sets": 80,
+   "elo": 1330.4615678344594,
+   "king_elo": 1369.2902647791939,
+   "score_elo": 1295.2138355802917
   }
  ],
  "direct": [
@@ -123,6 +123,15 @@
    "b_wins": 14,
    "sets": 20,
    "clear": true
+  },
+  {
+   "a": "sub:bitter-search",
+   "b": "sub:kooz-bot",
+   "a_wins": 5,
+   "draws": 2,
+   "b_wins": 13,
+   "sets": 20,
+   "clear": false
   },
   {
    "a": "sub:hybrid-v4",
