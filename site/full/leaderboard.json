@@ -1,5 +1,5 @@
 {
- "built_at": "2026-11-21T21:27:54+00:00",
+ "built_at": "2026-11-21T21:28:00+00:00",
  "contenders": [
   "sub:guess-search",
   "sub:hybrid-v4",
@@ -16,9 +16,9 @@
    "anchor": false,
    "contender": true,
    "sets": 80,
-   "elo": 1821.5917735220287,
-   "king_elo": 1721.830989781501,
-   "score_elo": 1625.0817358944257
+   "elo": 1820.815895437478,
+   "king_elo": 1721.8684013169025,
+   "score_elo": 1625.048693753863
   },
   {
    "key": "sub:hybrid-v4",
@@ -27,10 +27,10 @@
    "author": "Yosif Elessawi",
    "anchor": false,
    "contender": true,
-   "sets": 80,
-   "elo": 1515.3742853974898,
-   "king_elo": 1506.70699365263,
-   "score_elo": 1687.4131851404893
+   "sets": 100,
+   "elo": 1502.5886172957325,
+   "king_elo": 1508.6073252704352,
+   "score_elo": 1682.5542728253365
   },
   {
    "key": "sub:kooz-bot",
@@ -39,10 +39,10 @@
    "author": "Abdulrahman Boudi",
    "anchor": false,
    "contender": true,
-   "sets": 80,
-   "elo": 1451.804437688356,
-   "king_elo": 1484.6744820431772,
-   "score_elo": 1625.0817358944257
+   "sets": 100,
+   "elo": 1464.491701680248,
+   "king_elo": 1482.778380066873,
+   "score_elo": 1629.5055281272646
   },
   {
    "key": "sub:bitter-net",
@@ -52,9 +52,9 @@
    "anchor": false,
    "contender": true,
    "sets": 80,
-   "elo": 1363.9280335382643,
-   "king_elo": 1391.46574260635,
-   "score_elo": 1255.0415909059996
+   "elo": 1364.346302512281,
+   "king_elo": 1391.44460629805,
+   "score_elo": 1255.2805639047863
   },
   {
    "key": "sub:bitter-search",
@@ -64,9 +64,9 @@
    "anchor": false,
    "contender": true,
    "sets": 80,
-   "elo": 1347.3014698538614,
-   "king_elo": 1395.3217919163417,
-   "score_elo": 1307.3817521646597
+   "elo": 1347.75748307426,
+   "king_elo": 1395.3012870477392,
+   "score_elo": 1307.6109413887493
   }
  ],
  "direct": [
@@ -154,10 +154,10 @@
   {
    "a": "sub:hybrid-v4",
    "b": "sub:kooz-bot",
-   "a_wins": 11,
-   "draws": 1,
-   "b_wins": 8,
-   "sets": 20,
+   "a_wins": 19,
+   "draws": 4,
+   "b_wins": 17,
+   "sets": 40,
    "clear": false
   }
  ],
