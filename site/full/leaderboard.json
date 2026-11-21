@@ -1,5 +1,5 @@
 {
- "built_at": "2026-11-21T21:27:06+00:00",
+ "built_at": "2026-11-21T21:27:13+00:00",
  "contenders": [
   "sub:guess-search",
   "sub:hybrid-v4",
@@ -16,33 +16,21 @@
    "anchor": false,
    "contender": true,
    "sets": 20,
-   "elo": 1830.2828339624934,
-   "king_elo": 1774.7194156425676,
-   "score_elo": 1763.0152266012901
+   "elo": 1875.4859977957028,
+   "king_elo": 1822.725334287637,
+   "score_elo": 1671.208422944621
   },
   {
-   "key": "sub:bitter-search",
-   "code_name": "bitter-search",
-   "name": "Self-taught + look-ahead",
-   "author": "Essam Gouda",
-   "anchor": false,
-   "contender": true,
-   "sets": 20,
-   "elo": 1359.8463303404233,
-   "king_elo": 1396.1385096374795,
-   "score_elo": 1419.5468877200287
-  },
-  {
-   "key": "sub:bitter-net",
-   "code_name": "bitter-net",
-   "name": "Self-taught",
-   "author": "Essam Gouda",
+   "key": "sub:hybrid-v4",
+   "code_name": "hybrid-v4",
+   "name": "Hybrid v4",
+   "author": "Yosif Elessawi",
    "anchor": false,
    "contender": true,
    "sets": 40,
-   "elo": 1309.870835697083,
-   "king_elo": 1329.142074719953,
-   "score_elo": 1317.4378856786811
+   "elo": 1457.1830015717494,
+   "king_elo": 1461.489339491084,
+   "score_elo": 1671.2084229441086
   },
   {
    "key": "sub:kooz-bot",
@@ -52,21 +40,33 @@
    "anchor": false,
    "contender": true,
    "sets": 20,
-   "elo": null,
-   "king_elo": null,
-   "score_elo": null
+   "elo": 1407.2075069284392,
+   "king_elo": 1394.492904573589,
+   "score_elo": 1604.2119880265845
   },
   {
-   "key": "sub:hybrid-v4",
-   "code_name": "hybrid-v4",
-   "name": "Hybrid v4",
-   "author": "Yosif Elessawi",
+   "key": "sub:bitter-search",
+   "code_name": "bitter-search",
+   "name": "Self-taught + look-ahead",
+   "author": "Essam Gouda",
    "anchor": false,
    "contender": true,
    "sets": 20,
-   "elo": null,
-   "king_elo": null,
-   "score_elo": null
+   "elo": 1405.0494941737181,
+   "king_elo": 1444.144428282601,
+   "score_elo": 1327.7400840630116
+  },
+  {
+   "key": "sub:bitter-net",
+   "code_name": "bitter-net",
+   "name": "Self-taught",
+   "author": "Essam Gouda",
+   "anchor": false,
+   "contender": true,
+   "sets": 60,
+   "elo": 1355.0739995303904,
+   "king_elo": 1377.147993365089,
+   "score_elo": 1225.631082021674
   }
  ],
  "direct": [
@@ -87,6 +87,15 @@
    "b_wins": 19,
    "sets": 20,
    "clear": true
+  },
+  {
+   "a": "sub:bitter-net",
+   "b": "sub:hybrid-v4",
+   "a_wins": 7,
+   "draws": 0,
+   "b_wins": 13,
+   "sets": 20,
+   "clear": false
   },
   {
    "a": "sub:hybrid-v4",
