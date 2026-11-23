@@ -58,14 +58,36 @@ _RL_V2 = [
 _BITTER = {
     "title": "Practice from nothing",
     "steps": [
-        ["4,096 games at once: half against itself, half against a past version", "play"],
+        ["4,096 games at once, half against a past version", "play"],
         ["128 decisions per game, then pause to learn", "data"],
-        ["reward only when the game ends: King +1, Sub-King +0.2, Sub-Kooz -0.2, Kooz -1", "reward"],
+        ["reward at the end only: +1 for King down to -1 for Kooz", "reward"],
         ["a coach who can see every hand judges each move", "net"],
         ["adjust the model; every 25 rounds a copy joins the 16 past versions", "update"],
     ],
     "repeat": "5,000 times, about 4.6 hours",
 }
+
+_FIVE_ROUNDS = {
+    "title": "Then learn the ladder's five-round game",
+    "steps": [
+        ["the finished model practises again; every game stops after round 5", "play"],
+        ["the same reward, now for its place after round 5", "reward"],
+        ["a judge learns from the scores who will finish where", "net"],
+        ["adjust both a little", "update"],
+    ],
+    "repeat": "4,000 times",
+}
+_ROUNDS_LEFT = {
+    "title": "Then learn how long the game still is",
+    "steps": [
+        ["one new thing to see: the rounds still to play", "data"],
+        ["games of three lengths: half 5 rounds, a quarter 10, a quarter 18", "play"],
+        ["the judge learns how each length ends", "net"],
+        ["adjust both a little", "update"],
+    ],
+    "repeat": "3,000 times",
+}
+_SELF_TAUGHT = [_BITTER, _FIVE_ROUNDS, _ROUNDS_LEFT]
 
 _GUESSES = {
     "title": "Then learn who holds the hidden cards",
@@ -143,19 +165,19 @@ TRAINING: dict[str, dict[str, Any]] = {
     },
     "bitter-net": {
         "summary": "One model for every decision, starting from nothing. Nothing copied and no rules written in.",
-        "stages": [_BITTER],
+        "stages": _SELF_TAUGHT,
         "curves": "bitter-run2",
         "lab": True,
     },
     "bitter-search": {
         "summary": "The look-ahead isn't trained. It uses the Self-taught model, trained like this.",
-        "stages": [_BITTER],
+        "stages": _SELF_TAUGHT,
         "curves": "bitter-run2",
         "lab": True,
     },
     "guess-search": {
-        "summary": "The look-ahead isn't trained. It uses the Self-taught model, and a guess model trained on that model's own games.",
-        "stages": [_BITTER, _GUESSES],
+        "summary": "The look-ahead isn't trained. It uses the Self-taught model, the judge trained beside it, and a guess model trained on that model's own games.",
+        "stages": [_BITTER, _GUESSES, _FIVE_ROUNDS, _ROUNDS_LEFT],
         "curves": "bitter-run2",
     },
     "kooz-bot": {

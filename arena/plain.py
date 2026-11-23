@@ -121,8 +121,14 @@ BOTS: dict[str, dict[str, Any]] = {
     },
     "guess-search": {
         "name": "Self-taught + guesses",
-        "about": "Self-taught + look-ahead with a second model of its own that guesses who holds each hidden card. It learned those guesses only from its own games, and imagines many more hands from them.",
-        "method": [["the model picks the bid", "bid"], ["the model keeps its top 2 cards", "net"], ["imagine 256 hands from where its guess model thinks the cards are", "deal"], ["try each card: the model plays out the round", "rollout"], _BEST],
+        "about": "Self-taught + look-ahead with a second model of its own that guesses who holds each hidden card. It plays for its finishing place in the game, not for the round's points, and it is told how many rounds are left.",
+        "method": [
+            ["told the rounds left, the model picks the bid", "bid"],
+            ["the model keeps its top 2 cards", "net"],
+            ["imagine 256 hands from its guess model that fit the bids", "deal"],
+            ["try each card: the model plays out the round", "rollout"],
+            ["a judge reads the scores; play the card that places it best", "pick"],
+        ],
     },
 }
 
