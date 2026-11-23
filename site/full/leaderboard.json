@@ -1,5 +1,5 @@
 {
- "built_at": "2026-11-23T16:40:01+00:00",
+ "built_at": "2026-11-23T21:53:45+00:00",
  "contenders": [
   "sub:guess-search",
   "sub:hybrid-v4",
@@ -16,9 +16,9 @@
    "anchor": false,
    "contender": true,
    "sets": 80,
-   "elo": 1571.0752160981522,
-   "king_elo": 1557.1886240193392,
-   "score_elo": 1692.3053084210687
+   "elo": 1571.0800923684453,
+   "king_elo": 1557.1753791581928,
+   "score_elo": 1691.5519794350046
   },
   {
    "key": "sub:kooz-bot",
@@ -28,9 +28,9 @@
    "anchor": false,
    "contender": true,
    "sets": 80,
-   "elo": 1544.9020951691796,
-   "king_elo": 1514.4002140308085,
-   "score_elo": 1623.6849604658423
+   "elo": 1544.9063647146484,
+   "king_elo": 1514.3912778191093,
+   "score_elo": 1622.9711517721792
   },
   {
    "key": "sub:bitter-net",
@@ -39,10 +39,10 @@
    "author": "Essam Gouda",
    "anchor": false,
    "contender": true,
-   "sets": 60,
-   "elo": 1448.5595527125527,
-   "king_elo": 1457.8585711695905,
-   "score_elo": 1308.270678143422
+   "sets": 80,
+   "elo": 1449.2717761067984,
+   "king_elo": 1465.6390529780917,
+   "score_elo": 1322.309101297649
   },
   {
    "key": "sub:bitter-search",
@@ -51,20 +51,20 @@
    "author": "Essam Gouda",
    "anchor": false,
    "contender": true,
-   "sets": 60,
-   "elo": 1435.4631360201156,
-   "king_elo": 1470.5525907802619,
-   "score_elo": 1375.739052969667
+   "sets": 80,
+   "elo": 1434.7417668101082,
+   "king_elo": 1462.7942900446062,
+   "score_elo": 1363.1677674951675
   }
  ],
  "direct": [
   {
    "a": "sub:bitter-net",
    "b": "sub:bitter-search",
-   "a_wins": 7,
-   "draws": 3,
-   "b_wins": 10,
-   "sets": 20,
+   "a_wins": 17,
+   "draws": 4,
+   "b_wins": 19,
+   "sets": 40,
    "clear": false
   },
   {
