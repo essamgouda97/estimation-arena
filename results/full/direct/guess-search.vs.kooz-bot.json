@@ -1,15 +1,15 @@
 {
  "a": "guess-search",
  "b": "kooz-bot",
- "hash_a": "e66022766b501f2e",
+ "hash_a": "03e65de4984fc9a6",
  "hash_b": "bb66542ccb894686",
  "engine": "0.1.0+2dbf68df/s2",
  "rounds": 0,
  "batches": [
   {
    "sets": 20,
-   "played_at": "2026-11-21T21:26:13+00:00",
-   "wall_s": 10414.480504227
+   "played_at": "2026-11-23T21:53:02+00:00",
+   "wall_s": 11010.362217874
   }
  ],
  "pairs": [

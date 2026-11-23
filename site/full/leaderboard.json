@@ -1,5 +1,5 @@
 {
- "built_at": "2026-11-23T21:54:21+00:00",
+ "built_at": "2026-11-23T21:54:27+00:00",
  "contenders": [
   "sub:guess-search",
   "sub:hybrid-v4",
@@ -15,10 +15,10 @@
    "author": "Essam Gouda",
    "anchor": false,
    "contender": true,
-   "sets": 60,
-   "elo": 1810.2983789697578,
-   "king_elo": 1795.492215894897,
-   "score_elo": 1670.3173169243964
+   "sets": 80,
+   "elo": 1821.1783806759793,
+   "king_elo": 1720.5937537195064,
+   "score_elo": 1622.1825913525515
   },
   {
    "key": "sub:hybrid-v4",
@@ -28,9 +28,9 @@
    "anchor": false,
    "contender": true,
    "sets": 120,
-   "elo": 1506.3252614228443,
-   "king_elo": 1499.6929501316847,
-   "score_elo": 1666.308272467623
+   "elo": 1504.5044065680718,
+   "king_elo": 1510.9084998989215,
+   "score_elo": 1670.807643990249
   },
   {
    "key": "sub:kooz-bot",
@@ -39,10 +39,10 @@
    "author": "Abdulrahman Boudi",
    "anchor": false,
    "contender": true,
-   "sets": 120,
-   "elo": 1468.7949550838043,
-   "king_elo": 1419.4519215896769,
-   "score_elo": 1594.4031499831601
+   "sets": 140,
+   "elo": 1464.3270824829099,
+   "king_elo": 1454.4891794633963,
+   "score_elo": 1625.516642853279
   },
   {
    "key": "sub:bitter-net",
@@ -52,9 +52,9 @@
    "anchor": false,
    "contender": true,
    "sets": 140,
-   "elo": 1371.2639568335705,
-   "king_elo": 1398.1535266569379,
-   "score_elo": 1270.0696237312336
+   "elo": 1369.0160758357897,
+   "king_elo": 1412.1987896076587,
+   "score_elo": 1276.2924888709906
   },
   {
    "key": "sub:bitter-search",
@@ -64,9 +64,9 @@
    "anchor": false,
    "contender": true,
    "sets": 120,
-   "elo": 1343.3174476900233,
-   "king_elo": 1387.2093857268035,
-   "score_elo": 1298.9016368935868
+   "elo": 1340.9740544372494,
+   "king_elo": 1401.8097773105171,
+   "score_elo": 1305.2006329329297
   }
  ],
  "direct": [
@@ -143,6 +143,15 @@
    "clear": true
   },
   {
+   "a": "sub:guess-search",
+   "b": "sub:kooz-bot",
+   "a_wins": 17,
+   "draws": 3,
+   "b_wins": 0,
+   "sets": 20,
+   "clear": true
+  },
+  {
    "a": "sub:hybrid-v4",
    "b": "sub:kooz-bot",
    "a_wins": 19,
@@ -154,8 +163,8 @@
  ],
  "runoff": [
   "sub:guess-search",
-  "sub:kooz-bot",
   "sub:hybrid-v4",
+  "sub:kooz-bot",
   "sub:bitter-net",
   "sub:bitter-search"
  ],
