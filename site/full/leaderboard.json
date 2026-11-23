@@ -1,5 +1,5 @@
 {
- "built_at": "2026-11-23T21:54:09+00:00",
+ "built_at": "2026-11-23T21:54:15+00:00",
  "contenders": [
   "sub:guess-search",
   "sub:hybrid-v4",
@@ -16,9 +16,9 @@
    "anchor": false,
    "contender": true,
    "sets": 40,
-   "elo": 1912.875590620109,
-   "king_elo": 1891.517102386489,
-   "score_elo": 1790.403304532452
+   "elo": 1909.6484855247925,
+   "king_elo": 1893.5422903801639,
+   "score_elo": 1788.4873941132225
   },
   {
    "key": "sub:hybrid-v4",
@@ -28,9 +28,9 @@
    "anchor": false,
    "contender": true,
    "sets": 100,
-   "elo": 1471.1149215183386,
-   "king_elo": 1466.5337891483089,
-   "score_elo": 1613.8734760415985
+   "elo": 1473.3408317090843,
+   "king_elo": 1465.2707239397962,
+   "score_elo": 1615.6120631346103
   },
   {
    "key": "sub:kooz-bot",
@@ -39,10 +39,10 @@
    "author": "Abdulrahman Boudi",
    "anchor": false,
    "contender": true,
-   "sets": 100,
-   "elo": 1435.8171927618562,
-   "king_elo": 1400.0096434811962,
-   "score_elo": 1557.2381994846428
+   "sets": 120,
+   "elo": 1443.765140206796,
+   "king_elo": 1395.0401949334773,
+   "score_elo": 1561.0100121293658
   },
   {
    "key": "sub:bitter-net",
@@ -52,9 +52,9 @@
    "anchor": false,
    "contender": true,
    "sets": 140,
-   "elo": 1349.4537073759589,
-   "king_elo": 1378.1804620029775,
-   "score_elo": 1252.2755935735404
+   "elo": 1350.0323588566628,
+   "king_elo": 1377.7478695691152,
+   "score_elo": 1251.8821498521622
   },
   {
    "key": "sub:bitter-search",
@@ -63,10 +63,10 @@
    "author": "Essam Gouda",
    "anchor": false,
    "contender": true,
-   "sets": 100,
-   "elo": 1330.7385877237373,
-   "king_elo": 1363.7590029810287,
-   "score_elo": 1286.2094263677664
+   "sets": 120,
+   "elo": 1323.2131837026643,
+   "king_elo": 1368.3989211774474,
+   "score_elo": 1283.0083807706392
   }
  ],
  "direct": [
@@ -127,11 +127,11 @@
   {
    "a": "sub:bitter-search",
    "b": "sub:kooz-bot",
-   "a_wins": 5,
-   "draws": 2,
-   "b_wins": 13,
-   "sets": 20,
-   "clear": false
+   "a_wins": 10,
+   "draws": 3,
+   "b_wins": 27,
+   "sets": 40,
+   "clear": true
   },
   {
    "a": "sub:hybrid-v4",
