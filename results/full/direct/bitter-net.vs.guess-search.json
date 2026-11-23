@@ -2,14 +2,14 @@
  "a": "bitter-net",
  "b": "guess-search",
  "hash_a": "3a295b62cdc09c05",
- "hash_b": "e66022766b501f2e",
+ "hash_b": "03e65de4984fc9a6",
  "engine": "0.1.0+2dbf68df/s2",
  "rounds": 0,
  "batches": [
   {
    "sets": 20,
-   "played_at": "2026-11-21T20:09:12+00:00",
-   "wall_s": 5797.668964668001
+   "played_at": "2026-11-23T21:08:25+00:00",
+   "wall_s": 8316.320276253
   }
  ],
  "pairs": [
