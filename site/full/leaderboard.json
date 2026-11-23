@@ -1,5 +1,5 @@
 {
- "built_at": "2026-11-23T21:54:03+00:00",
+ "built_at": "2026-11-23T21:54:09+00:00",
  "contenders": [
   "sub:guess-search",
   "sub:hybrid-v4",
@@ -15,10 +15,10 @@
    "author": "Essam Gouda",
    "anchor": false,
    "contender": true,
-   "sets": 20,
-   "elo": 1877.7253688299047,
-   "king_elo": 1835.7262562994426,
-   "score_elo": 1713.705240305392
+   "sets": 40,
+   "elo": 1912.875590620109,
+   "king_elo": 1891.517102386489,
+   "score_elo": 1790.403304532452
   },
   {
    "key": "sub:hybrid-v4",
@@ -28,9 +28,9 @@
    "anchor": false,
    "contender": true,
    "sets": 100,
-   "elo": 1479.713699816587,
-   "king_elo": 1480.0903846476263,
-   "score_elo": 1632.5743793850115
+   "elo": 1471.1149215183386,
+   "king_elo": 1466.5337891483089,
+   "score_elo": 1613.8734760415985
   },
   {
    "key": "sub:kooz-bot",
@@ -40,9 +40,9 @@
    "anchor": false,
    "contender": true,
    "sets": 100,
-   "elo": 1444.4178414451749,
-   "king_elo": 1413.5720669058103,
-   "score_elo": 1575.931055981046
+   "elo": 1435.8171927618562,
+   "king_elo": 1400.0096434811962,
+   "score_elo": 1557.2381994846428
   },
   {
    "key": "sub:bitter-net",
@@ -52,9 +52,9 @@
    "anchor": false,
    "contender": true,
    "sets": 140,
-   "elo": 1357.3133705646317,
-   "king_elo": 1390.1489153769153,
-   "score_elo": 1268.1278993828655
+   "elo": 1349.4537073759589,
+   "king_elo": 1378.1804620029775,
+   "score_elo": 1252.2755935735404
   },
   {
    "key": "sub:bitter-search",
@@ -63,10 +63,10 @@
    "author": "Essam Gouda",
    "anchor": false,
    "contender": true,
-   "sets": 80,
-   "elo": 1340.8297193437015,
-   "king_elo": 1380.4623767702055,
-   "score_elo": 1309.6614249456848
+   "sets": 100,
+   "elo": 1330.7385877237373,
+   "king_elo": 1363.7590029810287,
+   "score_elo": 1286.2094263677664
   }
  ],
  "direct": [
@@ -108,6 +108,15 @@
   },
   {
    "a": "sub:bitter-search",
+   "b": "sub:guess-search",
+   "a_wins": 0,
+   "draws": 0,
+   "b_wins": 20,
+   "sets": 20,
+   "clear": true
+  },
+  {
+   "a": "sub:bitter-search",
    "b": "sub:hybrid-v4",
    "a_wins": 4,
    "draws": 2,
@@ -137,9 +146,9 @@
  "runoff": [
   "sub:hybrid-v4",
   "sub:kooz-bot",
-  "sub:bitter-search",
   "sub:guess-search",
-  "sub:bitter-net"
+  "sub:bitter-net",
+  "sub:bitter-search"
  ],
  "scale": 1500
 }
