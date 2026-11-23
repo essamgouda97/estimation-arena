@@ -297,8 +297,9 @@ def play_submission(
 
 def bot_hash(manifest: Manifest) -> str:
     """A fingerprint of what decides the bot's play: every file in its folder except
-    manifest.json, plus the manifest fields that change play. Editing a description or the
-    method diagram keeps the hash, so earlier results against RL v2 and Hybrid survive."""
+    manifest.json, the files it borrows from another bot's folder, and the manifest fields that
+    change play. Editing a description or the method diagram keeps the hash, so earlier results
+    against RL v2 and Hybrid survive."""
     digest = hashlib.sha256()
     play = {k: v for k, v in manifest.to_dict().items() if k in ("kind", "command", "entry", "timeout_s")}
     digest.update(json.dumps(play, sort_keys=True).encode())
@@ -306,6 +307,10 @@ def bot_hash(manifest: Manifest) -> str:
         if path.is_file() and "__pycache__" not in path.parts and path.name != "manifest.json":
             digest.update(path.relative_to(manifest.folder).as_posix().encode())
             digest.update(path.read_bytes())
+    for borrowed in sorted(manifest.borrows):  # a bot that borrows nothing keeps the hash it had
+        digest.update(borrowed.encode())
+        if (manifest.folder / borrowed).is_file():
+            digest.update((manifest.folder / borrowed).read_bytes())
     return digest.hexdigest()[:16]
 
 
