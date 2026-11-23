@@ -1,5 +1,5 @@
 {
- "built_at": "2026-11-23T21:53:51+00:00",
+ "built_at": "2026-11-23T21:53:57+00:00",
  "contenders": [
   "sub:guess-search",
   "sub:hybrid-v4",
@@ -16,9 +16,9 @@
    "anchor": false,
    "contender": true,
    "sets": 20,
-   "elo": 1875.7470194976522,
-   "king_elo": 1828.973115120484,
-   "score_elo": 1714.3091537761004
+   "elo": 1873.000903629882,
+   "king_elo": 1823.02258834036,
+   "score_elo": 1720.9957668668171
   },
   {
    "key": "sub:hybrid-v4",
@@ -27,10 +27,10 @@
    "author": "Yosif Elessawi",
    "anchor": false,
    "contender": true,
-   "sets": 80,
-   "elo": 1477.1433374940445,
-   "king_elo": 1474.9321003780829,
-   "score_elo": 1637.974690991015
+   "sets": 100,
+   "elo": 1481.3180961070655,
+   "king_elo": 1483.9768044812336,
+   "score_elo": 1627.7601969648317
   },
   {
    "key": "sub:kooz-bot",
@@ -40,9 +40,9 @@
    "anchor": false,
    "contender": true,
    "sets": 80,
-   "elo": 1450.9696098402449,
-   "king_elo": 1432.1479990389962,
-   "score_elo": 1569.3938633281787
+   "elo": 1452.4140728630784,
+   "king_elo": 1435.103380110575,
+   "score_elo": 1564.5143526850122
   },
   {
    "key": "sub:bitter-net",
@@ -51,10 +51,10 @@
    "author": "Essam Gouda",
    "anchor": false,
    "contender": true,
-   "sets": 100,
-   "elo": 1355.335021232369,
-   "king_elo": 1383.3957741979561,
-   "score_elo": 1268.731812853587
+   "sets": 120,
+   "elo": 1352.5889053645953,
+   "king_elo": 1377.4452474178313,
+   "score_elo": 1275.4184259442975
   },
   {
    "key": "sub:bitter-search",
@@ -64,9 +64,9 @@
    "anchor": false,
    "contender": true,
    "sets": 80,
-   "elo": 1340.8050119356894,
-   "king_elo": 1380.5510112644808,
-   "score_elo": 1309.590479051119
+   "elo": 1340.6780220353787,
+   "king_elo": 1380.45197965,
+   "score_elo": 1311.3112575390414
   }
  ],
  "direct": [
@@ -91,11 +91,11 @@
   {
    "a": "sub:bitter-net",
    "b": "sub:hybrid-v4",
-   "a_wins": 7,
+   "a_wins": 13,
    "draws": 0,
-   "b_wins": 13,
-   "sets": 20,
-   "clear": false
+   "b_wins": 27,
+   "sets": 40,
+   "clear": true
   },
   {
    "a": "sub:bitter-net",
