@@ -118,3 +118,17 @@ def test_check_names_an_unknown_bot(capsys):
 def test_engine_version_names_the_commit():
     # The package version stays 0.1.0 across engine commits, so the ladder needs the commit.
     assert "+" in engine_version()
+
+
+def test_a_borrowed_file_is_part_of_the_bots_hash(tmp_path):
+    from arena.run import bot_hash
+
+    lender = tmp_path / "bots" / "lender"
+    lender.mkdir(parents=True)
+    alone, borrower = _manifest(tmp_path), _manifest(tmp_path, borrows=("../lender/net.npz",))
+    (lender / "net.npz").write_bytes(b"old net")
+    before = bot_hash(borrower)
+    (lender / "net.npz").write_bytes(b"new net")
+    assert bot_hash(borrower) != before  # the lender's new net replays the borrower
+    assert bot_hash(alone) == bot_hash(_manifest(tmp_path))  # and nobody else
+    assert bot_hash(alone) != before

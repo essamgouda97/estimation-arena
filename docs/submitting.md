@@ -72,6 +72,7 @@ Agents: never start this run for the owner without being asked, and never treat 
 The nightly ladder plays only what is new or out of date:
 
 - **A bot's folder changed:** that bot plays every benchmark again.
+- **A file it borrows changed:** a bot that loads a file from another bot's folder lists it under `borrows` in its manifest, as a path from its own folder (`"borrows": ["../bitter-search/net.npz"]`). A change to that file replays it too.
 - **The engine commit changed:** every bot plays every benchmark again.
 - **The game length changed:** results record how many rounds a game had (`/r5` at the end of `engine` for micro games), so changing `GAME_ROUNDS` in `arena/run.py` replays everything.
 - **Only a model changed, under `needs` in `models.lock.json`:** nothing is replayed automatically. Replay that bot by hand:

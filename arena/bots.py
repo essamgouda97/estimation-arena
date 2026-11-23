@@ -49,6 +49,7 @@ class Manifest:
     folder: Path
     method: tuple[tuple[str, str], ...] = ()  # diagram steps for the leaderboard: (label, kind)
     needs: str = ""  # a file under the repo root the bot loads (e.g. RL v2's checkpoint in runs/)
+    borrows: tuple[str, ...] = ()  # files it loads from another bot's folder, as paths from its own
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -61,6 +62,7 @@ class Manifest:
             "timeout_s": self.timeout_s,
             "method": [list(m) for m in self.method],
             "needs": self.needs,
+            "borrows": list(self.borrows),
         }
 
 
@@ -100,6 +102,7 @@ def load_manifest(name: str) -> Manifest:
         folder=folder,
         method=tuple((str(label), str(kind)) for label, kind in data.get("method", ())),
         needs=str(data.get("needs", "")),
+        borrows=tuple(str(b) for b in data.get("borrows", ())),
     )
 
 
