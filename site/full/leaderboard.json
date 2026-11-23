@@ -1,5 +1,5 @@
 {
- "built_at": "2026-11-22T10:55:10+00:00",
+ "built_at": "2026-11-23T03:36:21+00:00",
  "contenders": [
   "sub:guess-search",
   "sub:hybrid-v4",
@@ -9,28 +9,16 @@
  ],
  "rows": [
   {
-   "key": "sub:guess-search",
-   "code_name": "guess-search",
-   "name": "Self-taught + guesses",
-   "author": "Essam Gouda",
-   "anchor": false,
-   "contender": true,
-   "sets": 80,
-   "elo": 1820.815895437478,
-   "king_elo": 1721.8684013169025,
-   "score_elo": 1625.048693753863
-  },
-  {
    "key": "sub:hybrid-v4",
    "code_name": "hybrid-v4",
    "name": "Hybrid v4",
    "author": "Yosif Elessawi",
    "anchor": false,
    "contender": true,
-   "sets": 100,
-   "elo": 1502.5886172957325,
-   "king_elo": 1508.6073252704352,
-   "score_elo": 1682.5542728253365
+   "sets": 80,
+   "elo": 1571.0752160981522,
+   "king_elo": 1557.1886240193392,
+   "score_elo": 1692.3053084210687
   },
   {
    "key": "sub:kooz-bot",
@@ -39,10 +27,10 @@
    "author": "Abdulrahman Boudi",
    "anchor": false,
    "contender": true,
-   "sets": 100,
-   "elo": 1464.491701680248,
-   "king_elo": 1482.778380066873,
-   "score_elo": 1629.5055281272646
+   "sets": 80,
+   "elo": 1544.9020951691796,
+   "king_elo": 1514.4002140308085,
+   "score_elo": 1623.6849604658423
   },
   {
    "key": "sub:bitter-net",
@@ -51,10 +39,10 @@
    "author": "Essam Gouda",
    "anchor": false,
    "contender": true,
-   "sets": 80,
-   "elo": 1364.346302512281,
-   "king_elo": 1391.44460629805,
-   "score_elo": 1255.2805639047863
+   "sets": 60,
+   "elo": 1448.5595527125527,
+   "king_elo": 1457.8585711695905,
+   "score_elo": 1308.270678143422
   },
   {
    "key": "sub:bitter-search",
@@ -63,10 +51,10 @@
    "author": "Essam Gouda",
    "anchor": false,
    "contender": true,
-   "sets": 80,
-   "elo": 1347.75748307426,
-   "king_elo": 1395.3012870477392,
-   "score_elo": 1307.6109413887493
+   "sets": 60,
+   "elo": 1435.4631360201156,
+   "king_elo": 1470.5525907802619,
+   "score_elo": 1375.739052969667
   }
  ],
  "direct": [
@@ -78,15 +66,6 @@
    "b_wins": 10,
    "sets": 20,
    "clear": false
-  },
-  {
-   "a": "sub:bitter-net",
-   "b": "sub:guess-search",
-   "a_wins": 0,
-   "draws": 1,
-   "b_wins": 19,
-   "sets": 20,
-   "clear": true
   },
   {
    "a": "sub:bitter-net",
@@ -108,15 +87,6 @@
   },
   {
    "a": "sub:bitter-search",
-   "b": "sub:guess-search",
-   "a_wins": 0,
-   "draws": 0,
-   "b_wins": 20,
-   "sets": 20,
-   "clear": true
-  },
-  {
-   "a": "sub:bitter-search",
    "b": "sub:hybrid-v4",
    "a_wins": 4,
    "draws": 2,
@@ -134,24 +104,6 @@
    "clear": false
   },
   {
-   "a": "sub:guess-search",
-   "b": "sub:hybrid-v4",
-   "a_wins": 15,
-   "draws": 2,
-   "b_wins": 3,
-   "sets": 20,
-   "clear": true
-  },
-  {
-   "a": "sub:guess-search",
-   "b": "sub:kooz-bot",
-   "a_wins": 17,
-   "draws": 3,
-   "b_wins": 0,
-   "sets": 20,
-   "clear": true
-  },
-  {
    "a": "sub:hybrid-v4",
    "b": "sub:kooz-bot",
    "a_wins": 19,
@@ -162,7 +114,6 @@
   }
  ],
  "runoff": [
-  "sub:guess-search",
   "sub:hybrid-v4",
   "sub:kooz-bot",
   "sub:bitter-net",
