@@ -23,16 +23,28 @@ concurrency:
   group: pages
   cancel-in-progress: true
 
+# Two jobs, as GitHub's own Pages workflows have: the site is uploaded in one and published in the
+# next. In one job the publish step asked for the upload half a second after it finished, and now
+# and then GitHub had not listed it yet ("Found 0 artifact(s)"), so the run failed and the page
+# stayed a day behind.
+
 jobs:
-  publish:
+  upload:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
+
+  publish:
+    needs: upload
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - id: deployment
         uses: actions/deploy-pages@v4
